@@ -85,8 +85,31 @@
 			</column>
 			<column name="concept_id" type="int" />
 			<column name="drug_id" type="int" />
+			<column name="dose" type="double precision"/>
+			<column name="units" type="varchar(255)"/>
+			<column name="frequency" type="varchar(255)"/>
+			<column defaultValueBoolean="false" name="as_needed" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
 			<column name="nested_order_set_id" type="int" />
 		</createTable>
+		
+		<addForeignKeyConstraint constraintName="orderextension_order_set_member_order_set_id_fk" 
+								 baseTableName="orderextension_order_set_member" baseColumnNames="order_set_id"
+								 referencedTableName="orderextension_order_set" referencedColumnNames="id"/>
+		
+		<addForeignKeyConstraint constraintName="orderextension_order_set_member_concept_id_fk" 
+								 baseTableName="orderextension_order_set_member" baseColumnNames="concept_id"
+								 referencedTableName="concept" referencedColumnNames="concept_id"/>
+								 
+		<addForeignKeyConstraint constraintName="orderextension_order_set_member_drug_id_fk" 
+								 baseTableName="orderextension_order_set_member" baseColumnNames="drug_id"
+								 referencedTableName="drug" referencedColumnNames="drug_id"/>
+								 
+		<addForeignKeyConstraint constraintName="orderextension_order_set_member_nested_order_set_id_fk" 
+								 baseTableName="orderextension_order_set_member" baseColumnNames="nested_order_set_id"
+								 referencedTableName="orderextension_order_set" referencedColumnNames="id"/>
+		
 	</changeSet>
 
 </databaseChangeLog>

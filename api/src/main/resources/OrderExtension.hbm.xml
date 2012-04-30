@@ -63,15 +63,21 @@
 		<property name="template" type="string"/>
 
 		<subclass name="TestOrderSetMember">
-        	<property name="concept" column="concept_id"/>
+        	<many-to-one name="concept" class="org.openmrs.Concept" column="concept_id"/>
     	</subclass>
     	
     	<subclass name="DrugOrderSetMember">
-    		<property name="concept" column="concept_id"/>
-    		<property name="drug" column="drug_id"/>
+    		<many-to-one name="concept" class="org.openmrs.Concept" column="concept_id"/>
+    		<many-to-one name="drug" class="org.openmrs.Drug" column="drug_id"/>
+    		<property name="dose" type="double" length="22"/>
+    		<property name="units" type="string" />
+    		<property name="frequency" type="string" />
+    		<property name="asNeeded" type="java.lang.Boolean" column="as_needed" length="1" not-null="true"/>
     	</subclass>
     	
-    	<subclass name="NestedOrderSetMember"/>
+    	<subclass name="NestedOrderSetMember">
+    		<many-to-one name="nestedOrderSet" class="OrderSet" column="nested_order_set_id" not-null="true"/>
+    	</subclass>
 
     </class>
 
