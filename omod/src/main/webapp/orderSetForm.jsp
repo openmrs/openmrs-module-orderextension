@@ -34,17 +34,10 @@
 			</td>
 		</tr>
 		<tr>
-			<td><spring:message code="orderextension.orderset.field.title"/></td>
+			<td style="vertical-align:top;"><spring:message code="orderextension.orderset.field.description"/></td>
 			<td>
-	        	<form:input path="title" size="50"/>
-	            <form:errors path="title" cssClass="error"/>
-			</td>
-		</tr>
-		<tr>
-			<td style="vertical-align:top;"><spring:message code="orderextension.orderset.field.comment"/></td>
-			<td>
-				<form:textarea path="comment" cols="70" rows="3"/>
-				<form:errors path="comment" cssClass="error"/>
+				<form:textarea path="description" cols="70" rows="3"/>
+				<form:errors path="description" cssClass="error"/>
 			</td>
 		</tr>
 		<tr>
@@ -69,7 +62,14 @@
 			<td colspan="2">
 				<input type="submit" value="<spring:message code='general.save'/>" />
 				&nbsp;&nbsp;
-				<input type="button" value="<spring:message code='general.cancel'/>" onclick="document.location.href='orderSetList.list';" />
+				<c:choose>
+					<c:when test="${empty orderSet.id}">
+						<input type="button" value="<spring:message code='general.cancel'/>" onclick="document.location.href='orderSetList.list;'" />
+					</c:when>
+					<c:otherwise>
+						<input type="button" value="<spring:message code='general.cancel'/>" onclick="document.location.href='orderSet.list?id=${orderSet.id};'" />
+					</c:otherwise>
+				</c:choose>
 			</td>
 		</tr>
 	</table>

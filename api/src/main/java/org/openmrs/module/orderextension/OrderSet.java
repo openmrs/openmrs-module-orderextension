@@ -195,4 +195,11 @@ public class OrderSet extends BaseOpenmrsMetadata implements java.io.Serializabl
 	public void addMember(OrderSetMember member) {
 		getMembers().add(member);
 	}
+	
+	/**
+	 * @param member the member to remove
+	 */
+	public void removeMember(OrderSetMember member) {
+		getMembers().remove(member);
+	}
 }

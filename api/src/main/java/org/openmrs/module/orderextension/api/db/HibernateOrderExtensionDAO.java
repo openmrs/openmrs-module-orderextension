@@ -20,12 +20,12 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.openmrs.Concept;
 import org.openmrs.module.orderextension.OrderSet;
+import org.openmrs.module.orderextension.OrderSetMember;
 
 /**
  * Hibernate implementation of the OrderExtension Data Access Interface
@@ -59,9 +59,9 @@ public class HibernateOrderExtensionDAO implements OrderExtensionDAO {
 	@SuppressWarnings("unchecked")
 	public List<OrderSet> getNamedOrderSets(String partialName, Concept indication, boolean includeRetired) {
 		Criteria criteria = getCurrentSession().createCriteria(OrderSet.class);
-		criteria.add(Expression.isNotNull("name"));
+		criteria.add(Restrictions.isNotNull("name"));
 		if (!includeRetired) {
-			criteria.add(Expression.eq("retired", false));
+			criteria.add(Restrictions.eq("retired", false));
 		}
 		if (partialName != null) {
 			criteria.add(Restrictions.ilike("name", partialName, MatchMode.ANYWHERE));
@@ -90,6 +90,24 @@ public class HibernateOrderExtensionDAO implements OrderExtensionDAO {
 		getCurrentSession().delete(orderSet);
 	}
 	
+	/**
+	 * @see OrderExtensionDAO#getOrderSetMember(Integer)
+	 */
+	@Override
+	public OrderSetMember getOrderSetMember(Integer id) {
+		return (OrderSetMember) getCurrentSession().get(OrderSetMember.class, id);
+	}
+
+	/**
+	 * @see OrderExtensionDAO#getParentOrderSets(OrderSet)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<OrderSet> getParentOrderSets(OrderSet orderSet) {
+		String query = "select n.orderSet from NestedOrderSetMember n where n.nestedOrderSet = :nestedOrderSet";
+		return getCurrentSession().createQuery(query).setEntity("nestedOrderSet", orderSet).list();
+	}
+
 	/**
 	 * @return the sessionFactory
 	 */

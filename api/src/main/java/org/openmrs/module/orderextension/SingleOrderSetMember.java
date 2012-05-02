@@ -42,6 +42,11 @@ public abstract class SingleOrderSetMember extends OrderSetMember implements jav
 	 * Provides a means for specifying a specific order-able Concept that should be ordered
 	 */
 	private Concept concept;
+	
+	/**
+	 * If specified, this indicates the reason for this particular order set member
+	 */
+	private Concept indication;
 
 	/**
 	 * @return the concept
@@ -55,5 +60,19 @@ public abstract class SingleOrderSetMember extends OrderSetMember implements jav
 	 */
 	public void setConcept(Concept concept) {
 		this.concept = concept;
+	}
+
+	/**
+	 * @return the indication
+	 */
+	public Concept getIndication() {
+		return indication;
+	}
+
+	/**
+	 * @param indication the indication to set
+	 */
+	public void setIndication(Concept indication) {
+		this.indication = indication;
 	}
 }

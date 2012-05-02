@@ -17,6 +17,7 @@ import java.util.List;
 
 import org.openmrs.Concept;
 import org.openmrs.module.orderextension.OrderSet;
+import org.openmrs.module.orderextension.OrderSetMember;
 import org.openmrs.module.orderextension.api.OrderExtensionService;
 
 /**
@@ -50,5 +51,14 @@ public interface OrderExtensionDAO {
 	 * @see OrderExtensionService#purgeOrderSet(OrderSet)
 	 */
 	public void purgeOrderSet(OrderSet orderSet);
+	
+	/**
+	 * @see OrderExtensionService#getOrderSetMember(OrderSetMember)
+	 */
+	public OrderSetMember getOrderSetMember(Integer id);
+	
+	/**
+	 * @see OrderExtensionService#getParentOrderSets(OrderSet)
+	 */
+	public List<OrderSet> getParentOrderSets(OrderSet orderSet);
 }
-

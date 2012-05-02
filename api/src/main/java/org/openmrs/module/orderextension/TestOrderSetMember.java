@@ -29,7 +29,7 @@ public class TestOrderSetMember extends SingleOrderSetMember {
 	/**
 	 * Default Constructor
 	 */
-	private TestOrderSetMember() {}
+	public TestOrderSetMember() {}
 
 	/**
 	 * @see SingleOrderSetMember#getOrderType()

@@ -96,12 +96,11 @@ public class OrderExtensionOrderSetFormController {
 		}
 		catch (Exception e) {
 			log.error("Unable to save Order Set, because of error:", e);
-			updateSessionMessage(request, "orderextension.orderset.errorSaving");
+			updateSessionMessage(request, "orderextension.orderset.errorSaving", e.getMessage());
 			return null;
 		}
-		
-		updateSessionMessage(request, "orderextension.orderset.saved", orderSet.getName());
-		return "redirect:orderSetList.list";
+
+		return "redirect:orderSet.list?id="+orderSet.getId();
 	}
 	
 	private OrderExtensionService getOrderExtensionService() {

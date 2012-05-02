@@ -19,6 +19,7 @@ import org.openmrs.Concept;
 import org.openmrs.annotation.Authorized;
 import org.openmrs.api.OpenmrsService;
 import org.openmrs.module.orderextension.OrderSet;
+import org.openmrs.module.orderextension.OrderSetMember;
 import org.openmrs.module.orderextension.util.OrderExtensionConstants;
 
 /**
@@ -88,4 +89,19 @@ public interface OrderExtensionService extends OpenmrsService {
 	 */
 	@Authorized(OrderExtensionConstants.PRIV_DELETE_ORDER_SETS)
 	public void purgeOrderSet(OrderSet orderSet);
+	
+	/**
+	 * @param id the primary key id for the OrderSetMember
+	 * @return the OrderSetMember matching the passed primary key id
+	 * @should return an OrderSetMember with the passed id
+	 */
+	@Authorized(OrderExtensionConstants.PRIV_VIEW_ORDER_SETS)
+	public OrderSetMember getOrderSetMember(Integer id);
+	
+	/**
+	 * @param orderSet the OrderSet to check
+	 * @return all OrderSets that contain the passed OrderSet as a nested member
+	 */
+	@Authorized(OrderExtensionConstants.PRIV_VIEW_ORDER_SETS)
+	public List<OrderSet> getParentOrderSets(OrderSet orderSet);
 }

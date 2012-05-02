@@ -15,36 +15,37 @@
             "bInfo": false,
             "bAutoWidth": false,
             "bSortable": true,
-            "aoColumns": [{ "iDataSort": 1 }, { "sType": "html" }, null, null]
+            "aoColumns": [{ "iDataSort": 1 }, { "sType": "html" }, null]
         });
     });
 </script>
 
-<h3><spring:message code="orderextension.orderset.manage.linkTitle"/></h3>
+<h2><spring:message code="orderextension.orderset.manage.linkTitle"/></h2>
 
-<button onclick="document.location.href='orderSetForm.form';">
-	<spring:message code="orderextension.orderset.addButton"/>
-</button>
-<hr/>
-<table id="orderSetTable" style="width:100%; padding:5px;)">
-	<thead>
-		<tr>
-			<th></th>
-			<th><spring:message code="orderextension.orderset.field.name"/></th>
-			<th><spring:message code="orderextension.orderset.field.title"/></th>
-			<th><spring:message code="orderextension.orderset.field.indication"/></th>
-		</tr>
-	</thead>
-	<tbody>
-		<c:forEach items="${orderSets}" var="orderSet">
+<a href="orderSetForm.form"><spring:message code="orderextension.orderset.addButton"/></a>
+<br/><br/>
+<div class="boxHeader">
+	<spring:message code="orderextension.orderset.allNamed"/>
+</div>
+<div class="box">
+	<table id="orderSetTable" style="width:100%; padding:5px;)">
+		<thead>
 			<tr>
-				<td><a href="deleteOrderSet.form?id=${orderSet.id}"><img src="<c:url value="/images/trash.gif"/>"/></a>
-				<td nowrap><a href="orderSet.form?id=${orderSet.id}">${orderSet.name}</a></td>
-				<td>${orderSet.title}</td>
-				<td nowrap><openmrs:format concept="${orderSet.indication}"/></td>
+				<th></th>
+				<th><spring:message code="orderextension.orderset.field.name"/></th>
+				<th><spring:message code="orderextension.orderset.field.indication"/></th>
 			</tr>
-		</c:forEach>
-	</tbody>
-</table>
+		</thead>
+		<tbody>
+			<c:forEach items="${orderSets}" var="orderSet">
+				<tr>
+					<td><a href="deleteOrderSet.form?id=${orderSet.id}"><img src="<c:url value="/images/trash.gif"/>"/></a>
+					<td nowrap><a href="orderSet.form?id=${orderSet.id}">${orderSet.name}</a></td>
+					<td nowrap><openmrs:format concept="${orderSet.indication}"/></td>
+				</tr>
+			</c:forEach>
+		</tbody>
+	</table>
+</div>
 
 <%@ include file="/WEB-INF/template/footer.jsp"%>

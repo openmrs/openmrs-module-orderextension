@@ -29,7 +29,7 @@ public class DrugOrderSetMember extends SingleOrderSetMember {
 	/**
 	 * Default Constructor
 	 */
-	private DrugOrderSetMember() {}
+	public DrugOrderSetMember() {}
 	
 	/**
 	 * @see SingleOrderSetMember#getOrderType()

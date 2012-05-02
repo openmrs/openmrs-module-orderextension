@@ -18,6 +18,7 @@ import java.util.List;
 import org.openmrs.Concept;
 import org.openmrs.api.impl.BaseOpenmrsService;
 import org.openmrs.module.orderextension.OrderSet;
+import org.openmrs.module.orderextension.OrderSetMember;
 import org.openmrs.module.orderextension.api.db.OrderExtensionDAO;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -81,6 +82,25 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 	@Transactional
 	public void purgeOrderSet(OrderSet orderSet) {
 		dao.purgeOrderSet(orderSet);
+	}
+
+	/**
+	 * @see OrderExtensionService#getOrderSetMember(Integer)
+	 */
+	@Transactional(readOnly=true)
+	@Override
+	public OrderSetMember getOrderSetMember(Integer id) {
+		return dao.getOrderSetMember(id);
+	}
+
+	/**
+	 * @see OrderExtensionService#getParentOrderSets(OrderSet)
+	 * @should return all OrderSets that contain the passed OrderSet as a nested member
+	 */
+	@Transactional(readOnly=true)
+	@Override
+	public List<OrderSet> getParentOrderSets(OrderSet orderSet) {
+		return dao.getParentOrderSets(orderSet);
 	}
 
 	/**

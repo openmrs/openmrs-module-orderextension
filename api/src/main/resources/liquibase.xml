@@ -17,12 +17,8 @@
             <column name="uuid" type="char(38)">
                 <constraints nullable="false" unique="true" />
             </column>
-            <column name="name" type="varchar(255)">
-                <constraints nullable="false" unique="true" />
-            </column>
+            <column name="name" type="varchar(255)"/>
             <column name="description" type="text" />
-            <column name="title" type="varchar(255)" />
-			<column name="comment" type="text" />
 			<column name="operator" type="varchar(255)" />
 			<column name="indication" type="int" />
 			<column name="creator" type="int" >
@@ -84,6 +80,7 @@
 				<constraints nullable="false"/>
 			</column>
 			<column name="concept_id" type="int" />
+			<column name="indication" type="int" />
 			<column name="drug_id" type="int" />
 			<column name="dose" type="double precision"/>
 			<column name="units" type="varchar(255)"/>
@@ -97,9 +94,13 @@
 		<addForeignKeyConstraint constraintName="orderextension_order_set_member_order_set_id_fk" 
 								 baseTableName="orderextension_order_set_member" baseColumnNames="order_set_id"
 								 referencedTableName="orderextension_order_set" referencedColumnNames="id"/>
-		
+								 		
 		<addForeignKeyConstraint constraintName="orderextension_order_set_member_concept_id_fk" 
 								 baseTableName="orderextension_order_set_member" baseColumnNames="concept_id"
+								 referencedTableName="concept" referencedColumnNames="concept_id"/>
+								 
+		<addForeignKeyConstraint constraintName="orderextension_order_set_member_indication_fk" 
+								 baseTableName="orderextension_order_set_member" baseColumnNames="indication"
 								 referencedTableName="concept" referencedColumnNames="concept_id"/>
 								 
 		<addForeignKeyConstraint constraintName="orderextension_order_set_member_drug_id_fk" 

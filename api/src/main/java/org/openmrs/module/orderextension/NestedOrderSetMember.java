@@ -25,7 +25,7 @@ public class NestedOrderSetMember extends OrderSetMember {
 	/**
 	 * Default Constructor
 	 */
-	private NestedOrderSetMember() {}
+	public NestedOrderSetMember() {}
 	
 	/**
 	 * Provides a means to re-use an Order Set within multiple Order Sets

@@ -13,17 +13,23 @@
  */
 package org.openmrs.module.orderextension.web.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.orderextension.DrugOrderSetMember;
+import org.openmrs.module.orderextension.NestedOrderSetMember;
 import org.openmrs.module.orderextension.OrderSet;
+import org.openmrs.module.orderextension.OrderSetMember;
+import org.openmrs.module.orderextension.TestOrderSetMember;
 import org.openmrs.module.orderextension.api.OrderExtensionService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.context.request.WebRequest;
 
 /**
  * Primary Controller for administering order sets
@@ -47,9 +53,17 @@ public class OrderExtensionOrderSetListController {
 	 * Shows the page to view a single order set
 	 */
 	@RequestMapping(value = "/module/orderextension/orderSet")
-	public void viewOrderSet(ModelMap model, @RequestParam(value="id", required=true) Integer id) {
+	public void viewOrderSet(ModelMap model, 
+							 @RequestParam(value="id", required=true) Integer id) {
 		OrderSet orderSet = Context.getService(OrderExtensionService.class).getOrderSet(id);
 		model.addAttribute("orderSet", orderSet);
+		List<Class<? extends OrderSetMember>> memberTypes = new ArrayList<Class<? extends OrderSetMember>>();
+		memberTypes.add(TestOrderSetMember.class);
+		memberTypes.add(DrugOrderSetMember.class);
+		memberTypes.add(NestedOrderSetMember.class);
+		model.addAttribute("memberTypes", memberTypes);
+		List<OrderSet> parentOrderSets = Context.getService(OrderExtensionService.class).getParentOrderSets(orderSet);
+		model.addAttribute("parentOrderSets", parentOrderSets);
 	}
 	
 	/**
@@ -60,5 +74,18 @@ public class OrderExtensionOrderSetListController {
 		OrderSet orderSet = Context.getService(OrderExtensionService.class).getOrderSet(id);
 		Context.getService(OrderExtensionService.class).purgeOrderSet(orderSet);
 		return "redirect:orderSetList.list";
+	}
+	
+	/**
+	 * Deletes an order set member
+	 */
+	@RequestMapping(value = "/module/orderextension/deleteOrderSetMember")
+	public String deleteOrderSetMember(ModelMap model, WebRequest request,
+									@RequestParam(value="id", required=true) Integer id) {
+		OrderSetMember orderSetMember = Context.getService(OrderExtensionService.class).getOrderSetMember(id);
+		OrderSet orderSet = orderSetMember.getOrderSet();
+		orderSet.removeMember(orderSetMember);
+		Context.getService(OrderExtensionService.class).saveOrderSet(orderSet);
+		return "redirect:orderSet.list?id="+orderSet.getId();
 	}
 }
