@@ -120,5 +120,86 @@
 								 referencedTableName="orderextension_order_set" referencedColumnNames="id"/>
 		
 	</changeSet>
+	
+	<changeSet id="20120424-0002-orderextension" author="mseaton">
+		<preConditions onFail="MARK_RAN">
+			<not><tableExists tableName="orderextension_order_group" /></not>
+		</preConditions>
+		<comment>Create orderextension_order_group table</comment>
+		<createTable tableName="orderextension_order_group">
+            <column name="id" autoIncrement="true" type="int">
+                <constraints nullable="false" primaryKey="true" />
+            </column>
+            <column name="uuid" type="char(38)">
+                <constraints nullable="false" unique="true" />
+            </column>
+		</createTable>
+	</changeSet>	
+	
+	<changeSet id="20120424-0003-orderextension" author="mseaton">
+		<preConditions onFail="MARK_RAN">
+			<not><tableExists tableName="orderextension_order" /></not>
+		</preConditions>
+		<comment>Create orderextension_order table</comment>
+		<createTable tableName="orderextension_order">
+            <column name="order_id" type="int">
+                <constraints nullable="false" primaryKey="true" />
+            </column>
+            
+            <column name="uuid" type="char(38)">
+                <constraints nullable="false" unique="true" />
+            </column>
+			<column name="group_id" type="int" />
+			<column name="indication" type="int" />
+		</createTable>
+		
+		<addForeignKeyConstraint constraintName="orderextension_order_order_id_fk" 
+								 baseTableName="orderextension_order" baseColumnNames="order_id"
+								 referencedTableName="orders" referencedColumnNames="order_id"/>
+								 		
+		<addForeignKeyConstraint constraintName="orderextension_order_group_id_fk" 
+								 baseTableName="orderextension_order" baseColumnNames="group_id"
+								 referencedTableName="orderextension_order_group" referencedColumnNames="id"/>
+								 
+		<addForeignKeyConstraint constraintName="orderextension_order_indication_fk" 
+								 baseTableName="orderextension_order" baseColumnNames="indication"
+								 referencedTableName="concept" referencedColumnNames="concept_id"/>
+	</changeSet>
+
+	<changeSet id="20120424-0004-orderextension" author="mseaton">
+		<preConditions onFail="MARK_RAN">
+			<not><tableExists tableName="orderextension_drug_order" /></not>
+		</preConditions>
+		<comment>Create orderextension_drug_order table</comment>
+		<createTable tableName="orderextension_drug_order">
+            <column name="order_id" type="int">
+                <constraints nullable="false" primaryKey="true" />
+            </column>
+            
+            <column name="uuid" type="char(38)">
+                <constraints nullable="false" unique="true" />
+            </column>
+            <column name="group_id" type="int" />
+			<column name="indication" type="int" />
+			<column name="route" type="int" />
+			<column name="additional_instructions" type="varchar(1024)"/>
+		</createTable>
+		
+		<addForeignKeyConstraint constraintName="orderextension_drug_order_group_id_fk" 
+								 baseTableName="orderextension_drug_order" baseColumnNames="group_id"
+								 referencedTableName="orderextension_order_group" referencedColumnNames="id"/>
+								 
+		<addForeignKeyConstraint constraintName="orderextension_drug_order_indication_fk" 
+								 baseTableName="orderextension_drug_order" baseColumnNames="indication"
+								 referencedTableName="concept" referencedColumnNames="concept_id"/>
+		
+		<addForeignKeyConstraint constraintName="orderextension_drug_order_order_id_fk" 
+								 baseTableName="orderextension_drug_order" baseColumnNames="order_id"
+								 referencedTableName="drug_order" referencedColumnNames="order_id"/>
+								 
+		<addForeignKeyConstraint constraintName="orderextension_drug_order_route_fk" 
+								 baseTableName="orderextension_drug_order" baseColumnNames="route"
+								 referencedTableName="concept" referencedColumnNames="concept_id"/>
+	</changeSet>
 
 </databaseChangeLog>

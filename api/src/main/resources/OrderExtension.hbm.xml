@@ -85,5 +85,28 @@
     	</subclass>
 
     </class>
+    
+    <class name="OrderGroup" table="orderextension_order_group">
+        <id name="id" type="int" column="id">
+            <generator class="native">
+                <param name="sequence">orderextension_order_group_id_seq</param>
+            </generator>
+        </id>
+        <property name="uuid" type="string" column="uuid" length="38" unique="true" not-null="true" />
+    </class>
+    
+    <joined-subclass name="ExtendedOrder" extends="org.openmrs.Order" table="orderextension_order">
+    	<key column="order_id"/>
+    	<many-to-one name="indication" class="org.openmrs.Concept"/>
+    	<many-to-one name="group" class="OrderGroup" column="group_id"/>
+    </joined-subclass>
+
+    <joined-subclass name="ExtendedDrugOrder" extends="org.openmrs.DrugOrder" table="orderextension_drug_order">
+    	<key column="order_id"/>
+    	<many-to-one name="indication" class="org.openmrs.Concept"/>
+    	<many-to-one name="group" class="OrderGroup" column="group_id"/>
+    	<many-to-one name="route" class="org.openmrs.Concept"/>
+    	<property name="additionalInstructions" type="string" column="additional_instructions"/>
+    </joined-subclass>
 
 </hibernate-mapping>
