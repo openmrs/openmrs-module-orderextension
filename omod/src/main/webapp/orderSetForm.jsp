@@ -59,6 +59,13 @@
 			</td>
 		</tr>
 		<tr>
+			<td style="vertical-align:top;"><spring:message code="orderextension.orderset.field.cyclical"/></td>
+			<td>
+				<form:checkbox path="cyclical"/>
+				<form:errors path="cyclical" cssClass="error"/>
+			</td>
+		</tr>
+		<tr>
 			<td colspan="2">
 				<input type="submit" value="<spring:message code='general.save'/>" />
 				&nbsp;&nbsp;

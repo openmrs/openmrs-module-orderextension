@@ -47,6 +47,11 @@ public abstract class SingleOrderSetMember extends OrderSetMember implements jav
 	 * If specified, this indicates the reason for this particular order set member
 	 */
 	private Concept indication;
+	
+	/**
+	 * If specified, provides a means to specify instructions on the Order
+	 */
+	private String instructions;
 
 	/**
 	 * @return the concept
@@ -74,5 +79,19 @@ public abstract class SingleOrderSetMember extends OrderSetMember implements jav
 	 */
 	public void setIndication(Concept indication) {
 		this.indication = indication;
+	}
+
+	/**
+	 * @return the instructions
+	 */
+	public String getInstructions() {
+		return instructions;
+	}
+
+	/**
+	 * @param instructions the instructions to set
+	 */
+	public void setInstructions(String instructions) {
+		this.instructions = instructions;
 	}
 }

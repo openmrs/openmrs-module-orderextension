@@ -104,6 +104,11 @@ public class OrderExtensionOrderSetMemberFormController {
 		model.addAttribute("orderSet", orderSet);
 		model.addAttribute("drugList", Context.getConceptService().getAllDrugs());
 		List<OrderSet> existingOrderSets = getOrderExtensionService().getNamedOrderSets(false);
+		for (OrderSetMember member : orderSet.getMembers()) {
+			if (member instanceof NestedOrderSetMember) {
+				existingOrderSets.add(((NestedOrderSetMember)member).getNestedOrderSet());
+			}
+		}
 		existingOrderSets.remove(orderSet);
 		model.addAttribute("existingOrderSets", existingOrderSets);
 	}

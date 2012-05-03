@@ -86,6 +86,11 @@ public class OrderSet extends BaseOpenmrsMetadata implements java.io.Serializabl
 	 * no restrictions are placed upon what the underlying OrderSetMember indications can be.
 	 */
 	private Concept indication;
+	
+	/**
+	 * If true, indicates that this OrderSet is cyclical, and when Ordered, may be repeated
+	 */
+	private boolean cyclical;
 
 	/**
 	 * List of all members within this OrderSet that may be of one of three types:
@@ -170,6 +175,20 @@ public class OrderSet extends BaseOpenmrsMetadata implements java.io.Serializabl
 	 */
 	public void setIndication(Concept indication) {
 		this.indication = indication;
+	}
+
+	/**
+	 * @return the cyclical
+	 */
+	public boolean isCyclical() {
+		return cyclical;
+	}
+
+	/**
+	 * @param cyclical the cyclical to set
+	 */
+	public void setCyclical(boolean cyclical) {
+		this.cyclical = cyclical;
 	}
 
 	/**

@@ -14,9 +14,13 @@
 package org.openmrs.module.orderextension;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.openmrs.BaseOpenmrsData;
+import org.openmrs.Concept;
 import org.openmrs.OpenmrsObject;
+import org.openmrs.Order;
 
 /**
  * This represents a group of orders. Generally, orders may be placed within groups to assist with
@@ -32,7 +36,30 @@ public class OrderGroup extends BaseOpenmrsData implements Serializable {
 	 */
 	private Integer id;
 	
-	// TBD: Fill in the rest of the details...
+	/**
+	 * Optional link to the OrderSet that the user chose to construct this OrderGroup
+	 */
+	private OrderSet orderSet;
+	
+	/**
+	 * Optional indication for this overall OrderGroup
+	 */
+	private Concept indication;
+	
+	/**
+	 * If this OrderGroup is nested, this links to the parent
+	 */
+	private OrderGroup parentOrderGroup;
+	
+	/**
+	 * Any OrderGroups that this OrderGroup contains
+	 */
+	private Set<OrderGroup> nestedOrderGroups;
+	
+	/**
+	 * Any Orders contained within this OrderGroup
+	 */
+	private Set<Order> orders;
 
 	/**
 	 * @see OpenmrsObject#getId()
@@ -49,7 +76,80 @@ public class OrderGroup extends BaseOpenmrsData implements Serializable {
 	public void setId(Integer id) {
 		this.id = id;
 	}
-	
 
+	/**
+	 * @return the orderSet
+	 */
+	public OrderSet getOrderSet() {
+		return orderSet;
+	}
 
+	/**
+	 * @param orderSet the orderSet to set
+	 */
+	public void setOrderSet(OrderSet orderSet) {
+		this.orderSet = orderSet;
+	}
+
+	/**
+	 * @return the indication
+	 */
+	public Concept getIndication() {
+		return indication;
+	}
+
+	/**
+	 * @param indication the indication to set
+	 */
+	public void setIndication(Concept indication) {
+		this.indication = indication;
+	}
+
+	/**
+	 * @return the parentOrderGroup
+	 */
+	public OrderGroup getParentOrderGroup() {
+		return parentOrderGroup;
+	}
+
+	/**
+	 * @param parentOrderGroup the parentOrderGroup to set
+	 */
+	public void setParentOrderGroup(OrderGroup parentOrderGroup) {
+		this.parentOrderGroup = parentOrderGroup;
+	}
+
+	/**
+	 * @return the nestedOrderGroups
+	 */
+	public Set<OrderGroup> getNestedOrderGroups() {
+		if (nestedOrderGroups == null) {
+			nestedOrderGroups = new HashSet<OrderGroup>();
+		}
+		return nestedOrderGroups;
+	}
+
+	/**
+	 * @param nestedOrderGroups the nestedOrderGroups to set
+	 */
+	public void setNestedOrderGroups(Set<OrderGroup> nestedOrderGroups) {
+		this.nestedOrderGroups = nestedOrderGroups;
+	}
+
+	/**
+	 * @return the orders
+	 */
+	public Set<Order> getOrders() {
+		if (orders == null) {
+			orders = new HashSet<Order>();
+		}
+		return orders;
+	}
+
+	/**
+	 * @param orders the orders to set
+	 */
+	public void setOrders(Set<Order> orders) {
+		this.orders = orders;
+	}
 }

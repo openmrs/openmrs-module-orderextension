@@ -32,6 +32,10 @@
 			<th style="vertical-align:top;"><spring:message code="orderextension.orderset.field.indication"/>:</th>
 			<td><openmrs:format concept="${orderSet.indication}"/></td>
 		</tr>
+		<tr>
+			<th style="vertical-align:top;"><spring:message code="orderextension.orderset.field.cyclical"/>:</th>
+			<td><spring:message code="general.${orderSet.cyclical}"/></td>
+		</tr>
 	</table>
 </div>
 <br/>

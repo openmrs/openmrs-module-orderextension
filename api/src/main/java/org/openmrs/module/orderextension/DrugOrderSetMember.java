@@ -13,6 +13,7 @@
  */
 package org.openmrs.module.orderextension;
 
+import org.openmrs.Concept;
 import org.openmrs.Drug;
 import org.openmrs.OrderType;
 import org.openmrs.api.context.Context;
@@ -58,6 +59,11 @@ public class DrugOrderSetMember extends SingleOrderSetMember {
 	private String units;
 	
 	/**
+	 * Used to specify the route (eg. PO, IV, etc)
+	 */
+	private Concept route;
+	
+	/**
 	 * Provides the ability to specify a default frequency (eg. "1/day x 7 days/week")
 	 */
 	private String frequency;
@@ -66,6 +72,11 @@ public class DrugOrderSetMember extends SingleOrderSetMember {
 	 * Also referred to as PRN, if true indicates that the order is "as needed"
 	 */
 	private boolean asNeeded;
+	
+	/**
+	 * Provides the ability to specify additional instructions on the Drug Order
+	 */
+	private String additionalInstructions;
 
 	/**
 	 * @return the drug
@@ -110,6 +121,20 @@ public class DrugOrderSetMember extends SingleOrderSetMember {
 	}
 
 	/**
+	 * @return the route
+	 */
+	public Concept getRoute() {
+		return route;
+	}
+
+	/**
+	 * @param route the route to set
+	 */
+	public void setRoute(Concept route) {
+		this.route = route;
+	}
+
+	/**
 	 * @return the frequency
 	 */
 	public String getFrequency() {
@@ -135,5 +160,19 @@ public class DrugOrderSetMember extends SingleOrderSetMember {
 	 */
 	public void setAsNeeded(boolean asNeeded) {
 		this.asNeeded = asNeeded;
+	}
+
+	/**
+	 * @return the additionalInstructions
+	 */
+	public String getAdditionalInstructions() {
+		return additionalInstructions;
+	}
+
+	/**
+	 * @param additionalInstructions the additionalInstructions to set
+	 */
+	public void setAdditionalInstructions(String additionalInstructions) {
+		this.additionalInstructions = additionalInstructions;
 	}
 }

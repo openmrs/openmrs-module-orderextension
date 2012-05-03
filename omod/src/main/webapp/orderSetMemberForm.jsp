@@ -169,6 +169,15 @@
 									</td>
 								</tr>
 								<tr>
+									<th><spring:message code="orderextension.orderset.DrugOrderSetMember.route"/></th>
+									<td>
+										<spring:bind path="route">
+											<openmrs_tag:conceptField formFieldName="${status.expression}" initialValue="${status.value}"/>
+										</spring:bind>
+						                <form:errors cssClass="error" path="route"/>
+									</td>
+								</tr>
+								<tr>
 									<th><spring:message code="orderextension.orderset.DrugOrderSetMember.frequency"/></th>
 									<td>
 										<form:input path="frequency" size="50"/>
@@ -178,6 +187,13 @@
 								<tr>
 									<th><spring:message code="orderextension.orderset.DrugOrderSetMember.asNeeded"/></th>
 									<td><form:checkbox path="asNeeded"/></td>
+								</tr>
+								<tr>
+									<th><spring:message code="orderextension.orderset.DrugOrderSetMember.additionalInstructions"/></th>
+									<td>
+										<form:textarea path="additionalInstructions" cols="70" rows="3"/>
+										<form:errors path="additionalInstructions" cssClass="error"/>
+									</td>
 								</tr>
 							</table>
 						</fieldSet>
@@ -194,7 +210,14 @@
 									<td>
 										<form:select path="nestedOrderSet">
 											<form:option value=""><spring:message code="orderextension.orderset.NestedOrderSetMember.nestedOrderSet.new"/></form:option>
-											<form:options items="${existingOrderSets}" itemLabel="name" itemValue="id"/>
+											<c:forEach items="${existingOrderSets}" var="existingOrderSet">
+												<form:option value="${existingOrderSet}" >
+													<c:choose>
+														<c:when test="${!empty existingOrderSet.name}">${existingOrderSet.name}</c:when>
+														<c:otherwise><spring:message code="orderextension.orderset.unnamedOrderSet"/></c:otherwise>
+													</c:choose>
+												</form:option>
+											</c:forEach>
 										</form:select>
 						                <form:errors cssClass="error" path="nestedOrderSet"/>
 									</td>
