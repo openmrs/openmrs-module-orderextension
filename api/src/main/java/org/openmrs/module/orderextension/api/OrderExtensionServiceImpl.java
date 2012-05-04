@@ -16,7 +16,9 @@ package org.openmrs.module.orderextension.api;
 import java.util.List;
 
 import org.openmrs.Concept;
+import org.openmrs.Patient;
 import org.openmrs.api.impl.BaseOpenmrsService;
+import org.openmrs.module.orderextension.GroupableOrder;
 import org.openmrs.module.orderextension.OrderSet;
 import org.openmrs.module.orderextension.OrderSetMember;
 import org.openmrs.module.orderextension.api.db.OrderExtensionDAO;
@@ -95,12 +97,19 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 
 	/**
 	 * @see OrderExtensionService#getParentOrderSets(OrderSet)
-	 * @should return all OrderSets that contain the passed OrderSet as a nested member
 	 */
 	@Transactional(readOnly=true)
 	@Override
 	public List<OrderSet> getParentOrderSets(OrderSet orderSet) {
 		return dao.getParentOrderSets(orderSet);
+	}
+
+	/**
+	 * @see OrderExtensionService#getExtendedOrders(Patient, Class)
+	 */
+	@Override
+	public <T extends GroupableOrder<?>> List<T> getExtendedOrders(Patient patient, Class<T> type) {
+		return dao.getExtendedOrders(patient, type);
 	}
 
 	/**

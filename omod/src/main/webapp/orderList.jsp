@@ -10,38 +10,37 @@
 			<tr>
 				<tr>
 					<th>ID</th>
-					<th>Java Type</a>
+					<th>Order ID</th>
+					<th>Type</th>
 					<th>Concept</th>
 					<th>Start Date</th>
-					<th>Extended Order Data</th>
-					<th>Drug Order Data</th>
-					<th>Extended Drug Order Data</th>
+					<th>Indication</th>
+					<th>Group</th>
+					<th>Drug</th>
+					<th>Dose</th>
+					<th>Units</th>
+					<th>Route</th>
+					<th>Frequency</th>
+					<th>Additional Instructions</th>
 				</tr>
 			</tr>
 		</thead>
 		<tbody>
-			<c:forEach items="${orders}" var="order">
-				<c:set var="orderType" value="${order['class'].simpleName}"/>
+			<c:forEach items="${extendedOrders}" var="eo">
 				<tr>
-					<td>${order.id}</td>
-					<td>${orderType}</a>
-					<td>6271</td>
-					<td><openmrs:formatDate date="${order.startDate}"/></td>
-					<td>
-						<c:if test="${orderType == 'ExtendedOrder' || orderType == 'ExtendedDrugOrder'}">
-							Group: ${order.group} | Indication: <openmrs:format concept="${order.indication}"/>
-						</c:if>
-					</td>
-					<td>
-						<c:if test="${orderType == 'DrugOrder' || orderType == 'ExtendedDrugOrder'}">
-							Drug: ${!empty order.drug ? order.drug.name : ''} | Dose: ${order.dose} | Units: ${order.units}
-						</c:if>
-					</td>
-					<td>
-						<c:if test="${orderType == 'ExtendedDrugOrder'}">
-							Route: <openmrs:format concept="${order.route}"/> | Additional Instructions: ${order.additionalInstructions}
-						</c:if>
-					</td>
+					<td>${eo.id}</td>
+					<td>${eo.order.id}</td>
+					<td>${eo.order['class'].simpleName}</td>
+					<td><openmrs:format concept="${eo.order.concept}"/></td>
+					<td><openmrs:formatDate date="${eo.order.startDate}"/></td>
+					<td><openmrs:format concept="${eo.indication}"/></td>
+					<td>${eo.group.id}</td>
+					<td>${eo.order.drug.name}</td>
+					<td>${eo.order.dose}</td>
+					<td>${eo.order.units}</td>
+					<td><openmrs:format concept="${eo.route}"/></td>
+					<td>${eo.order.frequency}</td>
+					<td>${eo.additionalInstructions}</td>
 				</tr>
 			</c:forEach>
 		</tbody>

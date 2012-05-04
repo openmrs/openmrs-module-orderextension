@@ -142,15 +142,35 @@
 		</preConditions>
 		<comment>Create orderextension_order table</comment>
 		<createTable tableName="orderextension_order">
-            <column name="order_id" type="int">
+            <column name="id" autoIncrement="true" type="int">
                 <constraints nullable="false" primaryKey="true" />
             </column>
             
             <column name="uuid" type="char(38)">
                 <constraints nullable="false" unique="true" />
             </column>
+			<column name="member_type" type="varchar(255)">
+				<constraints nullable="false"/>
+			</column>
+			<column name="order_id" type="int">
+				<constraints nullable="false"/>
+			</column>
 			<column name="group_id" type="int" />
 			<column name="indication" type="int" />
+			<column name="route" type="int"/>
+			<column name="additional_instructions" type="varchar(1024)"/>
+			<column name="creator" type="int" >
+				<constraints nullable="false"/>
+			</column>
+			<column name="date_created" type="datetime" >
+				<constraints nullable="false"/>
+			</column>
+			<column name="voided" type="smallint" defaultValueNumeric="0">
+				<constraints nullable="false"/>
+			</column>
+			<column name="voided_by" type="int" />
+			<column name="date_voided" type="datetime" />
+			<column name="void_reason" type="varchar(255)"/>
 		</createTable>
 		
 		<addForeignKeyConstraint constraintName="orderextension_order_order_id_fk" 
@@ -164,42 +184,18 @@
 		<addForeignKeyConstraint constraintName="orderextension_order_indication_fk" 
 								 baseTableName="orderextension_order" baseColumnNames="indication"
 								 referencedTableName="concept" referencedColumnNames="concept_id"/>
-	</changeSet>
-
-	<changeSet id="20120424-0004-orderextension" author="mseaton">
-		<preConditions onFail="MARK_RAN">
-			<not><tableExists tableName="orderextension_drug_order" /></not>
-		</preConditions>
-		<comment>Create orderextension_drug_order table</comment>
-		<createTable tableName="orderextension_drug_order">
-            <column name="order_id" type="int">
-                <constraints nullable="false" primaryKey="true" />
-            </column>
-            
-            <column name="uuid" type="char(38)">
-                <constraints nullable="false" unique="true" />
-            </column>
-            <column name="group_id" type="int" />
-			<column name="indication" type="int" />
-			<column name="route" type="int" />
-			<column name="additional_instructions" type="varchar(1024)"/>
-		</createTable>
-		
-		<addForeignKeyConstraint constraintName="orderextension_drug_order_group_id_fk" 
-								 baseTableName="orderextension_drug_order" baseColumnNames="group_id"
-								 referencedTableName="orderextension_order_group" referencedColumnNames="id"/>
-								 
-		<addForeignKeyConstraint constraintName="orderextension_drug_order_indication_fk" 
-								 baseTableName="orderextension_drug_order" baseColumnNames="indication"
+ 
+		<addForeignKeyConstraint constraintName="orderextension_order_route_fk" 
+								 baseTableName="orderextension_order" baseColumnNames="route"
 								 referencedTableName="concept" referencedColumnNames="concept_id"/>
-		
-		<addForeignKeyConstraint constraintName="orderextension_drug_order_order_id_fk" 
-								 baseTableName="orderextension_drug_order" baseColumnNames="order_id"
-								 referencedTableName="drug_order" referencedColumnNames="order_id"/>
 								 
-		<addForeignKeyConstraint constraintName="orderextension_drug_order_route_fk" 
-								 baseTableName="orderextension_drug_order" baseColumnNames="route"
-								 referencedTableName="concept" referencedColumnNames="concept_id"/>
+		<addForeignKeyConstraint constraintName="orderextension_order_creator_fk" 
+								 baseTableName="orderextension_order" baseColumnNames="creator"
+								 referencedTableName="users" referencedColumnNames="user_id"/>
+		
+		<addForeignKeyConstraint constraintName="orderextension_order_voided_by_fk" 
+								 baseTableName="orderextension_order" baseColumnNames="voided_by"
+								 referencedTableName="users" referencedColumnNames="user_id"/>
 	</changeSet>
 
 </databaseChangeLog>

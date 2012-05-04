@@ -13,59 +13,26 @@
  */
 package org.openmrs.module.orderextension;
 
-import org.openmrs.Concept;
 import org.openmrs.Order;
 
 /**
- * This extends Order and adds GroupableOrder properties,
- * including optional links to an OrderGroup and an Indication
+ * Implementation of GroupableOrder that simply wraps an Order and adds no additional extensions
  */
-public class ExtendedOrder extends Order implements GroupableOrder {
-	
-	private static final long serialVersionUID = 1L;
+public class ExtendedOrder extends GroupableOrder<Order> {
 
 	/**
 	 * Default Constructor
 	 */
 	public ExtendedOrder() {
 		super();
+		setOrder(new Order());
 	}
-
-	/**
-	 * Provides a means to record the reason for this particular Order
-	 */
-	private Concept indication;
 	
 	/**
-	 * The associated OrderGroup
+	 * Constructor for wrapping an Order in an ExtendedOrder
 	 */
-	private OrderGroup group;
-	
-	/**
-	 * @return the group
-	 */
-	public OrderGroup getGroup() {
-		return group;
-	}
-
-	/**
-	 * @param group the group to set
-	 */
-	public void setGroup(OrderGroup group) {
-		this.group = group;
-	}
-
-	/**
-	 * @return the indication
-	 */
-	public Concept getIndication() {
-		return indication;
-	}
-
-	/**
-	 * @param indication the indication to set
-	 */
-	public void setIndication(Concept indication) {
-		this.indication = indication;
+	public ExtendedOrder(Order order) {
+		this();
+		setOrder(order);
 	}
 }

@@ -17,9 +17,12 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openmrs.DrugOrder;
 import org.openmrs.Order;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.orderextension.ExtendedDrugOrder;
+import org.openmrs.module.orderextension.api.OrderExtensionService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,7 +44,16 @@ public class OrderExtensionOrderListController {
 	public void listOrders(ModelMap model, @RequestParam(value="patientId", required=true) Integer patientId) {
 		Patient patient = Context.getPatientService().getPatient(patientId);
 		List<Order> orders = Context.getOrderService().getOrdersByPatient(patient);
+		List<ExtendedDrugOrder> extendedOrders = Context.getService(OrderExtensionService.class).getExtendedOrders(patient, ExtendedDrugOrder.class);
+		for (ExtendedDrugOrder eo : extendedOrders) {
+			orders.remove(eo.getOrder());
+		}
+		for (Order o : orders) {
+			if (o instanceof DrugOrder) {
+				extendedOrders.add(new ExtendedDrugOrder((DrugOrder)o));
+			}
+		}
 		model.addAttribute("patient", patient);
-		model.addAttribute("orders", orders);
+		model.addAttribute("extendedOrders", extendedOrders);
 	}
 }

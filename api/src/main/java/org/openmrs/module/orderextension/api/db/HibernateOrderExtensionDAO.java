@@ -24,6 +24,8 @@ import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.openmrs.Concept;
+import org.openmrs.Patient;
+import org.openmrs.module.orderextension.GroupableOrder;
 import org.openmrs.module.orderextension.OrderSet;
 import org.openmrs.module.orderextension.OrderSetMember;
 
@@ -106,6 +108,17 @@ public class HibernateOrderExtensionDAO implements OrderExtensionDAO {
 	public List<OrderSet> getParentOrderSets(OrderSet orderSet) {
 		String query = "select n.orderSet from NestedOrderSetMember n where n.nestedOrderSet = :nestedOrderSet";
 		return getCurrentSession().createQuery(query).setEntity("nestedOrderSet", orderSet).list();
+	}
+
+	/**
+	 * @see OrderExtensionDAO#getExtendedOrders(Patient, Class)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T extends GroupableOrder<?>> List<T> getExtendedOrders(Patient patient, Class<T> type) {
+		Criteria criteria = getCurrentSession().createCriteria(type);
+		criteria.add(Restrictions.eq("voided", false));
+		return criteria.list();
 	}
 
 	/**

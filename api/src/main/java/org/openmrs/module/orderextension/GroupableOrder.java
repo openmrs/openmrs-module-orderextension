@@ -13,31 +13,96 @@
  */
 package org.openmrs.module.orderextension;
 
+import org.openmrs.BaseOpenmrsData;
 import org.openmrs.Concept;
-import org.openmrs.OpenmrsData;
+import org.openmrs.Order;
 
 /**
- * Provides an interface Orders that can be associated with Order Groups
+ * This extends Order and adds GroupableOrder properties,
+ * including optional links to an OrderGroup and an Indication
  */
-public interface GroupableOrder extends OpenmrsData {
+public abstract class GroupableOrder<T extends Order> extends BaseOpenmrsData {
+
+	/**
+	 * Default Constructor
+	 */
+	public GroupableOrder() {
+		super();
+	}
 	
 	/**
-	 * @return the reason for this Order
+	 * Primary key id
 	 */
-	public Concept getIndication();
+	private Integer id;
 	
 	/**
-	 * @param indication  the reason for this Order
+	 * The underlying Order to extend
 	 */
-	public void setIndication(Concept indication);
+	private T order;
+
+	/**
+	 * Provides a means to record the reason for this particular Order
+	 */
+	private Concept indication;
 	
 	/**
-	 * @return the group for this Order
+	 * The associated OrderGroup
 	 */
-	public OrderGroup getGroup();
+	private OrderGroup group;
+
+	/**
+	 * @return the id
+	 */
+	public Integer getId() {
+		return id;
+	}
+
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	/**
+	 * @return the order
+	 */
+	public T getOrder() {
+		return order;
+	}
+
+	/**
+	 * @param order the order to set
+	 */
+	public void setOrder(T order) {
+		this.order = order;
+	}
+
+	/**
+	 * @return the indication
+	 */
+	public Concept getIndication() {
+		return indication;
+	}
+
+	/**
+	 * @param indication the indication to set
+	 */
+	public void setIndication(Concept indication) {
+		this.indication = indication;
+	}
 	
 	/**
-	 * @param group the group for this Order
+	 * @return the group
 	 */
-	public void setGroup(OrderGroup group);
+	public OrderGroup getGroup() {
+		return group;
+	}
+
+	/**
+	 * @param group the group to set
+	 */
+	public void setGroup(OrderGroup group) {
+		this.group = group;
+	}
 }

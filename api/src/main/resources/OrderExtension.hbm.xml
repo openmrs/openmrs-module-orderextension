@@ -95,18 +95,38 @@
         <property name="uuid" type="string" column="uuid" length="38" unique="true" not-null="true" />
     </class>
     
-    <joined-subclass name="ExtendedOrder" extends="org.openmrs.Order" table="orderextension_order">
-    	<key column="order_id"/>
-    	<many-to-one name="indication" class="org.openmrs.Concept"/>
-    	<many-to-one name="group" class="OrderGroup" column="group_id"/>
-    </joined-subclass>
+	<class name="GroupableOrder" table="orderextension_order">
+	
+        <id name="id" type="int" column="id">
+            <generator class="native">
+                <param name="sequence">orderextension_order_id_seq</param>
+            </generator>
+        </id>
+        
+        <discriminator column="member_type" type="string" not-null="true" length="255"/>
+        
+        <property name="uuid" type="string" column="uuid" length="38" unique="true" not-null="true" />
+        
+		<many-to-one name="indication" class="org.openmrs.Concept" />
+		<many-to-one name="group" class="OrderGroup" column="group_id" />
+		
+		<many-to-one name="creator" class="org.openmrs.User" not-null="true" />
+		<property name="dateCreated" type="java.util.Date" column="date_created" not-null="true" length="19" />
+		<property name="voided" type="java.lang.Boolean" length="1" not-null="true" />
+		<many-to-one name="voidedBy" class="org.openmrs.User" column="voided_by" />
+		<property name="dateVoided" type="java.util.Date" column="date_voided" length="19" />
+		<property name="voidReason" type="java.lang.String" column="void_reason" length="255" />
 
-    <joined-subclass name="ExtendedDrugOrder" extends="org.openmrs.DrugOrder" table="orderextension_drug_order">
-    	<key column="order_id"/>
-    	<many-to-one name="indication" class="org.openmrs.Concept"/>
-    	<many-to-one name="group" class="OrderGroup" column="group_id"/>
-    	<many-to-one name="route" class="org.openmrs.Concept"/>
-    	<property name="additionalInstructions" type="string" column="additional_instructions"/>
-    </joined-subclass>
+		<subclass name="ExtendedOrder">
+			<many-to-one name="order" class="org.openmrs.Order" column="order_id" not-null="true" unique="true"/>
+		</subclass>
+    	
+    	<subclass name="ExtendedDrugOrder">
+    		<many-to-one name="order" class="org.openmrs.DrugOrder" column="order_id" not-null="true" unique="true"/>
+    		<many-to-one name="route" class="org.openmrs.Concept"/>
+    		<property name="additionalInstructions" type="string" column="additional_instructions" />
+    	</subclass>
+
+    </class>
 
 </hibernate-mapping>
