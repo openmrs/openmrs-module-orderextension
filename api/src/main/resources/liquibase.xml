@@ -133,8 +133,33 @@
             <column name="uuid" type="char(38)">
                 <constraints nullable="false" unique="true" />
             </column>
+            <column name="order_set_id" type="int"/>
+			<column name="creator" type="int" >
+				<constraints nullable="false"/>
+			</column>
+			<column name="date_created" type="datetime" >
+				<constraints nullable="false"/>
+			</column>
+			<column name="voided" type="smallint" defaultValueNumeric="0">
+				<constraints nullable="false"/>
+			</column>
+			<column name="voided_by" type="int" />
+			<column name="date_voided" type="datetime" />
+			<column name="void_reason" type="varchar(255)"/>
 		</createTable>
-	</changeSet>	
+		
+		<addForeignKeyConstraint constraintName="orderextension_order_group_order_set_id_fk" 
+								 baseTableName="orderextension_order_group" baseColumnNames="order_set_id"
+								 referencedTableName="orderextension_order_set" referencedColumnNames="id"/>
+								 
+		<addForeignKeyConstraint constraintName="orderextension_order_group_creator_fk" 
+								 baseTableName="orderextension_order_group" baseColumnNames="creator"
+								 referencedTableName="users" referencedColumnNames="user_id"/>
+		
+		<addForeignKeyConstraint constraintName="orderextension_order_group_voided_by_fk" 
+								 baseTableName="orderextension_order_group" baseColumnNames="voided_by"
+								 referencedTableName="users" referencedColumnNames="user_id"/>
+	</changeSet>
 	
 	<changeSet id="20120424-0003-orderextension" author="mseaton">
 		<preConditions onFail="MARK_RAN">

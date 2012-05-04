@@ -20,7 +20,6 @@ import java.util.Set;
 import org.openmrs.BaseOpenmrsData;
 import org.openmrs.Concept;
 import org.openmrs.OpenmrsObject;
-import org.openmrs.Order;
 
 /**
  * This represents a group of orders. Generally, orders may be placed within groups to assist with
@@ -59,7 +58,7 @@ public class OrderGroup extends BaseOpenmrsData implements Serializable {
 	/**
 	 * Any Orders contained within this OrderGroup
 	 */
-	private Set<Order> orders;
+	private Set<ExtendedOrder> members;
 
 	/**
 	 * @see OpenmrsObject#getId()
@@ -137,19 +136,19 @@ public class OrderGroup extends BaseOpenmrsData implements Serializable {
 	}
 
 	/**
-	 * @return the orders
+	 * @return the members
 	 */
-	public Set<Order> getOrders() {
-		if (orders == null) {
-			orders = new HashSet<Order>();
+	public Set<ExtendedOrder> getMembers() {
+		if (members == null) {
+			members = new HashSet<ExtendedOrder>();
 		}
-		return orders;
+		return members;
 	}
 
 	/**
-	 * @param orders the orders to set
+	 * @param members the members to set
 	 */
-	public void setOrders(Set<Order> orders) {
-		this.orders = orders;
+	public void setMembers(Set<ExtendedOrder> members) {
+		this.members = members;
 	}
 }
