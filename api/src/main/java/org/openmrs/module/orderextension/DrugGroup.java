@@ -14,6 +14,7 @@
 package org.openmrs.module.orderextension;
 
 import java.io.Serializable;
+import java.util.Calendar;
 import java.util.Date;
 
 import org.openmrs.BaseOpenmrsData;
@@ -86,6 +87,13 @@ public class DrugGroup extends BaseOpenmrsData implements Serializable {
 	
     public void setDrugGroupStartDate(Date drugGroupStartDate) {
     	this.drugGroupStartDate = drugGroupStartDate;
+    }
+    
+    public Date getDrugGroupEndDate() {
+    	Calendar endDate = Calendar.getInstance();
+    	endDate.setTime(drugGroupStartDate);
+    	endDate.add(Calendar.DAY_OF_YEAR, cycleLength);
+    	return endDate.getTime();
     }
 
 	

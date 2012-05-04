@@ -7,12 +7,12 @@
 <script type="text/javascript">
 jQuery(document).ready(function() {
 	 
-	jQuery("#calendar").hide();
+	jQuery("#calendarContents").hide();
 	jQuery("#drugListView").addClass("selectedLink");
 	
 	jQuery("#drugListView").click(function()
 	{
-		  jQuery("#calendar").hide();
+		  jQuery("#calendarContents").hide();
 		  jQuery("#regimenPortlet").show(); 
 		  
 		  jQuery("#drugListView").addClass("selectedLink");
@@ -21,7 +21,7 @@ jQuery(document).ready(function() {
 	  
 	jQuery("#calendarView").click(function()
 	{
-		  jQuery("#calendar").show();
+		  jQuery("#calendarContents").show();
 		  jQuery("#regimenPortlet").hide(); 
 		  
 		  jQuery("#drugListView").removeClass("selectedLink");
@@ -29,20 +29,22 @@ jQuery(document).ready(function() {
 		  
 		  jQuery('#calendar').fullCalendar({
 			  events: [
-				<c:forEach items="${model.allDrugOrders}" var="drugRegimen" varStatus="loop">
-			           <c:if test="${loop.index > 0}">,</c:if>	
+				<c:forEach items="${model.cycles}" var="cycle" varStatus="loop">
+					<c:if test="${loop.index > 0}">,</c:if>	
+						{
+					    title  : '<spring:message code="regimenextension.currentCycleNumber" /> <c:out value="${cycle.cycleNumber}"/> <spring:message code="general.of" /> <c:out value="${cycle.regimenName}"/>',				
+					    start  : '<openmrs:formatDate date="${cycle.drugGroupStartDate}"format="yyyy-MM-dd"/>',
+					    end :'<openmrs:formatDate date="${cycle.drugGroupEndDate}" format="yyyy-MM-dd"/>',
+					    color : '#1AAC9B'
+					 } 
+				</c:forEach>
+				<c:forEach items="${model.drugOrdersNonContinuous}" var="drugRegimen" varStatus="loop">
+			           <c:if test="${loop.index > 0 || not empty model.cycles}">,</c:if>	
 						{
 			               title  : '<c:if test="${!empty drugRegimen.drug}"><c:out value="${drugRegimen.drug.name}"/></c:if><c:if test="${empty drugRegimen.drug}"><c:out value="${!drugRegimen.concept.name.name}"/></c:if> <c:out value="${drugRegimen.dose}"/> <c:out value="${drugRegimen.units}"/>',				
 			               start  : '<openmrs:formatDate date="${drugRegimen.startDate}"format="yyyy-MM-dd"/>',
-			               end : <c:choose><c:when test="${!empty drugRegimen.discontinuedDate || !empty drugRegimen.autoExpireDate}"><c:if test="${!empty drugRegimen.discontinuedDate}">'<openmrs:formatDate date="${drugRegimen.discontinuedDate}" format="yyyy-MM-dd"/>'</c:if>
-			               	     <c:if test="${!empty drugRegimen.autoExpireDate}">'<openmrs:formatDate date="${drugRegimen.autoExpireDate}" format="yyyy-MM-dd"/>'</c:if>
-			               	 </c:when>
-			               	 <c:otherwise>
-			               		'<openmrs:formatDate date="${model.futureDate}" format="yyyy-MM-dd"/>'
-			               	</c:otherwise>
-			               </c:choose>
-			              
-			           } 
+			               end : <c:if test="${!empty drugRegimen.discontinuedDate}">'<openmrs:formatDate date="${drugRegimen.discontinuedDate}" format="yyyy-MM-dd"/>'</c:if><c:if test="${!empty drugRegimen.autoExpireDate}">'<openmrs:formatDate date="${drugRegimen.autoExpireDate}" format="yyyy-MM-dd"/>'</c:if>
+			            } 
 				</c:forEach>
 			       ]
 		    })
@@ -76,6 +78,40 @@ jQuery(document).ready(function() {
 	</div>
 </div>
 
-<div id="calendar">
+<div id="calendarContents">
+	<div class="boxHeader${model.patientVariation}"><spring:message code="regimenextension.ongoing" /></div>
+		<div class="box${model.patientVariation}">
+			<table class="regimenTableShort">
+				<thead>
+					<tr class="regimenCurrentHeaderRow">
+						<th class="regimenCurrentDrugOrderedHeader"> <spring:message code="Order.item.ordered" /> </th>
+						<th class="regimenCurrentDrugDoseHeader"> <spring:message code="DrugOrder.dose"/>/<spring:message code="DrugOrder.units"/> </th>
+						<th class="regimenCurrentDrugFrequencyHeader"> <spring:message code="DrugOrder.frequency"/> </th>
+						<th class="regimenCurrentDrugDateStartHeader"> <spring:message code="general.dateStart"/> </th>
+					</tr>
+				</thead>
+				<c:forEach items="${model.drugOrdersContinuous}" var="regimen">
+					<tr class="drugLine">
+						<td class="regimenCurrentDrugOrdered">
+							<c:if test="${!empty regimen.drug.name}">
+								<c:out value="${regimen.drug.name}"/>
+							</c:if>
+							<c:if test="${!empty regimen.concept}">
+								<c:out value="${regimen.concept.name.name}"/>
+							</c:if>
+						</td>
+						<td class="regimenCurrentDrugDose"><c:out value="${regimen.dose}"/><c:out value="${regimen.drug.units}"/></td>
+						<td class="regimenCurrentDrugFrequency"><c:out value="${regimen.frequency}"/></td>
+						<td class="regimenCurrentDrugDateStart"><openmrs:formatDate date="${regimen.startDate}" type="medium" /></td>
+						<td class="regimenCurrentDrugScheduledStopDate"><openmrs:formatDate date="${regimen.autoExpireDate}" type="medium" /></td>
+				
+					</tr>
+				</c:forEach>
+			</table>
+		</div>
+		<br/>
+	<div id="calendar">
+	</div>
 </div>
+
 

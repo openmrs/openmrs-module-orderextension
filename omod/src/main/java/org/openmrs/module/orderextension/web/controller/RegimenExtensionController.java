@@ -13,13 +13,16 @@
  */
 package org.openmrs.module.orderextension.web.controller;
 
-import java.util.Calendar;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.orderextension.DrugGroup;
+import org.openmrs.module.orderextension.RegimenDateSorter;
 import org.openmrs.module.orderextension.RegimenExtension;
 import org.openmrs.module.orderextension.api.OrderExtensionService;
 import org.springframework.stereotype.Controller;
@@ -49,12 +52,35 @@ public class RegimenExtensionController {
 		
 		List<RegimenExtension> allDrugOrders = service.getAllRegimens(patient, false);
 		
-		Calendar futureDate = Calendar.getInstance();
-		futureDate.add(Calendar.YEAR, 3);
+
+		List<RegimenExtension> drugOrdersNonContinuous = new ArrayList<RegimenExtension>();
+		List<RegimenExtension> drugOrdersContinuous = new ArrayList<RegimenExtension>();
 		
-		model.put("allDrugOrders", allDrugOrders);
-		model.put("futureDate", futureDate.getTime());
+		List<DrugGroup> cycles = new ArrayList<DrugGroup>();
 		
-	    return new ModelAndView(SUCCESS_FORM_VIEW, "model", model);
+		for(RegimenExtension regimen: allDrugOrders)
+		{
+			if(regimen.getDiscontinuedDate() != null || regimen.getAutoExpireDate() != null)
+			{
+				drugOrdersNonContinuous.add(regimen);
+			}
+			else
+			{
+				drugOrdersContinuous.add(regimen);
+			}
+			
+			if(regimen.getDrugGroup() != null && regimen.getDrugGroup().getIsCyclic() && !cycles.contains(regimen.getDrugGroup()))
+			{
+				cycles.add(regimen.getDrugGroup());
+			}
+		}
+		
+		Collections.sort(drugOrdersContinuous, new RegimenDateSorter());
+		
+		model.put("drugOrdersNonContinuous", drugOrdersNonContinuous);
+		model.put("drugOrdersContinuous", drugOrdersContinuous);
+		model.put("cycles", cycles);
+		
+		 return new ModelAndView(SUCCESS_FORM_VIEW, "model", model);
 	}
 }
