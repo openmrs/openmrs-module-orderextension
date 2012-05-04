@@ -18,7 +18,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.openmrs.BaseOpenmrsData;
-import org.openmrs.Concept;
 import org.openmrs.OpenmrsObject;
 
 /**
@@ -41,24 +40,14 @@ public class OrderGroup extends BaseOpenmrsData implements Serializable {
 	private OrderSet orderSet;
 	
 	/**
-	 * Optional indication for this overall OrderGroup
+	 * Optional cycleNumber.  If this OrderGroup references a cyclical OrderSet, this indicates which cycle it is
 	 */
-	private Concept indication;
-	
-	/**
-	 * If this OrderGroup is nested, this links to the parent
-	 */
-	private OrderGroup parentOrderGroup;
-	
-	/**
-	 * Any OrderGroups that this OrderGroup contains
-	 */
-	private Set<OrderGroup> nestedOrderGroups;
+	private Integer cycleNumber;
 	
 	/**
 	 * Any Orders contained within this OrderGroup
 	 */
-	private Set<ExtendedOrder> members;
+	private Set<GroupableOrder<?>> members;
 
 	/**
 	 * @see OpenmrsObject#getId()
@@ -89,58 +78,34 @@ public class OrderGroup extends BaseOpenmrsData implements Serializable {
 	public void setOrderSet(OrderSet orderSet) {
 		this.orderSet = orderSet;
 	}
-
+	
 	/**
-	 * @return the indication
+	 * @return the cycleNumber
 	 */
-	public Concept getIndication() {
-		return indication;
+	public Integer getCycleNumber() {
+		return cycleNumber;
 	}
 
 	/**
-	 * @param indication the indication to set
+	 * @param cycleNumber the cycleNumber to set
 	 */
-	public void setIndication(Concept indication) {
-		this.indication = indication;
+	public void setCycleNumber(Integer cycleNumber) {
+		this.cycleNumber = cycleNumber;
 	}
 
 	/**
-	 * @return the parentOrderGroup
+	 * @param member the member to add to the group
 	 */
-	public OrderGroup getParentOrderGroup() {
-		return parentOrderGroup;
-	}
-
-	/**
-	 * @param parentOrderGroup the parentOrderGroup to set
-	 */
-	public void setParentOrderGroup(OrderGroup parentOrderGroup) {
-		this.parentOrderGroup = parentOrderGroup;
-	}
-
-	/**
-	 * @return the nestedOrderGroups
-	 */
-	public Set<OrderGroup> getNestedOrderGroups() {
-		if (nestedOrderGroups == null) {
-			nestedOrderGroups = new HashSet<OrderGroup>();
-		}
-		return nestedOrderGroups;
-	}
-
-	/**
-	 * @param nestedOrderGroups the nestedOrderGroups to set
-	 */
-	public void setNestedOrderGroups(Set<OrderGroup> nestedOrderGroups) {
-		this.nestedOrderGroups = nestedOrderGroups;
+	public void addMember(GroupableOrder<?> member) {
+		getMembers().add(member);
 	}
 
 	/**
 	 * @return the members
 	 */
-	public Set<ExtendedOrder> getMembers() {
+	public Set<GroupableOrder<?>> getMembers() {
 		if (members == null) {
-			members = new HashSet<ExtendedOrder>();
+			members = new HashSet<GroupableOrder<?>>();
 		}
 		return members;
 	}
@@ -148,7 +113,7 @@ public class OrderGroup extends BaseOpenmrsData implements Serializable {
 	/**
 	 * @param members the members to set
 	 */
-	public void setMembers(Set<ExtendedOrder> members) {
+	public void setMembers(Set<GroupableOrder<?>> members) {
 		this.members = members;
 	}
 }

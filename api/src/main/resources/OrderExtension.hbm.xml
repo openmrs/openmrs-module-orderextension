@@ -95,10 +95,12 @@
         </id>
         
         <property name="uuid" type="string" column="uuid" length="38" unique="true" not-null="true" />
+        <many-to-one name="orderSet" class="OrderSet" column="order_set_id" />
+        <property name="cycleNumber" type="int" column="cycle_number"/>
         
-        <set name="members" cascade="all-delete-orphan" lazy="false" inverse="false" batch-size="1000">
-            <key column="order_set_id" not-null="true"/>
-            <one-to-many class="OrderSet" />
+        <set name="members" cascade="all-delete-orphan" lazy="false" inverse="true" batch-size="1000">
+            <key column="group_id" not-null="true"/>
+            <one-to-many class="GroupableOrder" />
         </set>
         
     </class>

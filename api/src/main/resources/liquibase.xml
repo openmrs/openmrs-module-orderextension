@@ -134,6 +134,7 @@
                 <constraints nullable="false" unique="true" />
             </column>
             <column name="order_set_id" type="int"/>
+            <column name="cycle_number" type="int"/>
 			<column name="creator" type="int" >
 				<constraints nullable="false"/>
 			</column>
