@@ -19,4 +19,19 @@
   		    http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
   		    http://www.springframework.org/schema/util
   		    http://www.springframework.org/schema/util/spring-util-3.0.xsd">
+  	
+  	<bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping" />
+	<context:component-scan base-package="org.openmrs.module.orderextension.web" />
+  	
+  	<bean id="regimenExtensionMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+ 		<property name="order"><value>10</value></property>
+ 		<property name="mappings">
+   		<props>
+     		<prop key="**/patientRegimen.portlet">regimenExtensionController</prop>
+     		<prop key="**/patientRegimenCurrent.portlet">regimenCurrentController</prop>
+     		<prop key="**/patientRegimenFuture.portlet">regimenFutureController</prop>
+     		<prop key="**/patientRegimenCompleted.portlet">regimenCompletedController</prop>
+   		</props>
+ 		</property>
+	</bean>
 </beans>

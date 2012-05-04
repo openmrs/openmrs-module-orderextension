@@ -13,6 +13,7 @@
  */
 package org.openmrs.module.orderextension.api;
 
+import java.util.Date;
 import java.util.List;
 
 import org.openmrs.Concept;
@@ -22,6 +23,7 @@ import org.openmrs.api.OpenmrsService;
 import org.openmrs.module.orderextension.GroupableOrder;
 import org.openmrs.module.orderextension.OrderSet;
 import org.openmrs.module.orderextension.OrderSetMember;
+import org.openmrs.module.orderextension.RegimenExtension;
 import org.openmrs.module.orderextension.util.OrderExtensionConstants;
 import org.openmrs.util.PrivilegeConstants;
 
@@ -117,4 +119,14 @@ public interface OrderExtensionService extends OpenmrsService {
 	 */
 	@Authorized(PrivilegeConstants.VIEW_ORDERS)
 	public <T extends GroupableOrder<?>> List<T> getExtendedOrders(Patient patient, Class<T> type);
+	
+	public List<RegimenExtension> getCurrentRegimens(Patient patient, Date effectiveOn);
+	
+	public List<RegimenExtension> getFutureRegimens(Patient patient, Date effectionOn);
+	
+	public List<RegimenExtension> getCompletedRegimens(Patient patient, Date effectiveOn);
+	
+	public List<RegimenExtension> getCompletedRegimens(Patient patient, Date effectiveOn, Date startDate);
+	
+	public List<RegimenExtension> getAllRegimens(Patient patient, boolean includeVoided);
 }

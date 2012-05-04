@@ -13,6 +13,7 @@
  */
 package org.openmrs.module.orderextension.api;
 
+import java.util.Date;
 import java.util.List;
 
 import org.openmrs.Concept;
@@ -21,6 +22,7 @@ import org.openmrs.api.impl.BaseOpenmrsService;
 import org.openmrs.module.orderextension.GroupableOrder;
 import org.openmrs.module.orderextension.OrderSet;
 import org.openmrs.module.orderextension.OrderSetMember;
+import org.openmrs.module.orderextension.RegimenExtension;
 import org.openmrs.module.orderextension.api.db.OrderExtensionDAO;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -111,6 +113,46 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 	public <T extends GroupableOrder<?>> List<T> getExtendedOrders(Patient patient, Class<T> type) {
 		return dao.getExtendedOrders(patient, type);
 	}
+	
+	/**
+     * @see org.openmrs.module.ORDERextension.api.OrderExtensionService#getCurrentRegimens(org.openmrs.Patient, java.util.Date)
+     */
+    @Override
+    public List<RegimenExtension> getCurrentRegimens(Patient patient, Date effectiveOn) {
+	    return dao.getCurrentRegimens(patient, effectiveOn);
+    }
+
+	/**
+     * @see org.openmrs.module.ORDERextension.api.OrderExtensionService#getFutureRegimens(org.openmrs.Patient, java.util.Date)
+     */
+    @Override
+    public List<RegimenExtension> getFutureRegimens(Patient patient, Date effectionOn) {
+	   return dao.getFutureRegimens(patient, effectionOn);
+    }
+
+	/**
+     * @see org.openmrs.module.ORDERextension.api.OrderExtensionService#getCompletedRegimens(org.openmrs.Patient, java.util.Date)
+     */
+    @Override
+    public List<RegimenExtension> getCompletedRegimens(Patient patient, Date effectiveOn) {
+	    return dao.getCompletedRegimens(patient, effectiveOn);
+    }
+
+	/**
+     * @see org.openmrs.module.ORDERextension.api.OrderExtensionService#getCompletedRegimens(org.openmrs.Patient, java.util.Date, java.util.Date)
+     */
+    @Override
+    public List<RegimenExtension> getCompletedRegimens(Patient patient, Date effectiveOn, Date startDate) {
+	    return dao.getCompletedRegimens(patient, effectiveOn, startDate);
+    }
+
+	/**
+     * @see org.openmrs.module.ORDERextension.api.OrderExtensionService#getAllRegimens(org.openmrs.Patient, boolean)
+     */
+    @Override
+    public List<RegimenExtension> getAllRegimens(Patient patient, boolean includeVoided) {
+	    return dao.getAllRegimens(patient, includeVoided);
+    }
 
 	/**
 	 * @return the dao

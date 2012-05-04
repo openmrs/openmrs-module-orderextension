@@ -1,0 +1,243 @@
+@CHARSET "UTF-8";
+
+.regimenClassificationTitle {
+    background: none repeat scroll 0 0 #CCCCCC;
+    font-family: Verdana,Arial,Helvetica,sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+    height: 100%;
+    margin-bottom: 5px;
+    margin-top:5px;
+    padding: 3px;
+    width: 100%;
+}
+
+.regimenPortletCurrentCycle {
+	border: 1px solid;
+    margin-top: 3px;
+    padding: 2px;
+    width: 100%;
+    font-family: Verdana,Arial,Helvetica,sans-serif;
+    font-size: 14px;
+}
+
+.regimenPortletFuture .boxHeader {
+	background-color: #8FABC7;
+	border: 1px solid #8FABC7;
+}
+
+.regimenPortletFuture .box {
+	border: 1px solid #8FABC7;
+}
+
+.regimenPortletCurrent.boxHeader  {
+	background-color: #1AAC9B;
+	border: 1px solid #1AAC9B;
+}
+
+.regimenPortletCurrent .box {
+	border: 1px solid #1AAC9B;
+}
+
+.regimenPortletCompleted .box {
+	border: 1px solid #666666;
+}
+
+.regimenPortletCompleted .boxHeader {
+	background-color: #666666;
+	border: 1px solid #666666;
+}
+
+h2#regimenPortlet {
+	font-weight: bold;
+	font-size: 14px;
+}	
+
+.cycleHeader {
+	font-weight: bold;
+	font-size: 14px;
+	width: 100%;
+}
+
+.cycleStartdate {
+	font-weight: bold;
+	font-size: 14px;
+	width: 30%;
+	float: right;
+	padding-right: 10px;
+}
+
+.cycleStartdate img {
+	float: right;
+}
+
+.regimenTable {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.regimenCurrentHeaderRow {
+	background-color: whitesmoke;	
+}
+
+.regimenCurrentDrugOrderedHeader {
+	width: 17%;
+
+}
+
+.regimenCurrentDrugDoseHeader {
+	width: 10%;
+}
+
+.regimenCurrentDrugFrequencyHeader {
+	width: 10%;
+}
+
+.regimenCurrentDrugRouteHeader {
+	width: 5%;
+}
+
+.regimenCurrentDrugInfusionHeader {
+	width: 13%;
+}
+
+.regimenCurrentDrugDateStartHeader {
+	width: 7%
+}
+
+.regimenCurrentDrugScheduledStopDateHeader {
+	width: 7%;
+}
+
+.regimenCurrentDrugInstructionsHeader {
+	width: 20%;
+}
+
+.regimenCurrentEmptyHeader {
+	width: 5%;
+}
+
+.regimenCurrentDrugRoute {
+	text-align: center;
+}
+
+.regimenCurrentDrugDateStart {
+	text-align: center;
+}
+
+.regimenCurrentDrugScheduledStopDate {
+	text-align: center;
+}
+
+.regimenLinks {
+	text-align: center;
+}
+
+.layer1 {
+margin: 0;
+padding: 0;
+width: 100%;
+}
+ 
+.cycleTitleCollapsable {
+margin-bottom: 3px;
+color: black;
+cursor: pointer;
+position: relative;
+border: 1px solid #8FABC7;
+padding: 3px;
+}
+
+.content {
+padding: 5px 10px;
+
+}
+
+.cycleTitle {
+margin-bottom: 3px;
+color: black;
+position: relative;
+border: 1px solid #1AAC9B;
+padding: 3px;
+}
+
+.cycleTitleCollapsableCompleted {
+margin-bottom: 3px;
+color: black;
+cursor: pointer;
+position: relative;
+border: 1px solid #666666;
+padding: 3px;
+}
+
+.drugGroupTitle {
+margin-bottom: 3px;
+color: black;
+position: relative;
+border: 1px solid #1AAC9B;
+padding: 3px;
+}
+
+.drugGroupTitleFuture {
+margin-bottom: 3px;
+color: black;
+position: relative;
+border: 1px solid #8FABC7;
+padding: 3px;
+}
+
+.drugGroupTitleCompleted {
+margin-bottom: 3px;
+color: black;
+position: relative;
+border: 1px solid #666666;
+padding: 3px;
+}
+
+.drugGroupHeader {
+	font-weight: bold;
+	font-size: 14px;
+	width: 100%;
+}
+
+.drugGroupStartdate {
+	font-weight: bold;
+	font-size: 14px;
+	width: 30%;
+	float: right;
+	padding-right: 10px;
+}
+
+.cycleLinks {
+	margin-top: 3px;
+}
+
+.groupLinks {
+	margin-top: 3px;
+}
+
+.zebraHover {
+	background-color: #FFFFCC;
+}
+
+.regimenTable td {
+	margin: 3px;
+}
+
+#regimenViewLink {
+	width: 100%;
+	text-align: right;
+	padding: 10px;
+	
+}
+
+#regimenViewLink .selectedLink {
+	color: black;
+    font-weight: bold;
+    text-decoration: none;
+    width: 100%;
+}
+
+
+
+	
