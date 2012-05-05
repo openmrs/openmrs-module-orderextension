@@ -3,15 +3,14 @@
 
 <h2>Drug Orders for ${patient.personName.fullName}</h2>
 
-<c:forEach items="${ordersByGroup}" var="entry">
+<c:forEach items="${regimens}" var="regimen">
 	<div class="boxHeader">
 		<c:choose>
-			<c:when test="${empty entry.key}">Ungrouped</c:when>
-			<c:when test="${!empty entry.key.orderSet}">
-				<c:if test="${!empty entry.key.cycleNumber}">Cycle ${entry.key.cycleNumber} of</c:if>
-				${entry.key.orderSet.name}
+			<c:when test="${!empty regimen.orderSet}">
+				<c:if test="${!empty regimen.cycleNumber}">Cycle ${regimen.cycleNumber} of</c:if>
+				${regimen.orderSet.name}
 			</c:when>
-			<c:otherwise>Order Group</c:otherwise>
+			<c:otherwise>Regimen</c:otherwise>
 		</c:choose>
 	</div>
 	<div class="box">
@@ -20,12 +19,10 @@
 				<tr>
 					<tr>
 						<th>ID</th>
-						<th>Order ID</th>
 						<th>Type</th>
 						<th>Concept</th>
 						<th>Start Date</th>
 						<th>Indication</th>
-						<th>Group</th>
 						<th>Drug</th>
 						<th>Dose</th>
 						<th>Units</th>
@@ -36,20 +33,18 @@
 				</tr>
 			</thead>
 			<tbody>
-				<c:forEach items="${entry.value}" var="eo">
+				<c:forEach items="${regimen.members}" var="eo">
 					<tr>
 						<td>${eo.id}</td>
-						<td>${eo.order.id}</td>
-						<td>${eo.order['class'].simpleName}</td>
-						<td><openmrs:format concept="${eo.order.concept}"/></td>
-						<td><openmrs:formatDate date="${eo.order.startDate}"/></td>
+						<td>${eo['class'].simpleName}</td>
+						<td><openmrs:format concept="${eo.concept}"/></td>
+						<td><openmrs:formatDate date="${eo.startDate}"/></td>
 						<td><openmrs:format concept="${eo.indication}"/></td>
-						<td>${eo.group.id}</td>
-						<td>${eo.order.drug.name}</td>
-						<td>${eo.order.dose}</td>
-						<td>${eo.order.units}</td>
+						<td>${eo.drug.name}</td>
+						<td>${eo.dose}</td>
+						<td>${eo.units}</td>
 						<td><openmrs:format concept="${eo.route}"/></td>
-						<td>${eo.order.frequency}</td>
+						<td>${eo.frequency}</td>
 						<td>${eo.additionalInstructions}</td>
 					</tr>			
 				</c:forEach>
@@ -58,5 +53,60 @@
 	</div>
 	<br/>
 </c:forEach>
+<br/>
+<div class="boxHeader">
+	Other Drug Orders
+</div>
+<div class="box">
+	<table>
+		<thead>
+			<tr>
+				<tr>
+					<th>ID</th>
+					<th>Type</th>
+					<th>Concept</th>
+					<th>Start Date</th>
+					<th>Indication</th>
+					<th>Group</th>
+					<th>Drug</th>
+					<th>Dose</th>
+					<th>Units</th>
+					<th>Route</th>
+					<th>Frequency</th>
+					<th>Additional Instructions</th>
+				</tr>
+			</tr>
+		</thead>
+		<tbody>
+			<c:forEach items="${drugOrders}" var="eo">
+				<tr>
+					<td>${eo.id}</td>
+					<td>${eo['class'].simpleName}</td>
+					<td><openmrs:format concept="${eo.concept}"/></td>
+					<td><openmrs:formatDate date="${eo.startDate}"/></td>
+					<td>
+						<c:if test="${eo['class'].simpleName == 'ExtendedDrugOrder'}">
+							<openmrs:format concept="${eo.indication}"/>
+						</c:if>
+					</td>
+					<td>${eo.drug.name}</td>
+					<td>${eo.dose}</td>
+					<td>${eo.units}</td>
+					<td>
+						<c:if test="${eo['class'].simpleName == 'ExtendedDrugOrder'}">
+							<openmrs:format concept="${eo.route}"/>
+						</c:if>
+					</td>
+					<td>${eo.frequency}</td>
+					<td>
+						<c:if test="${eo['class'].simpleName == 'ExtendedDrugOrder'}">
+							${eo.additionalInstructions}
+						</c:if>
+					</td>
+				</tr>			
+			</c:forEach>
+		</tbody>
+	</table>
+</div>
 
 <%@ include file="/WEB-INF/template/footer.jsp"%>

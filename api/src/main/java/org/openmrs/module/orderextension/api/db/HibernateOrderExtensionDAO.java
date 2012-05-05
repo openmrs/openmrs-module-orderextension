@@ -27,7 +27,7 @@ import org.hibernate.criterion.Restrictions;
 import org.openmrs.Concept;
 import org.openmrs.Patient;
 import org.openmrs.module.orderextension.DummyRegimens;
-import org.openmrs.module.orderextension.GroupableOrder;
+import org.openmrs.module.orderextension.OrderGroup;
 import org.openmrs.module.orderextension.OrderSet;
 import org.openmrs.module.orderextension.OrderSetMember;
 import org.openmrs.module.orderextension.RegimenExtension;
@@ -118,8 +118,9 @@ public class HibernateOrderExtensionDAO implements OrderExtensionDAO {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T extends GroupableOrder<?>> List<T> getExtendedOrders(Patient patient, Class<T> type) {
+	public <T extends OrderGroup> List<T> getOrderGroups(Patient patient, Class<T> type) {
 		Criteria criteria = getCurrentSession().createCriteria(type);
+		// TODO: Need to actually restrict this by patient.  Might need to add Patient directly to OrderGroup
 		criteria.add(Restrictions.eq("voided", false));
 		return criteria.list();
 	}

@@ -18,7 +18,7 @@ import java.util.List;
 
 import org.openmrs.Concept;
 import org.openmrs.Patient;
-import org.openmrs.module.orderextension.GroupableOrder;
+import org.openmrs.module.orderextension.OrderGroup;
 import org.openmrs.module.orderextension.OrderSet;
 import org.openmrs.module.orderextension.OrderSetMember;
 import org.openmrs.module.orderextension.RegimenExtension;
@@ -67,9 +67,9 @@ public interface OrderExtensionDAO {
 	public List<OrderSet> getParentOrderSets(OrderSet orderSet);
 	
 	/**
-	 * @see OrderExtensionService#getExtendedOrders(Patient, Class)
+	 * @see OrderExtensionService#getOrderGroups(Patient, Class)
 	 */
-	public <T extends GroupableOrder<?>> List<T> getExtendedOrders(Patient patient, Class<T> type);
+	public <T extends OrderGroup> List<T> getOrderGroups(Patient patient, Class<T> type);
 	
 	public List<RegimenExtension> getCurrentRegimens(Patient patient, Date effectiveOn);
 	

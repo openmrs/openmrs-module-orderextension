@@ -16,23 +16,35 @@ package org.openmrs.module.orderextension;
 import org.openmrs.Order;
 
 /**
- * Implementation of GroupableOrder that simply wraps an Order and adds no additional extensions
+ * Adds the ability to Group an Order
  */
-public class ExtendedOrder extends GroupableOrder<Order> {
+public class ExtendedOrder extends Order implements GroupableOrder {
+
+	private static final long serialVersionUID = 1L;
+	
+	/**
+	 * Provides a means for Grouping the Order
+	 */
+	private OrderGroup group;
 
 	/**
 	 * Default Constructor
 	 */
 	public ExtendedOrder() {
 		super();
-		setOrder(new Order());
 	}
-	
+
 	/**
-	 * Constructor for wrapping an Order in an ExtendedOrder
+	 * @return the group
 	 */
-	public ExtendedOrder(Order order) {
-		this();
-		setOrder(order);
+	public OrderGroup getGroup() {
+		return group;
+	}
+
+	/**
+	 * @param group the group to set
+	 */
+	public void setGroup(OrderGroup group) {
+		this.group = group;
 	}
 }

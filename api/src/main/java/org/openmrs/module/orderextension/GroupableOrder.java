@@ -13,96 +13,58 @@
  */
 package org.openmrs.module.orderextension;
 
-import org.openmrs.BaseOpenmrsData;
+import java.util.Date;
+
 import org.openmrs.Concept;
-import org.openmrs.Order;
+import org.openmrs.Encounter;
+import org.openmrs.OpenmrsData;
+import org.openmrs.OrderType;
+import org.openmrs.Patient;
+import org.openmrs.User;
 
 /**
- * This extends Order and adds GroupableOrder properties,
- * including optional links to an OrderGroup and an Indication
+ * Interface indicating that an Order can be Groupable
  */
-public abstract class GroupableOrder<T extends Order> extends BaseOpenmrsData {
+public interface GroupableOrder extends OpenmrsData {
+	
+	public Integer getOrderId();
+	public void setOrderId(Integer orderId);
+	public Patient getPatient();
+	public void setPatient(Patient patient);
+	public OrderType getOrderType();
+	public void setOrderType(OrderType orderType);
+	public Concept getConcept();
+	public void setConcept(Concept concept);
+	public String getInstructions();
+	public void setInstructions(String instructions);
+	public Date getStartDate();
+	public void setStartDate(Date startDate);
+	public Date getAutoExpireDate();
+	public void setAutoExpireDate(Date autoExpireDate);
+	public Encounter getEncounter();
+	public void setEncounter(Encounter encounter);
+	public User getOrderer();
+	public void setOrderer(User orderer);
+	public Boolean getDiscontinued();
+	public void setDiscontinued(Boolean discontinued);
+	public User getDiscontinuedBy();
+	public void setDiscontinuedBy(User discontinuedBy);
+	public Date getDiscontinuedDate();
+	public void setDiscontinuedDate(Date discontinuedDate);
+	public Concept getDiscontinuedReason();
+	public void setDiscontinuedReason(Concept discontinuedReason);
+	public String getDiscontinuedReasonNonCoded();
+	public void setDiscontinuedReasonNonCoded(String discontinuedReasonNonCoded);
+	public String getAccessionNumber();
+	public void setAccessionNumber(String accessionNumber);
 
 	/**
-	 * Default Constructor
+	 * @return the OrderGroup for the Order
 	 */
-	public GroupableOrder() {
-		super();
-	}
+	public OrderGroup getGroup();
 	
 	/**
-	 * Primary key id
+	 * @param group the OrderGrup for the Order
 	 */
-	private Integer id;
-	
-	/**
-	 * The underlying Order to extend
-	 */
-	private T order;
-
-	/**
-	 * Provides a means to record the reason for this particular Order
-	 */
-	private Concept indication;
-	
-	/**
-	 * The associated OrderGroup
-	 */
-	private OrderGroup group;
-
-	/**
-	 * @return the id
-	 */
-	public Integer getId() {
-		return id;
-	}
-
-	/**
-	 * @param id the id to set
-	 */
-	public void setId(Integer id) {
-		this.id = id;
-	}
-
-	/**
-	 * @return the order
-	 */
-	public T getOrder() {
-		return order;
-	}
-
-	/**
-	 * @param order the order to set
-	 */
-	public void setOrder(T order) {
-		this.order = order;
-	}
-
-	/**
-	 * @return the indication
-	 */
-	public Concept getIndication() {
-		return indication;
-	}
-
-	/**
-	 * @param indication the indication to set
-	 */
-	public void setIndication(Concept indication) {
-		this.indication = indication;
-	}
-	
-	/**
-	 * @return the group
-	 */
-	public OrderGroup getGroup() {
-		return group;
-	}
-
-	/**
-	 * @param group the group to set
-	 */
-	public void setGroup(OrderGroup group) {
-		this.group = group;
-	}
+	public void setGroup(OrderGroup group);
 }

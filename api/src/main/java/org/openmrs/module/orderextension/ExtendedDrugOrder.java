@@ -17,25 +17,28 @@ import org.openmrs.Concept;
 import org.openmrs.DrugOrder;
 
 /**
- * Implementation of GroupableOrder that wraps a DrugOrder add adds new properties
+ * Adds the ability to Group a DrugOrder, and also adds some additional properties
  */
-public class ExtendedDrugOrder extends GroupableOrder<DrugOrder> {
+public class ExtendedDrugOrder extends DrugOrder implements GroupableOrder {
+
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * Default Constructor
 	 */
 	public ExtendedDrugOrder() {
 		super();
-		setOrder(new DrugOrder());
 	}
+
+	/**
+	 * Provides a means for Grouping the Order
+	 */
+	private OrderGroup group;
 	
 	/**
-	 * Constructor for wrapping a DrugOrder in an ExtendedDrugOrder
+	 * Provides a means for recording an indication/reason for this DrugOrder
 	 */
-	public ExtendedDrugOrder(DrugOrder order) {
-		this();
-		setOrder(order);
-	}
+	private Concept indication;
 	
 	/**
 	 * Provides the means to specify the route of drug administration (eg. IV, IM, PO)
@@ -46,6 +49,34 @@ public class ExtendedDrugOrder extends GroupableOrder<DrugOrder> {
 	 * Provides an additional instructions field
 	 */
 	private String additionalInstructions;
+
+	/**
+	 * @return the group
+	 */
+	public OrderGroup getGroup() {
+		return group;
+	}
+
+	/**
+	 * @param group the group to set
+	 */
+	public void setGroup(OrderGroup group) {
+		this.group = group;
+	}
+
+	/**
+	 * @return the indication
+	 */
+	public Concept getIndication() {
+		return indication;
+	}
+
+	/**
+	 * @param indication the indication to set
+	 */
+	public void setIndication(Concept indication) {
+		this.indication = indication;
+	}
 
 	/**
 	 * @return the route

@@ -13,19 +13,14 @@
  */
 package org.openmrs.module.orderextension.web.controller;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.DrugOrder;
-import org.openmrs.Order;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.orderextension.ExtendedDrugOrder;
-import org.openmrs.module.orderextension.OrderGroup;
+import org.openmrs.module.orderextension.DrugRegimen;
 import org.openmrs.module.orderextension.api.OrderExtensionService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -49,35 +44,13 @@ public class OrderExtensionOrderListController {
 		Patient patient = Context.getPatientService().getPatient(patientId);
 		model.addAttribute("patient", patient);
 		
-		List<Order> orders = Context.getOrderService().getOrdersByPatient(patient);
-		List<ExtendedDrugOrder> extendedOrders = Context.getService(OrderExtensionService.class).getExtendedOrders(patient, ExtendedDrugOrder.class);
-		for (ExtendedDrugOrder eo : extendedOrders) {
-			orders.remove(eo.getOrder());
-		}
-		for (Order o : orders) {
-			if (o instanceof DrugOrder) {
-				extendedOrders.add(new ExtendedDrugOrder((DrugOrder)o));
-			}
-		}
-		model.addAttribute("extendedOrders", extendedOrders);
+		List<DrugRegimen> regimens = Context.getService(OrderExtensionService.class).getOrderGroups(patient, DrugRegimen.class);
+		model.addAttribute("regimens", regimens);
 		
-		Map<OrderGroup, List<ExtendedDrugOrder>> ordersByGroup = new LinkedHashMap<OrderGroup, List<ExtendedDrugOrder>>();
-		List<ExtendedDrugOrder> ungroupedOrders = new ArrayList<ExtendedDrugOrder>();
-		for (ExtendedDrugOrder eo : extendedOrders) {
-			OrderGroup g = eo.getGroup();
-			if (g == null) {
-				ungroupedOrders.add(eo);
-			}
-			else {
-				List<ExtendedDrugOrder> l = ordersByGroup.get(g);
-				if (l == null) {
-					l = new ArrayList<ExtendedDrugOrder>();
-					ordersByGroup.put(g, l);
-				}
-				l.add(eo);
-			}
+		List<DrugOrder> drugOrders = Context.getOrderService().getDrugOrdersByPatient(patient);
+		for (DrugRegimen r : regimens) {
+			drugOrders.removeAll(r.getMembers());
 		}
-		ordersByGroup.put(null, ungroupedOrders);
-		model.addAttribute("ordersByGroup", ordersByGroup);
+		model.addAttribute("drugOrders", drugOrders);
 	}
 }

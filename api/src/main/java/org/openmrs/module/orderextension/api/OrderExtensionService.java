@@ -20,7 +20,7 @@ import org.openmrs.Concept;
 import org.openmrs.Patient;
 import org.openmrs.annotation.Authorized;
 import org.openmrs.api.OpenmrsService;
-import org.openmrs.module.orderextension.GroupableOrder;
+import org.openmrs.module.orderextension.OrderGroup;
 import org.openmrs.module.orderextension.OrderSet;
 import org.openmrs.module.orderextension.OrderSetMember;
 import org.openmrs.module.orderextension.RegimenExtension;
@@ -113,12 +113,12 @@ public interface OrderExtensionService extends OpenmrsService {
 	
 	/**
 	 * @param patient the Patient for whom to retrieve the Orders
-	 * @param type the type of ExtendedOrder to retrieve
-	 * @return a List of all Orders of the passed type
-	 * @should return all ExtendedOrders
+	 * @param type the type of OrderGroup to retrieve
+	 * @return a List of all OrderGroups
+	 * @should return all OrderGroups for the passed patient for the passed type
 	 */
 	@Authorized(PrivilegeConstants.VIEW_ORDERS)
-	public <T extends GroupableOrder<?>> List<T> getExtendedOrders(Patient patient, Class<T> type);
+	public <T extends OrderGroup> List<T> getOrderGroups(Patient patient, Class<T> type);
 	
 	public List<RegimenExtension> getCurrentRegimens(Patient patient, Date effectiveOn);
 	
