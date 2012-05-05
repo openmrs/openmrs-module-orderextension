@@ -14,6 +14,7 @@
 package org.openmrs.module.orderextension;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -48,6 +49,20 @@ public class OrderGroup extends BaseOpenmrsData implements Serializable {
 	 * Any Orders contained within this OrderGroup
 	 */
 	private Set<GroupableOrder<?>> members;
+	
+	/**
+	 * @return the earliest start date of all of the Orders in the OrderGroup
+	 */
+	public Date getEarliestStartDate() {
+		Date d = null;
+		for (GroupableOrder<?> o : members) {
+			Date memberStartDate = o.getOrder().getStartDate();
+			if (d == null || d.after(memberStartDate)) {
+				d = memberStartDate;
+			}
+		}
+		return d;
+	}
 
 	/**
 	 * @see OpenmrsObject#getId()

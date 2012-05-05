@@ -90,6 +90,9 @@ public class DrugOrderSetMember extends SingleOrderSetMember {
 	 */
 	public void setDrug(Drug drug) {
 		this.drug = drug;
+		if (drug != null && drug.getConcept() != null) {
+			setConcept(drug.getConcept());
+		}
 	}
 
 	/**

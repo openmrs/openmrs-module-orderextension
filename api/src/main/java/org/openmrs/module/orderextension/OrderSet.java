@@ -62,17 +62,6 @@ public class OrderSet extends BaseOpenmrsMetadata implements java.io.Serializabl
 	private Integer id;
 	
 	/**
-	 * Represents a descriptive title for this OrderSet
-	 */
-	private String title;
-	
-	/**
-	 * Represents additional information that may be presented to the
-	 * user when they are considering or viewing this OrderSet
-	 */
-	private String comment;
-	
-	/**
 	 * Represents how members of the set can be selected
 	 * @see Operator
 	 */
@@ -119,34 +108,6 @@ public class OrderSet extends BaseOpenmrsMetadata implements java.io.Serializabl
 	 */
 	public void setId(Integer id) {
 		this.id = id;
-	}
-
-	/**
-	 * @return the title
-	 */
-	public String getTitle() {
-		return title;
-	}
-
-	/**
-	 * @param title the title to set
-	 */
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
-	/**
-	 * @return the comment
-	 */
-	public String getComment() {
-		return comment;
-	}
-
-	/**
-	 * @param comment the comment to set
-	 */
-	public void setComment(String comment) {
-		this.comment = comment;
 	}
 
 	/**
