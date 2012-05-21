@@ -24,6 +24,7 @@
 
 		<many-to-one name="indication" class="org.openmrs.Concept" />
 		<property name="cyclical" type="java.lang.Boolean" length="1" not-null="true"/>
+		<property name="cycleLengthInDays" type="int" column="cycle_length"/>
 
 		<list name="members" cascade="all-delete-orphan" lazy="false" inverse="false" batch-size="1000">
             <key column="order_set_id" not-null="true"/>
@@ -120,12 +121,12 @@
     
     <joined-subclass name="ExtendedOrder" extends="org.openmrs.Order" table="orderextension_order">
     	<key column="order_id"/>
-    	<many-to-one name="group" class="OrderGroup" column="group_id"/>
+    	<many-to-one name="group" class="OrderGroup" column="group_id" lazy="false"/>
     </joined-subclass>
 
     <joined-subclass name="ExtendedDrugOrder" extends="org.openmrs.DrugOrder" table="orderextension_order">
     	<key column="order_id"/>
-    	<many-to-one name="group" class="OrderGroup" column="group_id"/>
+    	<many-to-one name="group" class="OrderGroup" column="group_id" lazy="false"/>
     	<many-to-one name="indication" class="org.openmrs.Concept"/>
     	<many-to-one name="route" class="org.openmrs.Concept"/>
     	<property name="additionalInstructions" type="string" column="additional_instructions"/>

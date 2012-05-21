@@ -19,65 +19,60 @@ import java.util.List;
 import java.util.Map;
 
 import org.openmrs.Concept;
+import org.openmrs.DrugOrder;
 import org.openmrs.api.context.Context;
 
-
 /**
- *
+ * Helper class for classifying Drug Orders
  */
 public class DrugClassificationHelper {
 	
-	Map<Concept, List<Concept>> indicators = new HashMap<Concept, List<Concept>>();
+	private Map<Concept, List<Concept>> indications = new HashMap<Concept, List<Concept>>();
+	private List<Concept> classifications = new ArrayList<Concept>();
+	private Map<Concept, List<DrugOrder>> classifiedRegimens = new HashMap<Concept, List<DrugOrder>>();
 	
-	List<RegimenExtension> regimens = null;
-	
-	Map<Concept, List<RegimenExtension>> classifiedRegimens = new HashMap<Concept, List<RegimenExtension>>();
-	
-	List<Concept> classifications = new ArrayList<Concept>();
-	
-	public DrugClassificationHelper(List<RegimenExtension> regimens)
+	public DrugClassificationHelper(List<DrugOrder> drugOrders)
 	{
-		this.regimens = regimens;
-		setUp();
-	}
-	
-	private void setUp()
-	{
-		Concept indicationsSet = Context.getConceptService().getConcept(Context.getAdministrationService().getGlobalProperty("orderextension.drugGroupClassification"));
-		List<Concept> indicatorConcepts = indicationsSet.getSetMembers();
+		String indicationSet = Context.getAdministrationService().getGlobalProperty("orderextension.drugGroupClassification");
+		Concept indicationsSet = Context.getConceptService().getConcept(indicationSet);
+		List<Concept> indicationConcepts = indicationsSet.getSetMembers();
 		
-		for(Concept indicator: indicatorConcepts)
+		for (Concept indication : indicationConcepts)
 		{
-			indicators.put(indicator, indicator.getSetMembers());
+			indications.put(indication, indication.getSetMembers());
 		}
 		
-		for(RegimenExtension regimen: regimens)
+		for (DrugOrder o : drugOrders)
 		{
-			if(regimen.getClassification() != null)
+			if (o instanceof ExtendedDrugOrder)
 			{
-				for(Map.Entry<Concept, List<Concept>> entry: indicators.entrySet())
+				ExtendedDrugOrder edo = (ExtendedDrugOrder)o;
+				if (edo.getIndication() != null) 
 				{
-					List<Concept> indicatorList = entry.getValue();
-					Concept indicator = entry.getKey();
-					
-					if(indicatorList != null && indicatorList.contains(regimen.getClassification()) || regimen.getClassification().equals(indicator))
+					for(Map.Entry<Concept, List<Concept>> entry: indications.entrySet())
 					{
-						if(!classifications.contains(indicator))
+						Concept indication = entry.getKey();
+						List<Concept> indicationList = entry.getValue();
+						
+						if ((indicationList != null && indicationList.contains(edo.getIndication())) || edo.getIndication().equals(indication))
 						{
-							classifications.add(indicator);
+							if(!classifications.contains(indication))
+							{
+								classifications.add(indication);
+							}
+							if(classifiedRegimens.containsKey(indication))
+							{
+								List<DrugOrder> l = classifiedRegimens.get(indication);
+								l.add(edo);
+							}
+							else
+							{
+								List<DrugOrder> l = new ArrayList<DrugOrder>();
+								l.add(edo);
+								classifiedRegimens.put(indication, l);
+							}
+							break;
 						}
-						if(classifiedRegimens.containsKey(indicator))
-						{
-							List<RegimenExtension> regimenList = classifiedRegimens.get(indicator);
-							regimenList.add(regimen);
-						}
-						else
-						{
-							List<RegimenExtension> regimenList = new ArrayList<RegimenExtension>();
-							regimenList.add(regimen);
-							classifiedRegimens.put(indicator, regimenList);
-						}
-						break;
 					}
 				}
 			}
@@ -85,14 +80,14 @@ public class DrugClassificationHelper {
 			{
 				if(classifiedRegimens.containsKey(null))
 				{
-					List<RegimenExtension> regimenList = classifiedRegimens.get(null);
-					regimenList.add(regimen);
+					List<DrugOrder> l = classifiedRegimens.get(null);
+					l.add(o);
 				}
 				else
 				{
-					List<RegimenExtension> regimenList = new ArrayList<RegimenExtension>();
-					regimenList.add(regimen);
-					classifiedRegimens.put(null, regimenList);
+					List<DrugOrder> l = new ArrayList<DrugOrder>();
+					l.add(o);
+					classifiedRegimens.put(null, l);
 				}
 			}
 		}
@@ -107,5 +102,4 @@ public class DrugClassificationHelper {
 	{
 		return new RegimenHelper(classifiedRegimens.get(concept));
 	}
-
 }

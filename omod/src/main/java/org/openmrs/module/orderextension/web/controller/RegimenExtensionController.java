@@ -19,12 +19,12 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openmrs.DrugOrder;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.orderextension.DrugGroup;
-import org.openmrs.module.orderextension.RegimenDateSorter;
-import org.openmrs.module.orderextension.RegimenExtension;
-import org.openmrs.module.orderextension.api.OrderExtensionService;
+import org.openmrs.module.orderextension.DrugOrderComparator;
+import org.openmrs.module.orderextension.DrugRegimen;
+import org.openmrs.module.orderextension.ExtendedDrugOrder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -46,41 +46,42 @@ public class RegimenExtensionController {
 	@RequestMapping(method=RequestMethod.GET)
 	public ModelAndView regimenTab(@RequestParam(required = true, value = "patientId") Integer patientId, ModelMap model) {
 		
-		OrderExtensionService service = Context.getService(OrderExtensionService.class);
-		
 		Patient patient = Context.getPatientService().getPatient(patientId);
 		
-		List<RegimenExtension> allDrugOrders = service.getAllRegimens(patient, false);
+		List<DrugOrder> allDrugOrders = Context.getOrderService().getDrugOrdersByPatient(patient);
+		List<DrugOrder> drugOrdersNonContinuous = new ArrayList<DrugOrder>();
+		List<DrugOrder> drugOrdersContinuous = new ArrayList<DrugOrder>();
+		List<DrugRegimen> cycles = new ArrayList<DrugRegimen>();
 		
-
-		List<RegimenExtension> drugOrdersNonContinuous = new ArrayList<RegimenExtension>();
-		List<RegimenExtension> drugOrdersContinuous = new ArrayList<RegimenExtension>();
-		
-		List<DrugGroup> cycles = new ArrayList<DrugGroup>();
-		
-		for(RegimenExtension regimen: allDrugOrders)
+		for(DrugOrder drugOrder : allDrugOrders)
 		{
-			if(regimen.getDiscontinuedDate() != null || regimen.getAutoExpireDate() != null)
+			if(drugOrder.getDiscontinuedDate() != null || drugOrder.getAutoExpireDate() != null)
 			{
-				drugOrdersNonContinuous.add(regimen);
+				drugOrdersNonContinuous.add(drugOrder);
 			}
 			else
 			{
-				drugOrdersContinuous.add(regimen);
+				drugOrdersContinuous.add(drugOrder);
 			}
 			
-			if(regimen.getDrugGroup() != null && regimen.getDrugGroup().getIsCyclic() && !cycles.contains(regimen.getDrugGroup()))
-			{
-				cycles.add(regimen.getDrugGroup());
+			if (drugOrder instanceof ExtendedDrugOrder) {
+				ExtendedDrugOrder edo = (ExtendedDrugOrder)drugOrder;
+				if(edo.getGroup() != null && edo.getGroup() instanceof DrugRegimen) {
+					DrugRegimen regimen = (DrugRegimen)edo.getGroup();
+					if (regimen.isCyclical() && !cycles.contains(regimen))
+					{
+						cycles.add(regimen);
+					}
+				}
 			}
 		}
 		
-		Collections.sort(drugOrdersContinuous, new RegimenDateSorter());
+		Collections.sort(drugOrdersContinuous, new DrugOrderComparator());
 		
 		model.put("drugOrdersNonContinuous", drugOrdersNonContinuous);
 		model.put("drugOrdersContinuous", drugOrdersContinuous);
 		model.put("cycles", cycles);
 		
-		 return new ModelAndView(SUCCESS_FORM_VIEW, "model", model);
+		return new ModelAndView(SUCCESS_FORM_VIEW, "model", model);
 	}
 }

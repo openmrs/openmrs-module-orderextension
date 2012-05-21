@@ -22,6 +22,7 @@
 			<column name="operator" type="varchar(255)" />
 			<column name="indication" type="int" />
 			<column name="cyclical" type="smallint" />
+			<column name="cycle_length" type="int" />
 			<column name="creator" type="int" >
 				<constraints nullable="false"/>
 			</column>

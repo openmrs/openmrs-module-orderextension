@@ -16,150 +16,122 @@ package org.openmrs.module.orderextension;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.openmrs.Concept;
+import org.openmrs.DrugOrder;
 import org.openmrs.api.context.Context;
 
-
 /**
- *
+ * Helper class for classifying Regimens
  */
 public class RegimenHelper {
 
-	List<RegimenExtension> regimenList;
+	private List<DrugRegimen> cycles = new ArrayList<DrugRegimen>();
+	private List<DrugRegimen> drugGroups = new ArrayList<DrugRegimen>();
+	private Map<DrugRegimen, List<DrugOrder>> ordersInDrugGroups = new HashMap<DrugRegimen, List<DrugOrder>>();
 	
-	ArrayList<DrugGroup> cycles;
-	ArrayList<DrugGroup> drugGroups;
+	private boolean hasCycles = false;
+	private boolean hasDrugGroups = false;
+	private boolean hasOtherMedications = false;
 	
-	HashMap<DrugGroup, List<RegimenExtension>> regimensInDrugGroups;
-	
-	boolean hasCycles = false;
-	boolean hasDrugGroups = false;
-	boolean hasOtherMedications = false;
-	
-	
-	public RegimenHelper(List<RegimenExtension> regimenList)
-	{
-		this.regimenList = regimenList;
-		
-		setUp();
-	}
-	
-	private void setUp()
-	{
-		cycles = new ArrayList<DrugGroup>();
-		drugGroups = new ArrayList<DrugGroup>();
-		
-		regimensInDrugGroups = new HashMap<DrugGroup, List<RegimenExtension>>();
-		
-		for(RegimenExtension regimen: regimenList)
+	public RegimenHelper(List<DrugOrder> drugOrders)
+	{	
+		for(DrugOrder o : drugOrders)
 		{
-			if(regimen.getDrugGroup() != null && regimen.getDrugGroup().getIsCyclic() && !cycles.contains(regimen.getDrugGroup()))
-			{
-				cycles.add(regimen.getDrugGroup());
-				
-				List<RegimenExtension> regimensInGivenCycle = new ArrayList<RegimenExtension>();
-				regimensInGivenCycle.add(regimen);
-				regimensInDrugGroups.put(regimen.getDrugGroup(), regimensInGivenCycle);
-				
-				hasCycles = true;
+			DrugRegimen group = null;
+			boolean isCyclical = false;
+			
+			if (o instanceof ExtendedDrugOrder) {
+				ExtendedDrugOrder edo = (ExtendedDrugOrder)o;
+				OrderGroup og = edo.getGroup();
+				if (og instanceof DrugRegimen) {
+					group = (DrugRegimen)og;
+					isCyclical = group.isCyclical();
+				}
 			}
-			else if(regimen.getDrugGroup() != null && !regimen.getDrugGroup().getIsCyclic() && !drugGroups.contains(regimen.getDrugGroup()))
-			{
-				drugGroups.add(regimen.getDrugGroup());
-				
-				List<RegimenExtension> regimensInGivenDrugGroup = new ArrayList<RegimenExtension>();
-				regimensInGivenDrugGroup.add(regimen);
-				regimensInDrugGroups.put(regimen.getDrugGroup(), regimensInGivenDrugGroup);
-				
-				hasDrugGroups = true;
-			}
-			else if(regimen.getDrugGroup() != null)
-			{
-				List<RegimenExtension> regimens = regimensInDrugGroups.get(regimen.getDrugGroup());
-				regimens.add(regimen);
+			
+			if (group != null) {
+				if (isCyclical) {
+					if (!cycles.contains(group)) {
+						cycles.add(group);
+					}
+					hasCycles = true;
+				}
+				else {
+					if (!drugGroups.contains(group)) {
+						drugGroups.add(group);
+					}
+					hasDrugGroups = true;
+				}
 			}
 			else
 			{	
 				hasOtherMedications = true;
-				
-				if(regimensInDrugGroups.containsKey(null))
-				{
-					List<RegimenExtension> regimens = regimensInDrugGroups.get(null);
-					regimens.add(regimen);
-				}
-				else
-				{
-					List<RegimenExtension> regimensNotInGroup = new ArrayList<RegimenExtension>();
-					regimensNotInGroup.add(regimen);
-					regimensInDrugGroups.put(null, regimensNotInGroup);
-				}
 			}
+			List<DrugOrder> ordersInGroup = ordersInDrugGroups.get(group);
+			if (ordersInGroup == null) {
+				ordersInGroup = new ArrayList<DrugOrder>();
+				ordersInDrugGroups.put(group, ordersInGroup);
+			}
+			ordersInGroup.add(o);
 		}
 		
 		Collections.sort(cycles, new DrugGroupSorter());
 		Collections.sort(drugGroups, new DrugGroupSorter());
 	}
 	
-	public List<DrugGroup> getCycleList()
+	public List<DrugRegimen> getCycleList()
 	{	
 		return cycles;
 	}
 	
-	public List<DrugGroup> getDrugGroupList()
+	public List<DrugRegimen> getDrugGroupList()
 	{	
 		return drugGroups;
 	}
 	
-	public List<RegimenExtension> getOtherMedications()
+	public List<DrugOrder> getOtherMedications()
 	{
-		return regimensInDrugGroups.get(null);
+		return ordersInDrugGroups.get(null);
 	}
 	
     public boolean isHasCycles() {
     	return hasCycles;
     }
-
 	
     public boolean isHasDrugGroups() {
     	return hasDrugGroups;
     }
 
-	
     public boolean isHasOtherMedications() {
     	return hasOtherMedications;
     }
 
-	public List<Concept> getClassifications(DrugGroup drugGroup, final Concept topLevelIndicator)
+	public List<Concept> getClassifications(DrugRegimen drugGroup, final Concept topLevelIndicator)
 	{
 		List<Concept> classifications = new ArrayList<Concept>();
-		
-		for(RegimenExtension regimen: regimensInDrugGroups.get(drugGroup))
-		{
-			if(regimen.getClassification() != null && !classifications.contains(regimen.getClassification()))
-			{
-				classifications.add(regimen.getClassification());
+		for(DrugOrder o : ordersInDrugGroups.get(drugGroup))
+		{		
+			Concept classification = null;
+			if (o instanceof ExtendedDrugOrder) {
+				classification = ((ExtendedDrugOrder)o).getIndication();
 			}
-			else if(regimen.getClassification() == null && !classifications.contains(null))
-			{
-				classifications.add(null);
+			if (!classifications.contains(classification)) {
+				classifications.add(classification);
 			}
 		}
 		
-		Collections.sort(classifications, new Comparator<Concept>(){
-			 
+		Collections.sort(classifications, new Comparator<Concept>() {
             public int compare(Concept c1, Concept c2) {
-            	
             	List<Concept> setMembers = topLevelIndicator.getSetMembers();
-            	
             	int index1 = setMembers.indexOf(c1);
             	int index2 = setMembers.indexOf(c2);
-            
             	return index1 - index2;
             }
- 
         });
 		
 		//TODO: will need to be able to sort these based on a predetermined order
@@ -167,65 +139,41 @@ public class RegimenHelper {
 		return classifications;
 	}
 	
-	public List<RegimenExtension> getRegimensForClassification(DrugGroup cycle, Concept classification)
+	public List<DrugOrder> getRegimensForClassification(DrugRegimen cycle, Concept classification)
 	{
-		List<RegimenExtension> regimenExtensions = new ArrayList<RegimenExtension>();
+		List<DrugOrder> ret = new ArrayList<DrugOrder>();
 		
-		for(RegimenExtension regimen: regimensInDrugGroups.get(cycle))
+		for(DrugOrder o : ordersInDrugGroups.get(cycle))
 		{
-			if(classification == null && regimen.getClassification() == null)
-			{
-				regimenExtensions.add(regimen);
+			Concept orderIndication = null;
+			if (o instanceof ExtendedDrugOrder) {
+				orderIndication = ((ExtendedDrugOrder)o).getIndication();
 			}
-			else if(classification != null && regimen.getClassification() != null && regimen.getClassification().equals(classification))
+			if(classification == null && orderIndication == null)
 			{
-				regimenExtensions.add(regimen);
+				ret.add(o);
+			}
+			else if(classification != null && orderIndication != null && orderIndication.equals(classification))
+			{
+				ret.add(o);
 			}
 		}
 		
-		Collections.sort(regimenExtensions, new Comparator<RegimenExtension>(){
-			 
-            public int compare(RegimenExtension r1, RegimenExtension r2) {
-               
-               if(r1.getDrug().equals(r2.getDrug()))
-               {
-            	   if(r1.getStartDate().compareTo(r2.getStartDate()) < 0)
-            	   {
-            		   return -1;
-            	   }
-            	   else if(r1.getStartDate().compareTo(r2.getStartDate()) > 0)
-            	   {
-						return 1;
-            	   }
-               }
-               else
-               {
-            	   if(r1.getStartDate().compareTo(r2.getStartDate()) < 0)
-            	   {
-            		   return -10;
-            	   }
-            	   else if(r1.getStartDate().compareTo(r2.getStartDate()) > 0)
-            	   {
-						return 10;
-            	   }
-               }
-               
-               return 0;
-            }
- 
-        });
-		
-		return regimenExtensions;
+		Collections.sort(ret, new DrugOrderComparator());
+		return ret;
 	}
 	
-	public boolean hasIVDrugs(DrugGroup drugGroup)
+	public boolean hasIVDrugs(DrugRegimen drugGroup)
 	{
-		Concept ivConcept = Context.getConceptService().getConcept(Context.getAdministrationService().getGlobalProperty("orderextension.IVRouteConcept")); 
-		for(RegimenExtension regimen: regimensInDrugGroups.get(drugGroup))
+		String ivConceptGp = Context.getAdministrationService().getGlobalProperty("orderextension.IVRouteConcept");
+		Concept ivConcept = Context.getConceptService().getConcept(ivConceptGp); 
+		for (DrugOrder o : ordersInDrugGroups.get(drugGroup))
 		{
-			if(regimen.getDrug()!= null && regimen.getDrug().getRoute() != null && regimen.getDrug().getRoute().equals(ivConcept))
-			{
-				return true;
+			if (o instanceof ExtendedDrugOrder) {
+				ExtendedDrugOrder edo = (ExtendedDrugOrder)o;
+				if (ivConcept.equals(edo.getRoute())) {
+					return true;
+				}
 			}
 		}
 		
@@ -233,11 +181,15 @@ public class RegimenHelper {
 	}
 	
 	
-	private class DrugGroupSorter implements Comparator<DrugGroup>
+	private class DrugGroupSorter implements Comparator<DrugRegimen>
 	{
-		public int compare(DrugGroup c1, DrugGroup c2) {
-            
-			return c1.getDrugGroupStartDate().compareTo(c2.getDrugGroupStartDate());
+		public int compare(DrugRegimen c1, DrugRegimen c2) {
+            if (c1 instanceof DrugRegimen && c2 instanceof DrugRegimen) {
+            	Date d1 = ((DrugRegimen)c1).getFirstDrugOrderStartDate();
+            	Date d2 = ((DrugRegimen)c1).getFirstDrugOrderStartDate();
+            	return d1.compareTo(d2);
+            }
+			return 0;
          }
 	}
 }

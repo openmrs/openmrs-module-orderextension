@@ -80,6 +80,11 @@ public class OrderSet extends BaseOpenmrsMetadata implements java.io.Serializabl
 	 * If true, indicates that this OrderSet is cyclical, and when Ordered, may be repeated
 	 */
 	private boolean cyclical;
+	
+	/**
+	 * If cyclical, indicates the length of time between the start of one cycle and the start of the next cyle
+	 */
+	private Integer cycleLengthInDays;
 
 	/**
 	 * List of all members within this OrderSet that may be of one of three types:
@@ -150,6 +155,20 @@ public class OrderSet extends BaseOpenmrsMetadata implements java.io.Serializabl
 	 */
 	public void setCyclical(boolean cyclical) {
 		this.cyclical = cyclical;
+	}
+
+	/**
+	 * @return the cycleLengthInDays
+	 */
+	public Integer getCycleLengthInDays() {
+		return cycleLengthInDays;
+	}
+
+	/**
+	 * @param cycleLengthInDays the cycleLengthInDays to set
+	 */
+	public void setCycleLengthInDays(Integer cycleLengthInDays) {
+		this.cycleLengthInDays = cycleLengthInDays;
 	}
 
 	/**

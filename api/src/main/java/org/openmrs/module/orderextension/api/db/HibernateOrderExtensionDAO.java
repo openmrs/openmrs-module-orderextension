@@ -13,7 +13,6 @@
  */
 package org.openmrs.module.orderextension.api.db;
 
-import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -26,11 +25,9 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.openmrs.Concept;
 import org.openmrs.Patient;
-import org.openmrs.module.orderextension.DummyRegimens;
 import org.openmrs.module.orderextension.OrderGroup;
 import org.openmrs.module.orderextension.OrderSet;
 import org.openmrs.module.orderextension.OrderSetMember;
-import org.openmrs.module.orderextension.RegimenExtension;
 
 /**
  * Hibernate implementation of the OrderExtension Data Access Interface
@@ -124,55 +121,6 @@ public class HibernateOrderExtensionDAO implements OrderExtensionDAO {
 		criteria.add(Restrictions.eq("voided", false));
 		return criteria.list();
 	}
-	
-	/**
-     * @see org.openmrs.module.ORDERextension.api.db.OrderExtensionDAO#getCurrentRegimens(org.openmrs.Patient, java.util.Date)
-     */
-    @Override
-    public List<RegimenExtension> getCurrentRegimens(Patient patient, Date effectiveOn) {
-	   
-    	return dummyRegimens.getCurrentRegimens();
-    }
-
-	/**
-     * @see org.openmrs.module.ORDERextension.api.db.OrderExtensionDAO#getFutureRegimens(org.openmrs.Patient, java.util.Date)
-     */
-    @Override
-    public List<RegimenExtension> getFutureRegimens(Patient patient, Date effectionOn) {
-    	
-    	return dummyRegimens.getFutureRegimens();
-    }
-
-	/**
-     * @see org.openmrs.module.ORDERextension.api.db.OrderExtensionDAO#getCompletedRegimens(org.openmrs.Patient, java.util.Date)
-     */
-    @Override
-    public List<RegimenExtension> getCompletedRegimens(Patient patient, Date effectiveOn) {
-    	
-    	return dummyRegimens.getCompletedRegimens();
-    }
-
-	/**
-     * @see org.openmrs.module.ORDERextension.api.db.OrderExtensionDAO#getCompletedRegimens(org.openmrs.Patient, java.util.Date, java.util.Date)
-     */
-    @Override
-    public List<RegimenExtension> getCompletedRegimens(Patient patient, Date effectiveOn, Date startDate) {
-    	
-    	return dummyRegimens.getCompletedRegimens();
-    }
-
-	/**
-     * @see org.openmrs.module.ORDERextension.api.db.OrderExtensionDAO#getAllRegimens(org.openmrs.Patient, boolean)
-     */
-    @Override
-    public List<RegimenExtension> getAllRegimens(Patient patient, boolean includeVoided) {
-	    List<RegimenExtension> allDrugs = dummyRegimens.getCurrentRegimens();
-	    allDrugs.addAll(dummyRegimens.getFutureRegimens());
-	    allDrugs.addAll(dummyRegimens.getCompletedRegimens());
-	    return allDrugs;
-    }
-    
-    private DummyRegimens dummyRegimens = new DummyRegimens();
 
 	/**
 	 * @return the sessionFactory

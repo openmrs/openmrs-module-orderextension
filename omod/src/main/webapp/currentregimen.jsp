@@ -39,9 +39,9 @@ DrugClassificationHelper helper = (DrugClassificationHelper)pageContext.getAttri
 			<div class="cycleTitle">
 				<div class="cycleHeader">
 					<spring:message code="orderextension.regimen.currentCycleNumber" /> <c:out value="${drugGroup.cycleNumber}"/>
-					<spring:message code="general.of" /> <c:out value="${drugGroup.regimenName}"/>
+					<spring:message code="general.of" /> <c:out value="${drugGroup.orderSet.name}"/>
 					<div class="cycleStartdate">
-						<spring:message code="general.dateStart"/>: <openmrs:formatDate date="${drugGroup.drugGroupStartDate}" type="medium" />
+						<spring:message code="general.dateStart"/>: <openmrs:formatDate date="${drugGroup.firstDrugOrderStartDate}" type="medium" />
 					</div>
 				</div>
 			</div>
@@ -62,9 +62,9 @@ DrugClassificationHelper helper = (DrugClassificationHelper)pageContext.getAttri
 		<c:forEach items="${regimenHelper.drugGroupList}" var="drugGroup">
 			<div class="drugGroupTitle">
 				<div class="drugGroupHeader">
-					<c:out value="${drugGroup.regimenName}"/>
+					<c:out value="${drugGroup.orderSet.name}"/>
 					<div class="drugGroupStartdate">
-						<spring:message code="general.dateStart"/>: <openmrs:formatDate date="${drugGroup.drugGroupStartDate}" type="medium" />
+						<spring:message code="general.dateStart"/>: <openmrs:formatDate date="${drugGroup.firstDrugOrderStartDate}" type="medium" />
 					</div>
 				</div>
 			</div>
@@ -77,9 +77,11 @@ DrugClassificationHelper helper = (DrugClassificationHelper)pageContext.getAttri
 		</div>
 	</c:if>
 	<c:if test="${regimenHelper.hasOtherMedications}">
-		<div class="boxHeader">
-			<spring:message code="orderextension.regimen.otherMedicationTitle" />
-		</div>
+		<c:if test="${regimenHelper.hasCycles || regimenHelper.hasDrugGroups}">
+			<div class="boxHeader">
+				<spring:message code="orderextension.regimen.otherMedicationTitle" />
+			</div>
+		</c:if>
 		<div class="box">
 		<c:set var="drugGroup" value="${null}"/>
 			<%@ include file="include/regimenTable.jsp"%>

@@ -50,10 +50,10 @@ DrugClassificationHelper helper = (DrugClassificationHelper)pageContext.getAttri
 					<div class="cycleTitleCollapsable">
 						<div class="cycleHeader">
 							<spring:message code="orderextension.regimen.currentCycleNumber" /> <c:out value="${drugGroup.cycleNumber}"/>
-							<spring:message code="general.of" /> <c:out value="${drugGroup.regimenName}"/>
+							<spring:message code="general.of" /> <c:out value="${drugGroup.orderSet.name}"/>
 						
 							<div class="cycleStartdate">
-								<spring:message code="general.dateStart"/>: <openmrs:formatDate date="${drugGroup.drugGroupStartDate}" type="medium" />
+								<spring:message code="general.dateStart"/>: <openmrs:formatDate date="${drugGroup.firstDrugOrderStartDate}" type="medium" />
 								<img class="desc" src="/openmrs/moduleResources/orderextension/sort_desc.png"/>
 								<img class="asc" src="/openmrs/moduleResources/orderextension/sort_asc.png"/>
 							</div>
@@ -80,10 +80,10 @@ DrugClassificationHelper helper = (DrugClassificationHelper)pageContext.getAttri
 		<c:forEach items="${regimenHelper.drugGroupList}" var="drugGroup">
 			<div class="drugGroupTitleCompleted">
 				<div class="drugGroupHeader">
-					<c:out value="${drugGroup.regimenName}"/>
+					<c:out value="${drugGroup.orderSet.name}"/>
 				
 					<div class="drugGroupStartdate">
-						<spring:message code="general.dateStart"/>: <openmrs:formatDate date="${drugGroup.drugGroupStartDate}" type="medium" />
+						<spring:message code="general.dateStart"/>: <openmrs:formatDate date="${drugGroup.firstDrugOrderStartDate}" type="medium" />
 					</div>
 				</div>	
 			</div>

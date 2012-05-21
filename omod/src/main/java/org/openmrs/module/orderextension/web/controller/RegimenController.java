@@ -13,18 +13,21 @@
  */
 package org.openmrs.module.orderextension.web.controller;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openmrs.DrugOrder;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.orderextension.DrugClassificationHelper;
-import org.openmrs.module.orderextension.RegimenExtension;
-import org.openmrs.module.orderextension.api.OrderExtensionService;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 /**
  * The main controller.
@@ -39,39 +42,41 @@ public class RegimenController {
 	public final String FUTURE_MODE = "future";
 	public final String HISTORY_MODE = "history";
 
-	
 	protected void populateModel(Integer patientId, String mode, Map<String, Object> model) {
 		
-		OrderExtensionService service = Context.getService(OrderExtensionService.class);
-		
 		Patient patient = Context.getPatientService().getPatient(patientId);
+		List<DrugOrder> allOrders = Context.getOrderService().getDrugOrdersByPatient(patient);
+		List<DrugOrder> orders = new ArrayList<DrugOrder>();
 		
-		List<RegimenExtension> regimens = null;
-		
-		if(mode.equals(CURRENT_MODE))
-		{
-			regimens = service.getCurrentRegimens(patient, null); 
+		for (DrugOrder o : allOrders) {
+			if (o.isCurrent()) {
+				if (CURRENT_MODE.equals(mode)) {
+					orders.add(o);
+				}
+			}
+			else if (o.isFuture()) {
+				if (FUTURE_MODE.equals(mode)) {
+					orders.add(o);
+				}
+			}
+			else {
+				Calendar fiveYearsAgo = Calendar.getInstance();
+				fiveYearsAgo.add(Calendar.YEAR, -5);
+				Date historyDate = fiveYearsAgo.getTime();
+				if (COMPLETED_MODE.equals(mode)) {
+					if (o.getStartDate().compareTo(historyDate) >= 0) {
+						orders.add(o);
+					}
+				}
+				else if (HISTORY_MODE.equals(mode)) {
+					if (o.getStartDate().compareTo(historyDate) < 0) {
+						orders.add(o);
+					}
+				}
+			}
 		}
-		else if(mode.equals(COMPLETED_MODE))
-		{
-			Calendar fiveYearsAgo = Calendar.getInstance();
-			fiveYearsAgo.add(Calendar.YEAR, -5);
-			
-			regimens = service.getCompletedRegimens(patient, null, fiveYearsAgo.getTime());
-		}
-		else if(mode.equals(FUTURE_MODE))
-		{
-			regimens = service.getFutureRegimens(patient, null);
-		}
-		else if(mode.equals(HISTORY_MODE))
-		{
-			Calendar fiveYearsAgo = Calendar.getInstance();
-			fiveYearsAgo.add(Calendar.YEAR, -5);
-			fiveYearsAgo.add(Calendar.DAY_OF_YEAR, -1);
-			regimens = service.getCompletedRegimens(patient, fiveYearsAgo.getTime());
-		}
-		
-		DrugClassificationHelper helper = new DrugClassificationHelper(regimens);
+
+		DrugClassificationHelper helper = new DrugClassificationHelper(orders);
 		model.put("classifications", helper);
 	}
 }

@@ -15,13 +15,18 @@ package org.openmrs.module.orderextension;
 
 import java.util.Comparator;
 
+import org.openmrs.DrugOrder;
 
 /**
- *
+ * Sorts Drug Orders by date and then by name
  */
-public class RegimenDateSorter implements Comparator<RegimenExtension>{
+public class DrugOrderComparator implements Comparator<DrugOrder> {
 	
-	public int compare(RegimenExtension r1, RegimenExtension r2) {
+	/**
+	 * @see Comparator#compare(Object, Object)
+	 */
+	@Override
+	public int compare(DrugOrder r1, DrugOrder r2) {
         
         if(r1.getDrug().equals(r2.getDrug()))
         {
@@ -48,5 +53,4 @@ public class RegimenDateSorter implements Comparator<RegimenExtension>{
         
         return 0;
      }
-
 }
