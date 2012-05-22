@@ -110,7 +110,7 @@
         <subclass name="DrugRegimen">
         	<property name="cycleNumber" type="int" column="cycle_number"/>
 	        
-	        <list name="members" cascade="all-delete-orphan" lazy="false" inverse="true" batch-size="1000">
+	        <list name="members" cascade="all-delete-orphan" lazy="false" inverse="false" batch-size="1000">
 	            <key column="group_id" not-null="true"/>
             	<list-index column="order_index" base="0"/>
 	            <one-to-many class="ExtendedDrugOrder" />
@@ -121,12 +121,12 @@
     
     <joined-subclass name="ExtendedOrder" extends="org.openmrs.Order" table="orderextension_order">
     	<key column="order_id"/>
-    	<many-to-one name="group" class="OrderGroup" column="group_id" lazy="false"/>
+    	<many-to-one name="group" class="OrderGroup" column="group_id" lazy="false" insert="false" update="false"/>
     </joined-subclass>
 
     <joined-subclass name="ExtendedDrugOrder" extends="org.openmrs.DrugOrder" table="orderextension_order">
     	<key column="order_id"/>
-    	<many-to-one name="group" class="OrderGroup" column="group_id" lazy="false"/>
+    	<many-to-one name="group" class="OrderGroup" column="group_id" lazy="false" insert="false" update="false"/>
     	<many-to-one name="indication" class="org.openmrs.Concept"/>
     	<many-to-one name="route" class="org.openmrs.Concept"/>
     	<property name="administrationInstructions" type="string" column="administration_instructions"/>

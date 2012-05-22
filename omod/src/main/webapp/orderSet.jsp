@@ -34,7 +34,12 @@
 		</tr>
 		<tr>
 			<th style="vertical-align:top;"><spring:message code="orderextension.orderset.field.cyclical"/>:</th>
-			<td><spring:message code="general.${orderSet.cyclical}"/></td>
+			<td>
+				<spring:message code="general.${orderSet.cyclical}"/>
+				<c:if test="${!empty orderSet.cycleLengthInDays}">
+					(<spring:message code="${orderSet.cycleLengthInDays}"/> <spring:message code="orderextension.orderset.field.length.days"/>)
+				</c:if>
+			</td>
 		</tr>
 	</table>
 </div>

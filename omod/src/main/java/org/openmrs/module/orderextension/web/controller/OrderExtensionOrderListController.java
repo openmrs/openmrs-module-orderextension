@@ -13,6 +13,7 @@
  */
 package org.openmrs.module.orderextension.web.controller;
 
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -21,6 +22,7 @@ import org.openmrs.DrugOrder;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.orderextension.DrugRegimen;
+import org.openmrs.module.orderextension.OrderSet;
 import org.openmrs.module.orderextension.api.OrderExtensionService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -52,5 +54,23 @@ public class OrderExtensionOrderListController {
 			drugOrders.removeAll(r.getMembers());
 		}
 		model.addAttribute("drugOrders", drugOrders);
+		
+		model.addAttribute("orderSets", Context.getService(OrderExtensionService.class).getNamedOrderSets(false));
+	}
+	
+	/**
+	 * Shows the page to list order sets
+	 */
+	@RequestMapping(value = "/module/orderextension/addOrdersFromSet")
+	public String addOrdersFromSet(ModelMap model, 
+								 @RequestParam(value="patientId", required=true) Integer patientId,
+								 @RequestParam(value="orderSet", required=true) Integer orderSetId,
+								 @RequestParam(value="startDate", required=true) Date startDate,
+								 @RequestParam(value="numCycles", required=false) Integer numCycles) {
+		
+		Patient patient = Context.getPatientService().getPatient(patientId);
+		OrderSet orderSet = Context.getService(OrderExtensionService.class).getOrderSet(orderSetId);
+		Context.getService(OrderExtensionService.class).addOrdersForPatient(patient, orderSet, startDate, numCycles);
+		return "redirect:orderList.form?patientId="+patientId;
 	}
 }

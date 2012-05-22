@@ -13,6 +13,7 @@
  */
 package org.openmrs.module.orderextension.api;
 
+import java.util.Date;
 import java.util.List;
 
 import org.openmrs.Concept;
@@ -110,6 +111,15 @@ public interface OrderExtensionService extends OpenmrsService {
 	public List<OrderSet> getParentOrderSets(OrderSet orderSet);
 	
 	/**
+	 * @param orderGroup the OrderGroup to save
+	 * @return the saved OrderGroup
+	 * @should save a new OrderGroup
+	 * @should save changes to an existing OrderGroup
+	 */
+	@Authorized(PrivilegeConstants.ADD_ORDERS)
+	public <T extends OrderGroup> T saveOrderGroup(T orderGroup);
+	
+	/**
 	 * @param patient the Patient for whom to retrieve the Orders
 	 * @param type the type of OrderGroup to retrieve
 	 * @return a List of all OrderGroups
@@ -117,4 +127,14 @@ public interface OrderExtensionService extends OpenmrsService {
 	 */
 	@Authorized(PrivilegeConstants.VIEW_ORDERS)
 	public <T extends OrderGroup> List<T> getOrderGroups(Patient patient, Class<T> type);
+	
+	/**
+	 * @param patient the Patient for whom to add the Orders
+	 * @param orderSet the OrderSet to use as a template to create the new Orders
+	 * @param startDate the Date on which to start the new Orders
+	 * @param numCycles if the OrderSet represents a cyclical set of Orders, the number of cycles to Order
+	 * @should add the appropriate number of Orders for the patient given the passed OrderSet
+	 */
+	@Authorized(PrivilegeConstants.ADD_ORDERS)
+	public void addOrdersForPatient(Patient patient, OrderSet orderSet, Date startDate, Integer numCycles);
 }

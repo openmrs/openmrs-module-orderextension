@@ -65,6 +65,11 @@ public interface OrderExtensionDAO {
 	public List<OrderSet> getParentOrderSets(OrderSet orderSet);
 	
 	/**
+	 * Persists the passed OrderGroup to the database
+	 */
+	public <T extends OrderGroup> T saveOrderGroup(T orderGroup);
+	
+	/**
 	 * @see OrderExtensionService#getOrderGroups(Patient, Class)
 	 */
 	public <T extends OrderGroup> List<T> getOrderGroups(Patient patient, Class<T> type);

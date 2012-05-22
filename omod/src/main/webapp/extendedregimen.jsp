@@ -32,7 +32,7 @@ jQuery(document).ready(function() {
 				<c:forEach items="${model.cycles}" var="cycle" varStatus="loop">
 					<c:if test="${loop.index > 0}">,</c:if>	
 						{
-					    title  : '<spring:message code="regimenextension.currentCycleNumber" /> <c:out value="${cycle.cycleNumber}"/> <spring:message code="general.of" /> <c:out value="${cycle.orderSet.name}"/>',				
+					    title  : '<spring:message code="orderextension.regimen.currentCycleNumber" /> <c:out value="${cycle.cycleNumber}"/> <spring:message code="general.of" /> <c:out value="${cycle.orderSet.name}"/>',				
 					    start  : '<openmrs:formatDate date="${cycle.firstDrugOrderStartDate}"format="yyyy-MM-dd"/>',
 					    end :'<openmrs:formatDate date="${cycle.lastDrugOrderEndDate}" format="yyyy-MM-dd"/>',
 					    color : '#1AAC9B'
@@ -79,7 +79,7 @@ jQuery(document).ready(function() {
 </div>
 
 <div id="calendarContents">
-	<div class="boxHeader${model.patientVariation}"><spring:message code="regimenextension.ongoing" /></div>
+	<div class="boxHeader${model.patientVariation}"><spring:message code="orderextension.regimen.ongoing" /></div>
 		<div class="box${model.patientVariation}">
 			<table class="regimenTableShort">
 				<thead>

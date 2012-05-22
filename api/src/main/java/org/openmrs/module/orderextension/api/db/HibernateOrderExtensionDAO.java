@@ -111,6 +111,15 @@ public class HibernateOrderExtensionDAO implements OrderExtensionDAO {
 	}
 
 	/**
+	 * @see OrderExtensionDAO#saveOrderGroup(OrderGroup)
+	 */
+	@Override
+	public <T extends OrderGroup> T saveOrderGroup(T orderGroup) {
+		getCurrentSession().saveOrUpdate(orderGroup);
+		return orderGroup;
+	}
+
+	/**
 	 * @see OrderExtensionDAO#getExtendedOrders(Patient, Class)
 	 */
 	@SuppressWarnings("unchecked")

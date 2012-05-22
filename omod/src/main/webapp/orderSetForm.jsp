@@ -66,6 +66,13 @@
 			</td>
 		</tr>
 		<tr>
+			<td style="vertical-align:top;"><spring:message code="orderextension.orderset.field.length"/></td>
+			<td>
+				<form:input path="cycleLengthInDays" size="10"/> <spring:message code="orderextension.orderset.field.length.days"/>
+				<form:errors path="cycleLengthInDays" cssClass="error"/>
+			</td>
+		</tr>
+		<tr>
 			<td colspan="2">
 				<input type="submit" value="<spring:message code='general.save'/>" />
 				&nbsp;&nbsp;

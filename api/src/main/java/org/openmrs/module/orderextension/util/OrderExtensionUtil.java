@@ -13,6 +13,9 @@
  */
 package org.openmrs.module.orderextension.util;
 
+import java.util.Calendar;
+import java.util.Date;
+
 import org.openmrs.Concept;
 import org.openmrs.DrugOrder;
 import org.openmrs.OpenmrsMetadata;
@@ -71,5 +74,15 @@ public class OrderExtensionUtil  {
 			return o.toString();
 		}
 		return "";
+	}
+	
+	/**
+	 * @return a Date that is the number of days passed in relative to the date passed in
+	 */
+	public static Date incrementDate(Date d, Integer increment) {
+		Calendar c = Calendar.getInstance();
+		c.setTime(d);
+		c.add(Calendar.DATE, increment);
+		return c.getTime();
 	}
 }

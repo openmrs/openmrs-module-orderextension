@@ -28,7 +28,7 @@ public class DrugOrderComparator implements Comparator<DrugOrder> {
 	@Override
 	public int compare(DrugOrder r1, DrugOrder r2) {
         
-        if(r1.getDrug().equals(r2.getDrug()))
+        if(r1.getDrug() != null && r1.getDrug().equals(r2.getDrug()))
         {
      	   if(r1.getStartDate().compareTo(r2.getStartDate()) < 0)
      	   {
