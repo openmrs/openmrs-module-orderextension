@@ -19,21 +19,20 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.DrugOrder;
-import org.openmrs.Patient;
-import org.openmrs.api.context.Context;
 import org.openmrs.module.orderextension.DrugClassificationHelper;
+import org.openmrs.web.controller.PortletController;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 
 /**
  * The main controller.
  */
 @Controller
-public class RegimenController {
+public class OrderExtensionPortletController extends PortletController {
 	
 	protected final Log log = LogFactory.getLog(getClass());
 	
@@ -41,11 +40,17 @@ public class RegimenController {
 	public final String COMPLETED_MODE = "completed";
 	public final String FUTURE_MODE = "future";
 	public final String HISTORY_MODE = "history";
+	
+	/**
+	 * @see PortletController#populateModel(HttpServletRequest, Map)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	protected void populateModel(HttpServletRequest request, Map<String, Object> model) {
 
-	protected void populateModel(Integer patientId, String mode, Map<String, Object> model) {
+		List<DrugOrder> allOrders = (List<DrugOrder>)model.get("patientDrugOrders");
+		String mode = (String) model.get("mode");
 		
-		Patient patient = Context.getPatientService().getPatient(patientId);
-		List<DrugOrder> allOrders = Context.getOrderService().getDrugOrdersByPatient(patient);
 		List<DrugOrder> orders = new ArrayList<DrugOrder>();
 		
 		for (DrugOrder o : allOrders) {

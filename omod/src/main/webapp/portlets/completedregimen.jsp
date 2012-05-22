@@ -13,14 +13,14 @@ jQuery(document).ready(function() {
 	jQuery(".asc").hide();
 	 
 	  //toggle the componenet with class msg_body
-	  jQuery(".cycleTitleCollapsable").click(function()
+	  jQuery(".cycleTitleCollapsableCompleted").click(function()
 	  {
 		  jQuery(this).next(".content").toggle();
 		  jQuery("img", this).toggle();
 	  });
 	  
-	  jQuery('.drugLine').mouseover(function() { jQuery(this).addClass('zebraHover'); }); 
-		jQuery('.drugLine').mouseout(function() { jQuery(this).removeClass('zebraHover'); });
+	  jQuery('.drugLine').mouseover(function() { jQuery(this).addClass('zebraHover'); }); 	
+	  jQuery('.drugLine').mouseout(function() { jQuery(this).removeClass('zebraHover'); });
 	});
 </script>
 
@@ -42,33 +42,31 @@ DrugClassificationHelper helper = (DrugClassificationHelper)pageContext.getAttri
 	
 	<c:if test="${regimenHelper.hasCycles}">
 		<div class="boxHeader">
-			<spring:message code="orderextension.regimen.futureCycleTitle" />
+			<spring:message code="orderextension.regimen.completedCycleTitle" />
 		</div>
 		<div class="layer1">
-			<div class="box">
-				<c:forEach items="${regimenHelper.cycleList}" var="drugGroup">
-					<div class="cycleTitleCollapsable">
-						<div class="cycleHeader">
-							<spring:message code="orderextension.regimen.currentCycleNumber" /> <c:out value="${drugGroup.cycleNumber}"/>
-							<spring:message code="general.of" /> <c:out value="${drugGroup.orderSet.name}"/>
-						
-							<div class="cycleStartdate">
-								<spring:message code="general.dateStart"/>: <openmrs:formatDate date="${drugGroup.firstDrugOrderStartDate}" type="medium" />
-								<img class="desc" src="/openmrs/moduleResources/orderextension/sort_desc.png"/>
-								<img class="asc" src="/openmrs/moduleResources/orderextension/sort_asc.png"/>
-							</div>
-						</div>	
+		<div class="box">
+		<c:forEach items="${regimenHelper.cycleList}" var="drugGroup">
+			<div class="cycleTitleCollapsableCompleted">
+				<div class="cycleHeader">
+					<spring:message code="orderextension.regimen.currentCycleNumber" /> <c:out value="${drugGroup.cycleNumber}"/>
+					<spring:message code="general.of" /> <c:out value="${drugGroup.orderSet.name}"/>
+				
+					<div class="cycleStartdate">
+						<spring:message code="general.dateStart"/>: <openmrs:formatDate date="${drugGroup.firstDrugOrderStartDate}" type="medium" />
+						<img class="desc" src="/openmrs/moduleResources/orderextension/sort_desc.png"/>
+						<img class="asc" src="/openmrs/moduleResources/orderextension/sort_asc.png"/>
 					</div>
-					<div class="content">
-						<%@ include file="include/regimenTable.jsp"%> 
-						<div class="cycleLinks">
-							<button id="addDrugCycleLink"><spring:message code="orderextension.regimen.addDrugCycle"/></button>
-							<button id="editStartCycleLink"><spring:message code="orderextension.regimen.editStartDateCycle"/></button>
-							<button id="stopDrugCycleLink"><spring:message code="orderextension.regimen.deleteCycle"/></button>
-						</div>
-					</div>
-				</c:forEach>
+				</div>	
 			</div>
+			<div class="content">
+				<%@ include file="../include/regimenTable.jsp"%> 
+				<div class="cycleLinks">
+					<button id="stopDrugCycleLink"><spring:message code="orderextension.regimen.deleteCycle"/></button>
+				</div>
+			</div>
+		</c:forEach>
+		</div>
 		</div>
 	</c:if>
 	<c:if test="${regimenHelper.hasDrugGroups}">
@@ -84,13 +82,13 @@ DrugClassificationHelper helper = (DrugClassificationHelper)pageContext.getAttri
 				
 					<div class="drugGroupStartdate">
 						<spring:message code="general.dateStart"/>: <openmrs:formatDate date="${drugGroup.firstDrugOrderStartDate}" type="medium" />
+						<img class="desc" src="/openmrs/moduleResources/orderextension/sort_desc.png"/>
+						<img class="asc" src="/openmrs/moduleResources/orderextension/sort_asc.png"/>
 					</div>
 				</div>	
 			</div>
-			<%@ include file="include/regimenTable.jsp"%>
+			<%@ include file="../include/regimenTable.jsp"%>
 			<div class="drugLinks">
-				<button id="addDrugLink"><spring:message code="orderextension.regimen.addDrugGroup"/></button>
-				<button id="editStartDrugLink"><spring:message code="orderextension.regimen.editStartDateGroup"/></button>
 				<button id="stopDrugLink"><spring:message code="orderextension.regimen.deleteGroup"/></button>
 			</div>
 		</c:forEach>
@@ -102,7 +100,7 @@ DrugClassificationHelper helper = (DrugClassificationHelper)pageContext.getAttri
 		</div>
 		<div class="box">
 		<c:set var="drugGroup" value="${null}"/>
-			<%@ include file="include/regimenTable.jsp"%>
+			<%@ include file="../include/regimenTable.jsp"%>
 		</div>
 	</c:if>
 </c:forEach>

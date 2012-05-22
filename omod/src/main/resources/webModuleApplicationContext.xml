@@ -28,9 +28,9 @@
  		<property name="mappings">
    		<props>
      		<prop key="**/patientRegimen.portlet">regimenExtensionController</prop>
-     		<prop key="**/patientRegimenCurrent.portlet">regimenCurrentController</prop>
-     		<prop key="**/patientRegimenFuture.portlet">regimenFutureController</prop>
-     		<prop key="**/patientRegimenCompleted.portlet">regimenCompletedController</prop>
+     		<prop key="**/currentregimen.portlet">orderExtensionPortletController</prop>
+     		<prop key="**/futureregimen.portlet">orderExtensionPortletController</prop>
+     		<prop key="**/completedregimen.portlet">orderExtensionPortletController</prop>
    		</props>
  		</property>
 	</bean>
