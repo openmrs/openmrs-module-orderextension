@@ -88,12 +88,12 @@
 			<column name="dose" type="double precision"/>
 			<column name="units" type="varchar(255)"/>
 			<column name="route" type="int" />
+			<column name="administration_instructions" type="varchar(1024)"/>
 			<column name="frequency" type="varchar(255)"/>
 			<column defaultValueBoolean="false" name="as_needed" type="BOOLEAN">
                 <constraints nullable="false"/>
             </column>
 			<column name="nested_order_set_id" type="int" />
-			<column name="additional_instructions" type="varchar(1024)"/>
 		</createTable>
 		
 		<addForeignKeyConstraint constraintName="orderextension_order_set_member_order_set_id_fk" 
@@ -179,7 +179,7 @@
 			<column name="order_index" type="int" />
 			<column name="indication" type="int" />
 			<column name="route" type="int"/>
-			<column name="additional_instructions" type="varchar(1024)"/>
+			<column name="administration_instructions" type="varchar(1024)"/>
 		</createTable>
 		
 		<addForeignKeyConstraint constraintName="orderextension_order_order_id_fk" 

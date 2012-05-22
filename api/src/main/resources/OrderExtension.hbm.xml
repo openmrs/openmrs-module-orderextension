@@ -78,7 +78,7 @@
     		<many-to-one name="route" class="org.openmrs.Concept"/>
     		<property name="frequency" type="string" />
     		<property name="asNeeded" type="java.lang.Boolean" column="as_needed" length="1" not-null="true"/>
-    		<property name="additionalInstructions" type="string" column="additional_instructions" />
+    		<property name="administrationInstructions" type="string" column="administration_instructions" />
     	</subclass>
     	
     	<subclass name="NestedOrderSetMember">
@@ -129,7 +129,7 @@
     	<many-to-one name="group" class="OrderGroup" column="group_id" lazy="false"/>
     	<many-to-one name="indication" class="org.openmrs.Concept"/>
     	<many-to-one name="route" class="org.openmrs.Concept"/>
-    	<property name="additionalInstructions" type="string" column="additional_instructions"/>
+    	<property name="administrationInstructions" type="string" column="administration_instructions"/>
     </joined-subclass>
 
 </hibernate-mapping>

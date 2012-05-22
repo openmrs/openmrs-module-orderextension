@@ -45,7 +45,7 @@
 						<td>${eo.units}</td>
 						<td><openmrs:format concept="${eo.route}"/></td>
 						<td>${eo.frequency}</td>
-						<td>${eo.additionalInstructions}</td>
+						<td>${eo.administrationInstructions}</td>
 					</tr>			
 				</c:forEach>
 			</tbody>
@@ -100,7 +100,7 @@
 					<td>${eo.frequency}</td>
 					<td>
 						<c:if test="${eo['class'].simpleName == 'ExtendedDrugOrder'}">
-							${eo.additionalInstructions}
+							${eo.administrationInstructions}
 						</c:if>
 					</td>
 				</tr>			

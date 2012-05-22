@@ -46,9 +46,9 @@ public class ExtendedDrugOrder extends DrugOrder implements GroupableOrder {
 	private Concept route;
 	
 	/**
-	 * Provides an additional instructions field
+	 * Provides an administration instructions field
 	 */
-	private String additionalInstructions;
+	private String administrationInstructions;
 
 	/**
 	 * @return the group
@@ -93,16 +93,16 @@ public class ExtendedDrugOrder extends DrugOrder implements GroupableOrder {
 	}
 
 	/**
-	 * @return the additionalInstructions
+	 * @return the administrationInstructions
 	 */
-	public String getAdditionalInstructions() {
-		return additionalInstructions;
+	public String getAdministrationInstructions() {
+		return administrationInstructions;
 	}
 
 	/**
-	 * @param additionalInstructions the additionalInstructions to set
+	 * @param administrationInstructions the administrationInstructions to set
 	 */
-	public void setAdditionalInstructions(String additionalInstructions) {
-		this.additionalInstructions = additionalInstructions;
+	public void setAdministrationInstructions(String administrationInstructions) {
+		this.administrationInstructions = administrationInstructions;
 	}
 }

@@ -50,7 +50,7 @@
 						<c:when test="${drugOrder.future || drugOrder.current}">
 							<c:choose>
 								<c:when test="${drugOrder.current}">
-									<td class="regimenLinks"><button id="stopRegimenLink"><spring:message code="orderextension.stop"/></button></td>
+									<td class="regimenLinks"><button id="stopRegimenLink"><spring:message code="orderextension.regimen.stop"/></button></td>
 								</c:when>
 								<c:otherwise>
 									<td class="regimenLinks"><button id="editRegimenLink"><spring:message code="general.edit"/></button></td>	

@@ -47,7 +47,7 @@ public class OrderExtensionUtil  {
 				
 				if ("administrationInstructions".equals(format)) {
 					if (edo != null) {
-						return edo.getAdditionalInstructions();
+						return edo.getAdministrationInstructions();
 					}
 					return "";
 				}

@@ -189,10 +189,10 @@
 									<td><form:checkbox path="asNeeded"/></td>
 								</tr>
 								<tr>
-									<th><spring:message code="orderextension.orderset.DrugOrderSetMember.additionalInstructions"/></th>
+									<th><spring:message code="orderextension.orderset.DrugOrderSetMember.administrationInstructions"/></th>
 									<td>
-										<form:textarea path="additionalInstructions" cols="70" rows="3"/>
-										<form:errors path="additionalInstructions" cssClass="error"/>
+										<form:textarea path="administrationInstructions" cols="70" rows="3"/>
+										<form:errors path="administrationInstructions" cssClass="error"/>
 									</td>
 								</tr>
 							</table>

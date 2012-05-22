@@ -45,7 +45,7 @@
 				<c:if test="${!empty member.route}"><openmrs:format concept="${member.route}"/></c:if> 
 				<c:if test="${!empty member.frequency}">${member.frequency}</c:if> 
 				<c:if test="${member.asNeeded}"><spring:message code="orderextension.orderset.field.asNeeded"/></c:if>
-				<c:if test="${!empty member.additionalInstructions}">${member.additionalInstructions}</c:if> 
+				<c:if test="${!empty member.administrationInstructions}">${member.administrationInstructions}</c:if> 
 			</c:when>
 			<c:when test="${member['class'].name == 'org.openmrs.module.orderextension.NestedOrderSetMember'}">
 				<div style="border:1px solid black; padding:5px;">

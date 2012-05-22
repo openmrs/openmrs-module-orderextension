@@ -74,9 +74,9 @@ public class DrugOrderSetMember extends SingleOrderSetMember {
 	private boolean asNeeded;
 	
 	/**
-	 * Provides the ability to specify additional instructions on the Drug Order
+	 * Provides the ability to specify administration instructions on the Drug Order
 	 */
-	private String additionalInstructions;
+	private String administrationInstructions;
 
 	/**
 	 * @return the drug
@@ -166,16 +166,16 @@ public class DrugOrderSetMember extends SingleOrderSetMember {
 	}
 
 	/**
-	 * @return the additionalInstructions
+	 * @return the administrationInstructions
 	 */
-	public String getAdditionalInstructions() {
-		return additionalInstructions;
+	public String getAdministrationInstructions() {
+		return administrationInstructions;
 	}
 
 	/**
-	 * @param additionalInstructions the additionalInstructions to set
+	 * @param administrationInstructions the administrationInstructions to set
 	 */
-	public void setAdditionalInstructions(String additionalInstructions) {
-		this.additionalInstructions = additionalInstructions;
+	public void setAdministrationInstructions(String administrationInstructions) {
+		this.administrationInstructions = administrationInstructions;
 	}
 }
