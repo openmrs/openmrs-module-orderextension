@@ -1,5 +1,5 @@
-<%@ include file="/WEB-INF/template/include.jsp" %>
-<openmrs:htmlInclude file="/scripts/jquery/jquery-1.3.2.min.js" />
+<%@ include file="/WEB-INF/view/module/orderextension/include/include.jsp"%>
+
 <openmrs:htmlInclude file="/moduleResources/orderextension/fullcalendar/fullcalendar.js" />
 <openmrs:htmlInclude file="/moduleResources/orderextension/orderextension.css" />
 <openmrs:htmlInclude file="/moduleResources/orderextension/fullcalendar/fullcalendar.css" />
@@ -92,14 +92,7 @@ jQuery(document).ready(function() {
 				</thead>
 				<c:forEach items="${model.drugOrdersContinuous}" var="regimen">
 					<tr class="drugLine">
-						<td class="regimenCurrentDrugOrdered">
-							<c:if test="${!empty regimen.drug.name}">
-								<c:out value="${regimen.drug.name}"/>
-							</c:if>
-							<c:if test="${!empty regimen.concept}">
-								<c:out value="${regimen.concept.name.name}"/>
-							</c:if>
-						</td>
+						<td class="regimenCurrentDrugOrdered"><orderextension:format object="${regimen}"/></td>
 						<td class="regimenCurrentDrugDose"><c:out value="${regimen.dose}"/><c:out value="${regimen.drug.units}"/></td>
 						<td class="regimenCurrentDrugFrequency"><c:out value="${regimen.frequency}"/></td>
 						<td class="regimenCurrentDrugDateStart"><openmrs:formatDate date="${regimen.startDate}" type="medium" /></td>
