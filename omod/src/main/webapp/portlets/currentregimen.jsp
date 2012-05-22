@@ -88,6 +88,3 @@ DrugClassificationHelper helper = (DrugClassificationHelper)pageContext.getAttri
 		</div>
 	</c:if>
 </c:forEach>
-
-
-

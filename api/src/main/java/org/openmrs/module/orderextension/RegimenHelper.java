@@ -125,14 +125,16 @@ public class RegimenHelper {
 			}
 		}
 		
-		Collections.sort(classifications, new Comparator<Concept>() {
-            public int compare(Concept c1, Concept c2) {
-            	List<Concept> setMembers = topLevelIndicator.getSetMembers();
-            	int index1 = setMembers.indexOf(c1);
-            	int index2 = setMembers.indexOf(c2);
-            	return index1 - index2;
-            }
-        });
+		if (topLevelIndicator != null) {
+			Collections.sort(classifications, new Comparator<Concept>() {
+	            public int compare(Concept c1, Concept c2) {
+	            	List<Concept> setMembers = topLevelIndicator.getSetMembers();
+	            	int index1 = setMembers.indexOf(c1);
+	            	int index2 = setMembers.indexOf(c2);
+	            	return index1 - index2;
+	            }
+	        });
+		}
 		
 		//TODO: will need to be able to sort these based on a predetermined order
 		

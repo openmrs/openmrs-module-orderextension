@@ -31,75 +31,61 @@ public class DrugClassificationHelper {
 	private List<Concept> classifications = new ArrayList<Concept>();
 	private Map<Concept, List<DrugOrder>> classifiedRegimens = new HashMap<Concept, List<DrugOrder>>();
 	
-	public DrugClassificationHelper(List<DrugOrder> drugOrders)
+	/**
+	 * Default Constructor
+	 */
+	public DrugClassificationHelper(List<DrugOrder> drugOrders) 
 	{
 		String indicationSet = Context.getAdministrationService().getGlobalProperty("orderextension.drugGroupClassification");
 		Concept indicationsSet = Context.getConceptService().getConcept(indicationSet);
 		List<Concept> indicationConcepts = indicationsSet.getSetMembers();
 		
-		for (Concept indication : indicationConcepts)
-		{
+		for (Concept indication : indicationConcepts) {
 			indications.put(indication, indication.getSetMembers());
 		}
 		
-		for (DrugOrder o : drugOrders)
-		{
-			if (o instanceof ExtendedDrugOrder)
-			{
+		for (DrugOrder o : drugOrders) {
+			
+			Concept indication = null;
+			
+			if (o instanceof ExtendedDrugOrder) {
 				ExtendedDrugOrder edo = (ExtendedDrugOrder)o;
-				if (edo.getIndication() != null) 
-				{
-					for(Map.Entry<Concept, List<Concept>> entry: indications.entrySet())
-					{
-						Concept indication = entry.getKey();
-						List<Concept> indicationList = entry.getValue();
+				indication = edo.getIndication();
+			}
+			
+			boolean found = false;
+			if (indication != null) {
+				for (Map.Entry<Concept, List<Concept>> entry: indications.entrySet()) {
+					Concept c = entry.getKey();
+					List<Concept> indicationList = entry.getValue();
 						
-						if ((indicationList != null && indicationList.contains(edo.getIndication())) || edo.getIndication().equals(indication))
-						{
-							if(!classifications.contains(indication))
-							{
-								classifications.add(indication);
-							}
-							if(classifiedRegimens.containsKey(indication))
-							{
-								List<DrugOrder> l = classifiedRegimens.get(indication);
-								l.add(edo);
-							}
-							else
-							{
-								List<DrugOrder> l = new ArrayList<DrugOrder>();
-								l.add(edo);
-								classifiedRegimens.put(indication, l);
-							}
-							break;
-						}
+					if ((indicationList != null && indicationList.contains(indication)) || indication.equals(c)) {
+						indication = c;
+						break;
 					}
 				}
-			}
-			else
-			{
-				if(classifiedRegimens.containsKey(null))
-				{
-					List<DrugOrder> l = classifiedRegimens.get(null);
-					l.add(o);
-				}
-				else
-				{
-					List<DrugOrder> l = new ArrayList<DrugOrder>();
-					l.add(o);
-					classifiedRegimens.put(null, l);
+				if (!found) {
+					indication = null;
 				}
 			}
+
+			if(!classifications.contains(indication)) {
+				classifications.add(indication);
+			}
+			List<DrugOrder> l = classifiedRegimens.get(indication);
+			if (l == null) {
+				l = new ArrayList<DrugOrder>();
+				classifiedRegimens.put(indication, l);
+			}
+			l.add(o);
 		}
 	}
 	
-	public List<Concept> getClassificationsForRegimenList()
-	{
+	public List<Concept> getClassificationsForRegimenList() {
 		return classifications;
 	}
 	
-	public RegimenHelper getRegimenHelperForClassification(Concept concept)
-	{
+	public RegimenHelper getRegimenHelperForClassification(Concept concept) {
 		return new RegimenHelper(classifiedRegimens.get(concept));
 	}
 }

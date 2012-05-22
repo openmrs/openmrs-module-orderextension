@@ -27,7 +27,7 @@
 
 		<c:if test="${c != classification}">
 			<tr class="regimenClassificationHeading">
-				<td><b><openmrs:format concept="c"/></b></td>
+				<td><b><openmrs:format concept="${c}"/></b></td>
 			</tr>
 		</c:if>
 		<%
