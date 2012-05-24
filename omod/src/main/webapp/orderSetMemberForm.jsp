@@ -116,6 +116,13 @@
 						                <form:errors cssClass="error" path="indication"/>
 									</td>
 								</tr>
+								<tr>
+									<th><spring:message code="orderextension.orderset.TestOrderSetMember.instructions"/></th>
+									<td>
+										<form:textarea path="instructions" cols="70" rows="3"/>
+										<form:errors path="instructions" cssClass="error"/>
+									</td>
+								</tr>
 							</table>
 						</fieldSet>
 					</td>
@@ -152,6 +159,13 @@
 											<openmrs_tag:conceptField formFieldName="${status.expression}" initialValue="${status.value}"/>
 										</spring:bind>
 						                <form:errors cssClass="error" path="indication"/>
+									</td>
+								</tr>
+								<tr>
+									<th><spring:message code="orderextension.orderset.DrugOrderSetMember.instructions"/></th>
+									<td>
+										<form:textarea path="instructions" cols="70" rows="3"/>
+										<form:errors path="instructions" cssClass="error"/>
 									</td>
 								</tr>
 								<tr>
