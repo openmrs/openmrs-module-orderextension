@@ -30,6 +30,7 @@ public class DrugClassificationHelper {
 	private Map<Concept, List<Concept>> indications = new HashMap<Concept, List<Concept>>();
 	private List<Concept> classifications = new ArrayList<Concept>();
 	private Map<Concept, List<DrugOrder>> classifiedRegimens = new HashMap<Concept, List<DrugOrder>>();
+	private List<Concept> indicationConcepts = new ArrayList<Concept>();
 	
 	/**
 	 * Default Constructor
@@ -38,7 +39,7 @@ public class DrugClassificationHelper {
 	{
 		String indicationSet = Context.getAdministrationService().getGlobalProperty("orderextension.drugGroupClassification");
 		Concept indicationsSet = Context.getConceptService().getConcept(indicationSet);
-		List<Concept> indicationConcepts = indicationsSet.getSetMembers();
+		indicationConcepts = indicationsSet.getSetMembers();
 		
 		for (Concept indication : indicationConcepts) {
 			indications.put(indication, indication.getSetMembers());
@@ -87,5 +88,5 @@ public class DrugClassificationHelper {
 	
 	public RegimenHelper getRegimenHelperForClassification(Concept concept) {
 		return new RegimenHelper(classifiedRegimens.get(concept));
-	}
+	}	
 }

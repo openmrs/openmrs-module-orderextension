@@ -25,6 +25,8 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.openmrs.Concept;
 import org.openmrs.Patient;
+import org.openmrs.module.orderextension.DrugRegimen;
+import org.openmrs.module.orderextension.ExtendedDrugOrder;
 import org.openmrs.module.orderextension.OrderGroup;
 import org.openmrs.module.orderextension.OrderSet;
 import org.openmrs.module.orderextension.OrderSetMember;
@@ -118,7 +120,40 @@ public class HibernateOrderExtensionDAO implements OrderExtensionDAO {
 		getCurrentSession().saveOrUpdate(orderGroup);
 		return orderGroup;
 	}
+	
+	/**
+	 * @see OrderExtensionDAO#saveExtendedDrugOrder(ExtendedDrugOrder)
+	 */
+	@Override
+	public <T extends ExtendedDrugOrder> T saveExtendedDrugOrder(T extendedDrugOrder) {
+		getCurrentSession().saveOrUpdate(extendedDrugOrder);
+		return extendedDrugOrder;
+	}
+	
+	/**
+	 * @see OrderExtensionDAO#getExtendedDrugOrder(Integer)
+	 */
+	@Override
+	public ExtendedDrugOrder getExtendedDrugOrder(Integer id) {
+		return (ExtendedDrugOrder) getCurrentSession().get(ExtendedDrugOrder.class, id);
+	}
+	
+	/**
+	 * @see OrderExtensionDAO#getDrugRegimen(Integer)
+	 */
+	@Override
+	public DrugRegimen getDrugRegimen(Integer id) {
+		return (DrugRegimen) getCurrentSession().get(DrugRegimen.class, id);
+	}
 
+	/**
+	 * @see OrderExtensionDAO#getOrderGroup(Integer)
+	 */
+	@Override
+	public OrderGroup getOrderGroup(Integer id) {
+		return (OrderGroup) getCurrentSession().get(OrderGroup.class, id);
+	}
+	
 	/**
 	 * @see OrderExtensionDAO#getExtendedOrders(Patient, Class)
 	 */

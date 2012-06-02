@@ -25,6 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.DrugOrder;
 import org.openmrs.module.orderextension.DrugClassificationHelper;
+import org.openmrs.module.orderextension.util.DrugConceptHelper;
 import org.openmrs.web.controller.PortletController;
 import org.springframework.stereotype.Controller;
 
@@ -82,6 +83,12 @@ public class OrderExtensionPortletController extends PortletController {
 		}
 
 		DrugClassificationHelper helper = new DrugClassificationHelper(orders);
+		DrugConceptHelper drugHelper = new DrugConceptHelper();
+		
 		model.put("classifications", helper);
+		
+		model.put("drugs", drugHelper.getDistinctSortedDrugs());
+		
+		model.put("indications", drugHelper.getIndications());
 	}
 }

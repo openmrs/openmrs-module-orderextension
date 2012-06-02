@@ -19,7 +19,6 @@ import java.util.List;
 import org.openmrs.Concept;
 import org.openmrs.Patient;
 import org.openmrs.api.APIException;
-import org.openmrs.api.OrderService;
 import org.openmrs.api.context.Context;
 import org.openmrs.api.impl.BaseOpenmrsService;
 import org.openmrs.module.orderextension.DrugOrderSetMember;
@@ -121,6 +120,24 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 	public <T extends OrderGroup> T saveOrderGroup(T orderGroup) {
 		return dao.saveOrderGroup(orderGroup);
 	}
+	
+	/**
+	 * @see OrderExtensionService#saveExtendedDrugOrder(extendedDrugOrder)
+	 */
+	@Override
+	@Transactional
+	public <T extends ExtendedDrugOrder> T saveExtendedDrugOrder(T extendedDrugOrder) {
+		return dao.saveExtendedDrugOrder(extendedDrugOrder);
+	}
+	
+	/**
+	 * @see OrderExtensionService#saveOrderGroup(OrderGroup)
+	 */
+	@Override
+	@Transactional
+	public ExtendedDrugOrder getExtendedDrugOrder(Integer id) {
+		return dao.getExtendedDrugOrder(id);
+	}
 
 	/**
 	 * @see OrderExtensionService#getOrderGroups(Patient, Class)
@@ -129,6 +146,24 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 	@Transactional(readOnly=true)
 	public <T extends OrderGroup> List<T> getOrderGroups(Patient patient, Class<T> type) {
 		return dao.getOrderGroups(patient, type);
+	}
+	
+	/**
+	 * @see OrderExtensionService#getOrderGroup(Integer orderGroup)
+	 */
+	@Override
+	@Transactional(readOnly=true)
+	public OrderGroup  getOrderGroup(Integer id) {
+		return dao.getOrderGroup(id);
+	}
+	
+	/**
+	 * @see OrderExtensionService#getDrugRegimen(Integer orderGroup)
+	 */
+	@Override
+	@Transactional(readOnly=true)
+	public DrugRegimen  getDrugRegimen(Integer id) {
+		return dao.getDrugRegimen(id);
 	}
 
 	/**

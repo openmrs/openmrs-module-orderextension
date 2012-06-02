@@ -3,17 +3,11 @@
 <%@ page import="org.openmrs.*" %>
 <%@ page import="java.util.*" %>
 <%@ page import="org.openmrs.module.orderextension.*" %>
-<openmrs:htmlInclude file="/scripts/jquery/jquery-1.3.2.min.js" />
-<openmrs:htmlInclude file="/moduleResources/orderextension/orderextension.css" />
+
+<%@ include file="../include/dialogsAndScriptsForPortlets.jsp"%> 
 
 <c:set var="classifications" value="${model.classifications}"/>
 
-<script>
-jQuery(document).ready(function() {
-	jQuery('.drugLine').mouseover(function() { jQuery(this).addClass('zebraHover'); }); 
-	jQuery('.drugLine').mouseout(function() { jQuery(this).removeClass('zebraHover'); });
-	});
-</script>
 <%
 DrugClassificationHelper helper = (DrugClassificationHelper)pageContext.getAttribute("classifications");
 %>
@@ -70,8 +64,9 @@ DrugClassificationHelper helper = (DrugClassificationHelper)pageContext.getAttri
 			</div>
 			<%@ include file="../include/regimenTable.jsp"%>
 			<div class="drugLinks">
-				<button id="addDrugLink"><spring:message code="orderextension.regimen.addDrugGroup"/></button>
-				<button id="stopDrugLink"><spring:message code="orderextension.regimen.stopAllDrugGroup"/></button>
+				<input type="button" class="addDrugToGroupButton" value="<spring:message code="orderextension.regimen.addDrugGroup"/>" id="${drugGroup.id}">
+				<input type="button" class="stopAllDrugsInGroupButton" value="<spring:message code="orderextension.regimen.stopAllDrugGroup"/>" id="${drugGroup.id}">
+				<input type="button" class="deleteAllDrugsInGroupButton" value="<spring:message code="orderextension.regimen.deleteAllDrugGroup"/>" id="${drugGroup.id}">
 			</div>
 		</c:forEach>
 		</div>

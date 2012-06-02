@@ -16,9 +16,12 @@
 			<th class="regimenCurrentDrugInfusionHeader"><spring:message code="orderextension.regimen.administrationInstructions"/></th>
 			<th class="regimenCurrentDrugDateStartHeader"> <spring:message code="general.dateStart"/> </th>
 			<th class="regimenCurrentDrugScheduledStopDateHeader"> <spring:message code="DrugOrder.scheduledStopDate"/> </th>
-			<th class="regimenCurrentDrugInstructionsHeader"> <spring:message code="general.instructions" /> </th>
+			<th class="regimenCurrentDrugInstructionsHeader"> <spring:message code="orderextension.regimen.instructions" /> </th>
 			<openmrs:hasPrivilege privilege="Edit Regimen">
 				<th class="regimenCurrentEmptyHeader"> </th>
+			<openmrs:hasPrivilege privilege="Edit Current Regimen">
+				<th class="regimenCurrentEmptyHeader"> </th>
+			</openmrs:hasPrivilege>
 				<th class="regimenCurrentEmptyHeader"> </th>
 			</openmrs:hasPrivilege>
 		</tr>
@@ -47,21 +50,29 @@
 				<td class="regimenCurrentDrugInstructions">${drugOrder.instructions}</td>
 				<openmrs:hasPrivilege privilege="Edit Regimen">
 					<c:choose>
-						<c:when test="${drugOrder.future || drugOrder.current}">
-							<c:choose>
-								<c:when test="${drugOrder.current}">
-									<td class="regimenLinks"><button id="stopRegimenLink"><spring:message code="orderextension.regimen.stop"/></button></td>
-								</c:when>
-								<c:otherwise>
-									<td class="regimenLinks"><button id="editRegimenLink"><spring:message code="general.edit"/></button></td>	
-								</c:otherwise>
-							</c:choose>	
+						<c:when test="${drugOrder.current}">
+							<td class="regimenLinks"><input type="button" id="${drugOrder.id}" class="stopButton" value="<spring:message code="orderextension.regimen.stop" />"></td>
 						</c:when>
 						<c:otherwise>
 							<td></td>
 						</c:otherwise>
 					</c:choose>
-					<td class="regimenLinks"><button id="deleteRegimenLink"><spring:message code="general.delete"/></button></td>
+					<c:choose>
+						<c:when test="${drugOrder.future}">
+							<td class="regimenLinks"><input type="button" id="${drugOrder.id}" class="editButton" value="<spring:message code="general.edit" />"></td>
+						</c:when>
+						<c:otherwise>
+							<openmrs:hasPrivilege privilege="Edit Current/Completed Regimen">
+								<c:if test="${empty drugOrder.discontinuedDate}">
+									<td class="regimenLinks"><input type="button" id="${drugOrder.id}" class="editButton" value="<spring:message code="general.edit" />"></td>	
+								</c:if>
+								<c:if test="${!empty drugOrder.discontinuedDate}">
+									<td></td>
+								</c:if>
+							</openmrs:hasPrivilege>
+						</c:otherwise>
+					</c:choose>
+					<td class="regimenLinks"><input type="button" id="${drugOrder.id}" class="deleteButton" value="<spring:message code="general.delete" />"></td>
 				</openmrs:hasPrivilege>
 			</tr>
 		</c:forEach>

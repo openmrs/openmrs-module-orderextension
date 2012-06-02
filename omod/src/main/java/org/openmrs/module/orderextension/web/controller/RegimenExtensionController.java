@@ -25,6 +25,8 @@ import org.openmrs.api.context.Context;
 import org.openmrs.module.orderextension.DrugOrderComparator;
 import org.openmrs.module.orderextension.DrugRegimen;
 import org.openmrs.module.orderextension.ExtendedDrugOrder;
+import org.openmrs.module.orderextension.api.OrderExtensionService;
+import org.openmrs.module.orderextension.util.DrugConceptHelper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -78,9 +80,17 @@ public class RegimenExtensionController {
 		
 		Collections.sort(drugOrdersContinuous, new DrugOrderComparator());
 		
+		DrugConceptHelper drugHelper = new DrugConceptHelper();
+		
 		model.put("drugOrdersNonContinuous", drugOrdersNonContinuous);
 		model.put("drugOrdersContinuous", drugOrdersContinuous);
 		model.put("cycles", cycles);
+		
+		model.addAttribute("orderSets", Context.getService(OrderExtensionService.class).getNamedOrderSets(false));
+		
+		model.addAttribute("drugs", drugHelper.getDistinctSortedDrugs());
+		
+		model.addAttribute("indications", drugHelper.getIndications());
 		
 		return new ModelAndView(SUCCESS_FORM_VIEW, "model", model);
 	}

@@ -7,27 +7,12 @@
 
 <openmrs:htmlInclude file="/moduleResources/orderextension/orderextension.css" />
 
-<script>
-jQuery(document).ready(function() {
-	jQuery(".content").hide();
-	jQuery(".asc").hide();
-	 
-	  //toggle the componenet with class msg_body
-	  jQuery(".cycleTitleCollapsableCompleted").click(function()
-	  {
-		  jQuery(this).next(".content").toggle();
-		  jQuery("img", this).toggle();
-	  });
-	  
-	  jQuery('.drugLine').mouseover(function() { jQuery(this).addClass('zebraHover'); }); 	
-	  jQuery('.drugLine').mouseout(function() { jQuery(this).removeClass('zebraHover'); });
-	});
-</script>
-
 <c:set var="classifications" value="${model.classifications}"/>
 <%
 DrugClassificationHelper helper = (DrugClassificationHelper)pageContext.getAttribute("classifications");
 %>
+
+ 
 
 <c:forEach items="${classifications.classificationsForRegimenList}" var="classification">
 

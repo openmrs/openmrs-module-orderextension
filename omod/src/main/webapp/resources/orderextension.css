@@ -30,7 +30,7 @@
 	border: 1px solid #8FABC7;
 }
 
-.regimenPortletCurrent.boxHeader  {
+.regimenPortletCurrent .boxHeader  {
 	background-color: #1AAC9B;
 	border: 1px solid #1AAC9B;
 }
@@ -150,7 +150,6 @@ padding: 3px;
 
 .content {
 padding: 5px 10px;
-
 }
 
 .cycleTitle {
@@ -236,6 +235,36 @@ padding: 3px;
     font-weight: bold;
     text-decoration: none;
     width: 100%;
+}
+
+#addMedicationLink {
+	float: left;	
+	padding-top: 8px;
+    vertical-align: bottom;
+}
+
+#buttonDiv {
+	margin-top: 3px;	
+	margin-bottom: 7px;
+}
+
+
+#addNewRegimenDialog .box {
+	height: 315px;
+}
+
+.padding {
+	padding-top: 5px;
+	padding-left: 15px;
+	font-size: 14px;	
+}
+
+.topAlignment {
+	vertical-align: top;
+}
+
+.error {
+	font-color: red;
 }
 
 

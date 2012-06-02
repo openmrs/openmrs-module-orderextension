@@ -111,7 +111,7 @@
         	<property name="cycleNumber" type="int" column="cycle_number"/>
 	        
 	        <list name="members" cascade="all-delete-orphan" lazy="false" inverse="false" batch-size="1000">
-	            <key column="group_id" not-null="true"/>
+	            <key column="group_id" not-null="false"/>
             	<list-index column="order_index" base="0"/>
 	            <one-to-many class="ExtendedDrugOrder" />
 	        </list>

@@ -20,6 +20,8 @@ import org.openmrs.Concept;
 import org.openmrs.Patient;
 import org.openmrs.annotation.Authorized;
 import org.openmrs.api.OpenmrsService;
+import org.openmrs.module.orderextension.DrugRegimen;
+import org.openmrs.module.orderextension.ExtendedDrugOrder;
 import org.openmrs.module.orderextension.OrderGroup;
 import org.openmrs.module.orderextension.OrderSet;
 import org.openmrs.module.orderextension.OrderSetMember;
@@ -137,4 +139,31 @@ public interface OrderExtensionService extends OpenmrsService {
 	 */
 	@Authorized(PrivilegeConstants.ADD_ORDERS)
 	public void addOrdersForPatient(Patient patient, OrderSet orderSet, Date startDate, Integer numCycles);
+
+    /**
+	 * @param extendedDrugOrder the ExtendedDrugOrder to save
+	 * @return the saved extendedDrugOrder
+	 * @should save a new extendedDrugOrder
+	 * @should save changes to an existing extendedDrugOrder
+	 */
+	@Authorized(PrivilegeConstants.ADD_ORDERS)
+	public <T extends ExtendedDrugOrder> T saveExtendedDrugOrder(T extendedDrugOrder);
+	
+	/**
+	 * @param id the id of the Extended drug order
+	 * @return the requested extendedDrugOrder
+	 */
+	public ExtendedDrugOrder getExtendedDrugOrder(Integer id);
+
+	/**
+     * @param id the id of the orderGroup to be returned
+     * @return the requested orderGroup
+     */
+    public OrderGroup getOrderGroup(Integer id);
+    
+    /**
+     * @param id the id of the drugRegimen to be returned
+     * @return the requested drugRegimen
+     */
+    public DrugRegimen getDrugRegimen(Integer id);
 }

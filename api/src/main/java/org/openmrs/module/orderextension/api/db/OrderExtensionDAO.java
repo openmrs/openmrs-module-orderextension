@@ -17,6 +17,8 @@ import java.util.List;
 
 import org.openmrs.Concept;
 import org.openmrs.Patient;
+import org.openmrs.module.orderextension.DrugRegimen;
+import org.openmrs.module.orderextension.ExtendedDrugOrder;
 import org.openmrs.module.orderextension.OrderGroup;
 import org.openmrs.module.orderextension.OrderSet;
 import org.openmrs.module.orderextension.OrderSetMember;
@@ -73,4 +75,26 @@ public interface OrderExtensionDAO {
 	 * @see OrderExtensionService#getOrderGroups(Patient, Class)
 	 */
 	public <T extends OrderGroup> List<T> getOrderGroups(Patient patient, Class<T> type);
+	
+	/**
+	 * Persists the passed ExtendedDrugOrder to the database
+	 */
+	public <T extends ExtendedDrugOrder> T saveExtendedDrugOrder(T extendedDrugOrder);
+	
+	/**
+	 * @see OrderExtensionService#getOrderGroup(Integer id)
+	 */
+	public OrderGroup getOrderGroup(Integer id);
+
+	/**
+     * @see OrderExtensionService#getExtendedDrugOrder(Integer id)
+     */
+    public ExtendedDrugOrder getExtendedDrugOrder(Integer id);
+    
+    /**
+     * @see OrderExtensionService#getDrugRegimen(Integer id)
+     */
+    public DrugRegimen getDrugRegimen(Integer id);
+
 }
+
