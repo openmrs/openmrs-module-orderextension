@@ -14,7 +14,7 @@ DrugClassificationHelper helper = (DrugClassificationHelper)pageContext.getAttri
 
 <c:forEach items="${classifications.classificationsForRegimenList}" var="classification">
 
- 	<c:if test="${!empty classification}"><div class="regimenClassificationTitle"><c:out value="${classification.name.name}" /></div></c:if>
+ 	<c:if test="${!empty classification}"><div class="regimenClassificationTitle"><c:out value="${classification.displayString}" /></div></c:if>
 	
 	<%
 	Concept classification = (Concept)pageContext.getAttribute("classification");

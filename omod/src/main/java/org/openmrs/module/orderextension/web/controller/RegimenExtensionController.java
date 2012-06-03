@@ -92,6 +92,8 @@ public class RegimenExtensionController {
 		
 		model.addAttribute("indications", drugHelper.getIndications());
 		
+		model.addAttribute("patient", Context.getPatientService().getPatient(patientId));
+		
 		return new ModelAndView(SUCCESS_FORM_VIEW, "model", model);
 	}
 }

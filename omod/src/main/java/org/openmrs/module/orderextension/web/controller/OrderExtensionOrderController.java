@@ -230,8 +230,8 @@ public class OrderExtensionOrderController {
 	@RequestMapping(value = "/module/orderextension/stopDrug")
 	public String stopDrug(ModelMap model, 
 								 @RequestParam(value="orderId", required=true) Integer orderId,
-								 @RequestParam(value="drugStopDate", required=false) Date stopDate,
-								 @RequestParam(value="drugStopReason", required=false) Integer stopReason,
+								 @RequestParam(value="drugStopDate", required=true) Date stopDate,
+								 @RequestParam(value="drugStopReason", required=true) Integer stopReason,
 								 @RequestParam(value="returnPage", required=true) String returnPage) {
 		
 		ExtendedDrugOrder drugOrder = Context.getService(OrderExtensionService.class).getExtendedDrugOrder(orderId);
@@ -244,7 +244,7 @@ public class OrderExtensionOrderController {
 	@RequestMapping(value = "/module/orderextension/deleteDrug")
 	public String deleteDrug(ModelMap model, 
 								 @RequestParam(value="orderId", required=true) Integer orderId,
-								 @RequestParam(value="deleteReason", required=false) String voidReason,
+								 @RequestParam(value="deleteReason", required=true) String voidReason,
 								 @RequestParam(value="returnPage", required=true) String returnPage) {
 		
 		ExtendedDrugOrder drugOrder = Context.getService(OrderExtensionService.class).getExtendedDrugOrder(orderId);
@@ -257,7 +257,7 @@ public class OrderExtensionOrderController {
 	@RequestMapping(value = "/module/orderextension/deleteAllDrugsInGroup")
 	public String deleteAllDrugsInGroup(ModelMap model, 
 								 @RequestParam(value="groupId", required=true) Integer groupId,
-								 @RequestParam(value="deleteReason", required=false) String voidReason,
+								 @RequestParam(value="deleteReason", required=true) String voidReason,
 								 @RequestParam(value="returnPage", required=true) String returnPage) {
 		
 		DrugRegimen regimen = Context.getService(OrderExtensionService.class).getDrugRegimen(groupId);
@@ -273,8 +273,8 @@ public class OrderExtensionOrderController {
 	@RequestMapping(value = "/module/orderextension/stopAllDrugsInGroup")
 	public String stopAllDrugsInGroup(ModelMap model, 
 								 @RequestParam(value="groupId", required=true) Integer groupId,
-								 @RequestParam(value="drugStopDate", required=false) Date stopDate,
-								 @RequestParam(value="drugStopReason", required=false) Integer stopReason,
+								 @RequestParam(value="drugStopAllDate", required=true) Date stopDate,
+								 @RequestParam(value="drugStopAllReason", required=true) Integer stopReason,
 								 @RequestParam(value="returnPage", required=true) String returnPage) {
 		
 		DrugRegimen regimen = Context.getService(OrderExtensionService.class).getDrugRegimen(groupId);

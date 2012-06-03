@@ -124,7 +124,7 @@ jQuery(document).ready(function() {
 		}
 	});
 	
-	jQuery('.deleteAllDrugDialog').click(function(){ 
+	jQuery('.deleteAllDrugsInGroupButton').click(function(){ 
 		jQuery('#deleteAllDrugDialog').dialog('open');
 		jQuery("#deleteAllOrderId").val(this.id);
 		jQuery('.openmrs_error').hide();

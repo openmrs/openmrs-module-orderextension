@@ -46,9 +46,8 @@ DrugClassificationHelper helper = (DrugClassificationHelper)pageContext.getAttri
 					<div class="content">
 						<%@ include file="../include/regimenTable.jsp"%> 
 						<div class="cycleLinks">
-							<button id="addDrugCycleLink"><spring:message code="orderextension.regimen.addDrugCycle"/></button>
-							<button id="editStartCycleLink"><spring:message code="orderextension.regimen.editStartDateCycle"/></button>
-							<button id="stopDrugCycleLink"><spring:message code="orderextension.regimen.deleteCycle"/></button>
+							<input type="button" class="addDrugToGroupButton" value="<spring:message code="orderextension.regimen.addDrugGroup"/>" id="${drugGroup.id}">
+							<input type="button" class="deleteAllDrugsInGroupButton" value="<spring:message code="orderextension.regimen.deleteAllDrugGroup"/>" id="${drugGroup.id}">
 						</div>
 					</div>
 				</c:forEach>

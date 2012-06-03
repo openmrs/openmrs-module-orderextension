@@ -14,13 +14,17 @@
 package org.openmrs.module.orderextension;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.openmrs.Concept;
 import org.openmrs.DrugOrder;
+import org.openmrs.Obs;
 import org.openmrs.api.context.Context;
+import org.openmrs.util.OpenmrsUtil;
 
 /**
  * Helper class for classifying Drug Orders
@@ -62,6 +66,7 @@ public class DrugClassificationHelper {
 						
 					if ((indicationList != null && indicationList.contains(indication)) || indication.equals(c)) {
 						indication = c;
+						found = true;
 						break;
 					}
 				}
@@ -80,6 +85,13 @@ public class DrugClassificationHelper {
 			}
 			l.add(o);
 		}
+		
+		Collections.sort(classifications, new Comparator<Concept>() {
+			
+			public int compare(Concept left, Concept right) {
+				return indicationConcepts.indexOf(left) - indicationConcepts.indexOf(right);
+			}
+		} );
 	}
 	
 	public List<Concept> getClassificationsForRegimenList() {
