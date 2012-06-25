@@ -77,24 +77,19 @@ public interface OrderExtensionDAO {
 	public <T extends OrderGroup> List<T> getOrderGroups(Patient patient, Class<T> type);
 	
 	/**
-	 * Persists the passed ExtendedDrugOrder to the database
-	 */
-	public <T extends ExtendedDrugOrder> T saveExtendedDrugOrder(T extendedDrugOrder);
-	
-	/**
 	 * @see OrderExtensionService#getOrderGroup(Integer id)
 	 */
 	public OrderGroup getOrderGroup(Integer id);
 
-	/**
-     * @see OrderExtensionService#getExtendedDrugOrder(Integer id)
-     */
-    public ExtendedDrugOrder getExtendedDrugOrder(Integer id);
-    
     /**
      * @see OrderExtensionService#getDrugRegimen(Integer id)
      */
     public DrugRegimen getDrugRegimen(Integer id);
+
+    /**
+     * @see OrderExtensionService#getExtendedDrugOrdersForPatient(Patient patient)
+     */
+    public List<ExtendedDrugOrder> getExtendedDrugOrdersForPatient(Patient patient);
 
 }
 

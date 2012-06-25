@@ -20,6 +20,7 @@ import org.openmrs.Concept;
 import org.openmrs.DrugOrder;
 import org.openmrs.OpenmrsMetadata;
 import org.openmrs.module.orderextension.ExtendedDrugOrder;
+import org.openmrs.reporting.export.CalculatedColumn;
 
 /**
  * Defines any utility methods
@@ -46,6 +47,17 @@ public class OrderExtensionUtil  {
 						return format(drugOrder.getDrug().getRoute(), null);
 					}
 					return "";
+				}
+				
+				if("length".equals(format)){
+					if(drugOrder.getDiscontinuedDate() != null) {
+						return calculateDaysDifference(drugOrder.getDiscontinuedDate(), drugOrder.getStartDate());
+						
+					}
+					if(drugOrder.getAutoExpireDate() != null) {
+						return calculateDaysDifference(drugOrder.getAutoExpireDate(), drugOrder.getStartDate());
+						
+					}
 				}
 				
 				if ("administrationInstructions".equals(format)) {
@@ -84,5 +96,18 @@ public class OrderExtensionUtil  {
 		c.setTime(d);
 		c.add(Calendar.DATE, increment);
 		return c.getTime();
+	}
+	
+	private static String calculateDaysDifference(Date observation, Date startingDate)
+	{
+		long milis1 = observation.getTime();
+		long milis2 = startingDate.getTime();
+		
+		long diff = milis1 - milis2;
+		
+		long diffDays = diff / (24 * 60 * 60 * 1000);
+		
+	
+		return Integer.toString((int)diffDays + 1);
 	}
 }

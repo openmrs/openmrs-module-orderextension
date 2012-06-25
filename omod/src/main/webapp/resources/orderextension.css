@@ -1,5 +1,53 @@
 @CHARSET "UTF-8";
 
+@media print
+{
+	#printCalendarContents {page-break-after:always}
+}
+
+#calendarTd {
+	width: 65%;	
+}
+
+#calendarTable {
+	width: 100%;	
+}
+
+#calendarContents {
+	width: 100%;	
+}
+
+#printCalendarContents {
+	width: 900px;	
+}
+
+.ongoingHeaderDrug {
+	width: 30%;	
+}
+
+.ongoingHeaderDose {
+	width: 20%;	
+}
+
+.ongoingHeaderFrequency {
+	width: 30%;	
+}
+
+.ongoingHeaderStart {
+	width: 20%;	
+}
+
+#ongoing {
+	width: 35%;
+	padding-left: 10px;
+	vertical-align: top;
+}
+
+#printButton {
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+
 .regimenClassificationTitle {
     background: none repeat scroll 0 0 #CCCCCC;
     font-family: Verdana,Arial,Helvetica,sans-serif;
@@ -67,6 +115,19 @@ h2#regimenPortlet {
 	padding-right: 10px;
 }
 
+.cStartDateTitle {
+	width: 60%;
+	textAlign: right;
+}
+
+.cStartDate {
+	width: 30%;
+}
+	
+.cImg {
+	width: 10%;
+}
+
 .cycleStartdate img {
 	float: right;
 }
@@ -95,6 +156,7 @@ h2#regimenPortlet {
 
 .regimenCurrentDrugRouteHeader {
 	width: 5%;
+	text-align: center;
 }
 
 .regimenCurrentDrugInfusionHeader {
@@ -107,6 +169,7 @@ h2#regimenPortlet {
 
 .regimenCurrentDrugScheduledStopDateHeader {
 	width: 7%;
+	text-align: center;
 }
 
 .regimenCurrentDrugInstructionsHeader {
@@ -122,7 +185,7 @@ h2#regimenPortlet {
 }
 
 .regimenCurrentDrugDateStart {
-	text-align: center;
+
 }
 
 .regimenCurrentDrugScheduledStopDate {
@@ -149,7 +212,7 @@ padding: 3px;
 }
 
 .content {
-padding: 5px 10px;
+
 }
 
 .cycleTitle {
@@ -222,6 +285,8 @@ padding: 3px;
 .regimenTable td {
 	margin: 3px;
 }
+
+
 
 #regimenViewLink {
 	width: 100%;

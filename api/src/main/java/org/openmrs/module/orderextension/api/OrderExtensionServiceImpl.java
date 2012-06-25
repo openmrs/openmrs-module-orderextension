@@ -13,6 +13,7 @@
  */
 package org.openmrs.module.orderextension.api;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -120,24 +121,6 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 	public <T extends OrderGroup> T saveOrderGroup(T orderGroup) {
 		return dao.saveOrderGroup(orderGroup);
 	}
-	
-	/**
-	 * @see OrderExtensionService#saveExtendedDrugOrder(extendedDrugOrder)
-	 */
-	@Override
-	@Transactional
-	public <T extends ExtendedDrugOrder> T saveExtendedDrugOrder(T extendedDrugOrder) {
-		return dao.saveExtendedDrugOrder(extendedDrugOrder);
-	}
-	
-	/**
-	 * @see OrderExtensionService#saveOrderGroup(OrderGroup)
-	 */
-	@Override
-	@Transactional
-	public ExtendedDrugOrder getExtendedDrugOrder(Integer id) {
-		return dao.getExtendedDrugOrder(id);
-	}
 
 	/**
 	 * @see OrderExtensionService#getOrderGroups(Patient, Class)
@@ -165,6 +148,52 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 	public DrugRegimen  getDrugRegimen(Integer id) {
 		return dao.getDrugRegimen(id);
 	}
+	
+	/**
+     * @see org.openmrs.module.orderextension.api.OrderExtensionService#getDrugsOfGroupForPatient(Patient patient, Integer groupId)
+     */
+    @Override
+    public List<ExtendedDrugOrder> getExtendedDrugOrdersForPatient(Patient patient) {
+	    return dao.getExtendedDrugOrdersForPatient(patient);    
+    }
+    
+    /**
+     * @see org.openmrs.module.orderextension.api.OrderExtensionService#getFutureDrugOrdersOfOrderSet(Patient patient, OrderSet orderSet, Date startDate)
+     */
+    @Override
+    public List<ExtendedDrugOrder> getFutureDrugOrdersOfSameOrderSet(Patient patient, OrderSet orderSet, Date startDate) {
+    	List<ExtendedDrugOrder> allOrders = getExtendedDrugOrdersForPatient(patient);
+	    
+    	List<ExtendedDrugOrder> futureOrders = new ArrayList<ExtendedDrugOrder>();
+    	for(ExtendedDrugOrder order: allOrders)
+    	{
+    		if(order.getGroup() != null && order.getGroup().getOrderSet() != null && order.getGroup().getOrderSet().equals(orderSet) && order.getStartDate().after(startDate))
+    		{
+    			futureOrders.add(order);
+    		}
+    	}
+    	return futureOrders;
+    }
+    
+    /**
+     * @see org.openmrs.module.orderextension.api.OrderExtensionService#getFutureDrugRegimensOfOrderSet(Patient patient, DrugRegimen drugRegimen, Date startDate)
+     */
+    @Override
+    public List<DrugRegimen> getFutureDrugRegimensOfSameOrderSet(Patient patient, DrugRegimen drugRegimen, Date startDate) {
+    	List<ExtendedDrugOrder> allOrders = getExtendedDrugOrdersForPatient(patient);
+	    
+    	List<DrugRegimen> futureRegimens = new ArrayList<DrugRegimen>();
+    	for(ExtendedDrugOrder order: allOrders)
+    	{
+    		DrugRegimen regimen = Context.getService(OrderExtensionService.class).getDrugRegimen(order.getGroup().getId());
+    		
+    		if(regimen.getFirstDrugOrderStartDate().after(drugRegimen.getLastDrugOrderEndDate()) && !futureRegimens.contains(regimen))
+    		{
+    			futureRegimens.add(regimen);
+    		}
+    	}
+    	return futureRegimens;
+    }
 
 	/**
 	 * @see OrderExtensionService#addOrdersForPatient(Patient, OrderSet, Date, Integer)

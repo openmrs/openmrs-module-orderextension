@@ -89,7 +89,17 @@ public class DrugClassificationHelper {
 		Collections.sort(classifications, new Comparator<Concept>() {
 			
 			public int compare(Concept left, Concept right) {
-				return indicationConcepts.indexOf(left) - indicationConcepts.indexOf(right);
+				Integer l = indicationConcepts.indexOf(left);
+				Integer r = indicationConcepts.indexOf(right);
+				if(l == -1)
+				{
+					l = 99;
+				}
+				if(r == -1)
+				{
+					r = 99;
+				}
+				return l.compareTo(r);
 			}
 		} );
 	}

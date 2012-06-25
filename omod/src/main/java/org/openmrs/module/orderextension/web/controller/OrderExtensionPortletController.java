@@ -26,6 +26,8 @@ import org.apache.commons.logging.LogFactory;
 import org.openmrs.DrugOrder;
 import org.openmrs.Patient;
 import org.openmrs.module.orderextension.DrugClassificationHelper;
+import org.openmrs.module.orderextension.DrugRegimen;
+import org.openmrs.module.orderextension.ExtendedDrugOrder;
 import org.openmrs.module.orderextension.util.DrugConceptHelper;
 import org.openmrs.web.controller.PortletController;
 import org.springframework.stereotype.Controller;
@@ -56,28 +58,56 @@ public class OrderExtensionPortletController extends PortletController {
 		List<DrugOrder> orders = new ArrayList<DrugOrder>();
 		
 		for (DrugOrder o : allOrders) {
-			if (o.isCurrent()) {
-				if (CURRENT_MODE.equals(mode)) {
-					orders.add(o);
+			
+			boolean unsorted = true;
+			if(o instanceof ExtendedDrugOrder)
+			{
+				ExtendedDrugOrder edo = (ExtendedDrugOrder)o;
+				if(edo.getGroup() != null)
+				{
+					if(edo.getGroup() instanceof DrugRegimen)
+					{
+						DrugRegimen dr = (DrugRegimen)edo.getGroup();
+						if(dr.getFirstDrugOrderStartDate().before(new Date()))
+						{
+							if(dr.getLastDrugOrderEndDate() != null && dr.getLastDrugOrderEndDate().after(new Date()))
+							{
+								if(CURRENT_MODE.equals(mode))
+								{
+									orders.add(o);
+								}
+									unsorted = false;
+							}
+						}
+					}
 				}
 			}
-			else if (o.isFuture()) {
-				if (FUTURE_MODE.equals(mode)) {
-					orders.add(o);
-				}
-			}
-			else {
-				Calendar fiveYearsAgo = Calendar.getInstance();
-				fiveYearsAgo.add(Calendar.YEAR, -5);
-				Date historyDate = fiveYearsAgo.getTime();
-				if (COMPLETED_MODE.equals(mode)) {
-					if (o.getStartDate().compareTo(historyDate) >= 0) {
+			
+			if(unsorted)
+			{
+				if (o.isCurrent()) {
+					if (CURRENT_MODE.equals(mode)) {
 						orders.add(o);
 					}
 				}
-				else if (HISTORY_MODE.equals(mode)) {
-					if (o.getStartDate().compareTo(historyDate) < 0) {
+				else if (o.isFuture()) {
+					if (FUTURE_MODE.equals(mode)) {
 						orders.add(o);
+					}
+				}
+				else {
+					Calendar fiveYearsAgo = Calendar.getInstance();
+					fiveYearsAgo.add(Calendar.YEAR, -5);
+					Date historyDate = fiveYearsAgo.getTime();
+					if (COMPLETED_MODE.equals(mode)) {
+						if (o.getStartDate().compareTo(historyDate) >= 0) {
+							orders.add(o);
+						}
+					}
+					else if (HISTORY_MODE.equals(mode)) {
+						if (o.getStartDate().compareTo(historyDate) < 0) {
+							orders.add(o);
+						}
 					}
 				}
 			}

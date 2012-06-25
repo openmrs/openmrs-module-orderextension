@@ -140,21 +140,6 @@ public interface OrderExtensionService extends OpenmrsService {
 	@Authorized(PrivilegeConstants.ADD_ORDERS)
 	public void addOrdersForPatient(Patient patient, OrderSet orderSet, Date startDate, Integer numCycles);
 
-    /**
-	 * @param extendedDrugOrder the ExtendedDrugOrder to save
-	 * @return the saved extendedDrugOrder
-	 * @should save a new extendedDrugOrder
-	 * @should save changes to an existing extendedDrugOrder
-	 */
-	@Authorized(PrivilegeConstants.ADD_ORDERS)
-	public <T extends ExtendedDrugOrder> T saveExtendedDrugOrder(T extendedDrugOrder);
-	
-	/**
-	 * @param id the id of the Extended drug order
-	 * @return the requested extendedDrugOrder
-	 */
-	public ExtendedDrugOrder getExtendedDrugOrder(Integer id);
-
 	/**
      * @param id the id of the orderGroup to be returned
      * @return the requested orderGroup
@@ -166,4 +151,24 @@ public interface OrderExtensionService extends OpenmrsService {
      * @return the requested drugRegimen
      */
     public DrugRegimen getDrugRegimen(Integer id);
+
+	/**
+     * @param patient the Patient for whom to retrieve orders
+     * @param orderSet the id of the order set to which the drug orders should belong
+     */
+    public List<ExtendedDrugOrder> getFutureDrugOrdersOfSameOrderSet(Patient patient, OrderSet orderSet, Date startDate);
+
+    /**
+     * @param patient the Patient for whom to retrieve orders
+     * @param drugRegimen the regimen whose orderSet is used to retrieve other regimens for the patient
+     */
+    public List<DrugRegimen> getFutureDrugRegimensOfSameOrderSet(Patient patient, DrugRegimen drugRegimen, Date startDate);
+    
+	/**
+     * Auto generated method comment
+     * 
+     * @param patient the Patient for whom to retrieve the orders
+     */
+     public List<ExtendedDrugOrder> getExtendedDrugOrdersForPatient(Patient patient);
+    
 }

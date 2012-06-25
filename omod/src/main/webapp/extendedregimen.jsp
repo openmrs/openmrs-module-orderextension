@@ -4,15 +4,22 @@
 <openmrs:htmlInclude file="/moduleResources/orderextension/orderextension.css" />
 <openmrs:htmlInclude file="/moduleResources/orderextension/fullcalendar/fullcalendar.css" />
 <openmrs:htmlInclude file="/moduleResources/orderextension/chosen/chosen.jquery.js" />
+<openmrs:htmlInclude file="/moduleResources/orderextension/jquery.jqprint-0.3.js" />
 <openmrs:htmlInclude file="/moduleResources/orderextension/chosen/chosen.css" />
 
 <script type="text/javascript">
 jQuery(document).ready(function() {
 	 
+	jQuery("#patientHeaderRegimen").hide();
+	jQuery("#patientHeaderObsRegimen").html("Regimen: ${model.regimenHeading}");
+	
 	jQuery("#calendarContents").hide();
+	jQuery("#printCalendar").hide();
+	
 	jQuery("#drugListView").addClass("selectedLink");
 	
 	jQuery('.error').hide();
+	
 	
 	jQuery(".drugDetails").hide();
 	
@@ -44,20 +51,94 @@ jQuery(document).ready(function() {
 					    title  : '<spring:message code="orderextension.regimen.currentCycleNumber" /> <c:out value="${cycle.cycleNumber}"/> <spring:message code="general.of" /> <c:out value="${cycle.orderSet.name}"/>',				
 					    start  : '<openmrs:formatDate date="${cycle.firstDrugOrderStartDate}"format="yyyy-MM-dd"/>',
 					    end :'<openmrs:formatDate date="${cycle.lastDrugOrderEndDate}" format="yyyy-MM-dd"/>',
-					    color : '#1AAC9B'
+					    color : '#1AAC9B',
+					    textColor: '#000000'
 					 } 
 				</c:forEach>
 				<c:forEach items="${model.drugOrdersNonContinuous}" var="drugRegimen" varStatus="loop">
 			           <c:if test="${loop.index > 0 || not empty model.cycles}">,</c:if>	
 						{
-			               title  : '<c:if test="${!empty drugRegimen.drug}"><c:out value="${drugRegimen.drug.name}"/></c:if><c:if test="${empty drugRegimen.drug}"><c:out value="${!drugRegimen.concept.name.name}"/></c:if> <c:out value="${drugRegimen.dose}"/> <c:out value="${drugRegimen.units}"/>',				
+			               title  : '<c:if test="${!empty drugRegimen.drug}"><c:out value="${drugRegimen.drug.name}"/></c:if><c:if test="${empty drugRegimen.drug}"><c:out value="${drugRegimen.concept.displayString}"/></c:if> <c:out value="${drugRegimen.dose}"/> <c:out value="${drugRegimen.units}"/>',				
 			               start  : '<openmrs:formatDate date="${drugRegimen.startDate}"format="yyyy-MM-dd"/>',
+			               textColor :'#000000',
 			               end : <c:choose><c:when test="${!empty drugRegimen.discontinuedDate}">'<openmrs:formatDate date="${drugRegimen.discontinuedDate}" format="yyyy-MM-dd"/>'</c:when><c:otherwise><c:if test="${!empty drugRegimen.autoExpireDate}">'<openmrs:formatDate date="${drugRegimen.autoExpireDate}" format="yyyy-MM-dd"/>'</c:if></c:otherwise></c:choose>
 			            } 
 				</c:forEach>
 			       ]
-		    })
-	});  
+		    });
+		  
+		  	jQuery('#printCalendarContents').fullCalendar({ 
+				height: 400,
+				header: {
+					    left:   'title',
+					    center: '',
+					    right:  ''
+				},
+				events: [
+					<c:forEach items="${model.cycles}" var="cycle" varStatus="loop">
+						<c:if test="${loop.index > 0}">,</c:if>	
+							{
+						    title  : '<spring:message code="orderextension.regimen.currentCycleNumber" /> <c:out value="${cycle.cycleNumber}"/> <spring:message code="general.of" /> <c:out value="${cycle.orderSet.name}"/>',				
+						    start  : '<openmrs:formatDate date="${cycle.firstDrugOrderStartDate}"format="yyyy-MM-dd"/>',
+						    end :'<openmrs:formatDate date="${cycle.lastDrugOrderEndDate}" format="yyyy-MM-dd"/>',
+						    textColor: '#666666',
+						    color: '#99CCFF'
+						 } 
+					</c:forEach>
+					<c:forEach items="${model.drugOrdersNonContinuous}" var="drugRegimen" varStatus="loop">
+				           <c:if test="${loop.index > 0 || not empty model.cycles}">,</c:if>	
+							{
+				               title  : '<c:if test="${!empty drugRegimen.drug}"><c:out value="${drugRegimen.drug.name}"/></c:if><c:if test="${empty drugRegimen.drug}"><c:out value="${drugRegimen.concept.displayString}"/></c:if> <c:out value="${drugRegimen.dose}"/> <c:out value="${drugRegimen.units}"/>',				
+				               start  : '<openmrs:formatDate date="${drugRegimen.startDate}"format="yyyy-MM-dd"/>',
+				               textColor :'#000000',
+				       		   color :'#CCCCCC',
+				               end : <c:choose><c:when test="${!empty drugRegimen.discontinuedDate}">'<openmrs:formatDate date="${drugRegimen.discontinuedDate}" format="yyyy-MM-dd"/>'</c:when><c:otherwise><c:if test="${!empty drugRegimen.autoExpireDate}">'<openmrs:formatDate date="${drugRegimen.autoExpireDate}" format="yyyy-MM-dd"/>'</c:if></c:otherwise></c:choose>
+				            } 
+					</c:forEach>
+				       ]
+			    });
+		  	jQuery('#printCalendarContents').hide();
+	}); 
+	
+	jQuery(".monthPicker").datepicker({
+        dateFormat: 'MM yy',
+        changeMonth: true,
+        changeYear: true,
+        showButtonPanel: true,
+
+        onClose: function(dateText, inst) {
+            var month = jQuery("#ui-datepicker-div .ui-datepicker-month :selected").val();
+            var year = jQuery("#ui-datepicker-div .ui-datepicker-year :selected").val();
+            jQuery(this).val(jQuery.datepicker.formatDate('MM yy', new Date(year, month, 1)));
+        }
+    });
+
+	jQuery(".monthPicker").focus(function () {
+		jQuery(".ui-datepicker-calendar").hide();
+		jQuery("#ui-datepicker-div").position({
+            my: "center top",
+            at: "center bottom",
+            of: jQuery(this)
+        });
+    });
+	
+	jQuery('#printButton').click(function(){ 
+		jQuery('.openmrs_error').hide();
+		jQuery('#printDialog').dialog('open');
+	});
+	
+	jQuery('#printDialog').dialog({
+		position: 'middle',
+		autoOpen: false,
+		modal: true,
+		title: '<spring:message code="orderextension.regimen.printCalendar" javaScriptEscape="true"/>',
+		width: '80%',
+		zIndex: 100,
+		buttons: { '<spring:message code="orderextension.print"/>': function() { printRoadMap(); jQuery(this).dialog("close"); },
+				   '<spring:message code="general.cancel"/>': function() { jQuery(this).dialog("close"); }
+		}
+	});
+	
 	
 	jQuery('#addMedicationButton').click(function(){ 
 		jQuery('#addNewRegimenDialog').dialog('open');
@@ -121,7 +202,7 @@ function handleAddMedication() {
 		var selectedIndex = jQuery("#orderSet").attr("selectedIndex");
 		if(selectedIndex == 0)
 		{
-			error = "<spring:message code='orderextension.regimen.orderSetError' /> ";
+			error = " <spring:message code='orderextension.regimen.orderSetError' /> ";
 			
 		}
 		else
@@ -129,7 +210,7 @@ function handleAddMedication() {
 			var startDate = jQuery("#startDateSet").val();
 			if(startDate == "")
 			{
-				error = error + "<spring:message code='orderextension.regimen.startDateError' /> ";
+				error = error + " <spring:message code='orderextension.regimen.startDateError' /> ";
 			}
 		}
 		
@@ -237,7 +318,7 @@ function updateDrugInfo() {
 		{
 			route =  "<spring:message code='orderextension.regimen.route'/>" + ": " + drugDetail[index].route;
 		}
-		units = drugDetail[index].units;
+		units = " " + drugDetail[index].units;
 	}
 	
 	jQuery("#routeInfo").html(route);
@@ -281,7 +362,7 @@ function validAddDrugPanel() {
 	var selectedIndex = jQuery("#drugCombo").attr("selectedIndex");
 	if(selectedIndex == 0)
 	{
-		error = "<spring:message code='orderextension.regimen.drugError' /> ";
+		error = " <spring:message code='orderextension.regimen.drugError' /> ";
 	}
 	else
 	{
@@ -289,31 +370,90 @@ function validAddDrugPanel() {
 
 		if(startDate == "")
 		{
-			error = error + "<spring:message code='orderextension.regimen.startDateError' /> ";
+			error = error + " <spring:message code='orderextension.regimen.startDateError' /> ";
 		}
 		
 		var dose = jQuery("#dose").val();
 		
 		if(dose == "")
 		{
-			error = error + "<spring:message code='orderextension.regimen.doseError' /> ";
+			error = error + " <spring:message code='orderextension.regimen.doseError' /> ";
 
 		}
 	}
 	
 	return error;
 }
+
+function printRoadMap() {
+	
+	jQuery('#printCalendarContents').show();
+	
+	var startMonth = jQuery("#startMonth").val();
+	var endMonth = jQuery("#endMonth").val();
+	
+	var error = "";
+	
+	if(startMonth == ""){
+		error = error + " <spring:message code='orderextension.regimen.startMonthError' /> ";	
+	}
+	if(endMonth == "") {
+		error = error + " <spring:message code='orderextension.regimen.endMonthError' /> ";	
+	}
+	
+	if(error != ""){
+		jQuery('.openmrs_error').show();
+		jQuery('.openmrs_error').html(error);
+	}
+	else {
+		
+		var monthsToIncrement = monthDiff(startMonth, endMonth);
+		
+		var d1Parts = startMonth.split(" ");
+		var d1String = d1Parts[0] + " 1, " + d1Parts[1];
+	    var date = new Date(d1String);
+	
+		var index;
+		
+		jQuery("#printCalendar").html('<h1><spring:message code="orderextension.regimen.printCalendarTitle" /> - <c:out value="${patient.givenName}"/> <c:out value="${patient.familyName}"/></h1>');
+		
+		for (index = 0; index < monthsToIncrement; index++) {
+	
+			jQuery(jQuery("#printCalendarContents").fullCalendar('gotoDate',  date)).clone().appendTo("#printCalendar");
+		
+			date.setMonth(date.getMonth() + 1);
+		}
+		jQuery("#printCalendar").show();
+		jQuery('#printCalendarContents').fullCalendar('render');
+		jQuery('#printCalendar').jqprint();
+		jQuery("#printCalendar").hide();
+		jQuery('#printCalendarContents').hide();
+	}
+	
+	function monthDiff(date1, date2) {
+	    
+		var d1Parts = date1.split(" ");
+		var d1String = d1Parts[0] + " 1, " + d1Parts[1];
+	    var d1 = new Date(d1String);
+	    
+	    var d2Parts = date2.split(" ");
+	    var d2String = d2Parts[0] + " 1, " + d2Parts[1];
+	    var d2 = new Date(d2String);
+	   
+	    return ((d2.getFullYear() * 12 + d2.getMonth()) - (d1.getFullYear() * 12 + d1.getMonth())) + 1;
+	}
+}
 </script>
 
 <openmrs:hasPrivilege privilege="Edit Regimen">
 <div id="addMedicationLink"><input type="button" id="addMedicationButton" value="<spring:message code="orderextension.regimen.addMedication" />"></div>
-</openmrs:hasPrivilege> <div id="regimenViewLink"><a href="#" id="drugListView">Drug List View</a><openmrs:hasPrivilege privilege="View Calendar Regimen">|<a href="#" id="calendarView">Calendar View</a></div></openmrs:hasPrivilege>
+</openmrs:hasPrivilege>
+<div id="regimenViewLink"><a href="#" id="drugListView">Drug List View</a> <openmrs:hasPrivilege privilege="View Calendar Regimen">|<a href="#" id="calendarView">Calendar View</a></openmrs:hasPrivilege> </div>
 
 <div id="regimenPortlet">
 	<div class="regimenPortletCurrent">	
 		<div class="boxHeader${model.patientVariation}"><spring:message code="orderextension.regimen.current" /></div>
 		<div class="box${model.patientVariation}">
-		
 			<openmrs:portlet url="currentregimen" moduleId="orderextension" id="patientRegimenCurrent" patientId="${patient.patientId}" parameters="mode=current"/>	
 		</div>			
 	</div>
@@ -334,31 +474,54 @@ function validAddDrugPanel() {
 </div>
 
 <div id="calendarContents">
-	<div class="boxHeader${model.patientVariation}"><spring:message code="orderextension.regimen.ongoing" /></div>
-		<div class="box${model.patientVariation}">
-			<table class="regimenTableShort">
-				<thead>
-					<tr class="regimenCurrentHeaderRow">
-						<th class="regimenCurrentDrugOrderedHeader"> <spring:message code="Order.item.ordered" /> </th>
-						<th class="regimenCurrentDrugDoseHeader"> <spring:message code="DrugOrder.dose"/>/<spring:message code="DrugOrder.units"/> </th>
-						<th class="regimenCurrentDrugFrequencyHeader"> <spring:message code="DrugOrder.frequency"/> </th>
-						<th class="regimenCurrentDrugDateStartHeader"> <spring:message code="general.dateStart"/> </th>
-					</tr>
-				</thead>
-				<c:forEach items="${model.drugOrdersContinuous}" var="regimen">
-					<tr class="drugLine">
-						<td class="regimenCurrentDrugOrdered"><orderextension:format object="${regimen}"/></td>
-						<td class="regimenCurrentDrugDose"><c:out value="${regimen.dose}"/><c:out value="${regimen.drug.units}"/></td>
-						<td class="regimenCurrentDrugFrequency"><c:out value="${regimen.frequency}"/></td>
-						<td class="regimenCurrentDrugDateStart"><openmrs:formatDate date="${regimen.startDate}" type="medium" /></td>
-						<td class="regimenCurrentDrugScheduledStopDate"><openmrs:formatDate date="${regimen.autoExpireDate}" type="medium" /></td>
-				
-					</tr>
-				</c:forEach>
-			</table>
-		</div>
-		<br/>
-	<div id="calendar">
+	<div id="printButton"><input type="button" id="printButton" value='<spring:message code="orderextension.regimen.printCalendar" />'></div>
+	
+	<table id="calendarTable">
+		<tr>
+			<td id="calendarTd">
+				<div id="calendar">
+				</div>
+			</td>
+			<td id="ongoing">
+				<div class="boxHeader${model.patientVariation}"><spring:message code="orderextension.regimen.ongoing" /></div>
+				<div class="box${model.patientVariation}">
+					<table class="regimenTableShort">
+						<thead>
+							<tr class="regimenCurrentHeaderRow">
+								<th class="ongoingHeaderDrug"> <spring:message code="Order.item.ordered" /> </th>
+								<th class="ongoingHeaderDose"> <spring:message code="DrugOrder.dose"/>/<spring:message code="DrugOrder.units"/> </th>
+								<th class="ongoingHeaderFrequency"> <spring:message code="DrugOrder.frequency"/> </th>
+								<th class="ongoingHeaderStart"> <spring:message code="general.dateStart"/> </th>
+							</tr>
+						</thead>
+						<c:forEach items="${model.drugOrdersContinuous}" var="regimen">
+							<tr class="drugLine">
+								<td class="regimenCurrentDrugOrdered"><orderextension:format object="${regimen}"/></td>
+								<td class="regimenCurrentDrugDose"><c:out value="${regimen.dose}"/><c:out value="${regimen.drug.units}"/></td>
+								<td class="regimenCurrentDrugFrequency"><c:out value="${regimen.frequency}"/></td>
+								<td class="regimenCurrentDrugDateStart"><openmrs:formatDate date="${regimen.startDate}" type="medium" /></td>
+								<td class="regimenCurrentDrugScheduledStopDate"><openmrs:formatDate date="${regimen.autoExpireDate}" type="medium" /></td>
+						
+							</tr>
+						</c:forEach>
+					</table>
+				</div>
+				</div>
+			</td>
+		</tr>
+	</table>
+</div>
+
+
+<div id="printCalendarContents"></div>
+<div id="printCalendar">
+</div>
+
+<div id="printDialog">
+	<div class="box">
+		<div id="openmrs_error" class="openmrs_error"></div>
+		<label for="month">Start Month: </label><input type="text" id="startMonth" name="startMonth" class="monthPicker" />
+		<label for="month">End Month: </label><input type="text" id="endMonth" name="endMonth" class="monthPicker" />
 	</div>
 </div>
 
@@ -385,10 +548,10 @@ function validAddDrugPanel() {
 								<option value="${orderSet.id}">
 									<c:choose>
 									 	<c:when test="${!empty orderSet.indication}">
-									 		${orderSet.indication.displayString} 
+									 		&nbsp; ${orderSet.indication.displayString} 
 									 	</c:when>
 									 	<c:otherwise>
-											<spring:message code="orderextension.regimen.unclassified" />
+											&nbsp; <spring:message code="orderextension.regimen.unclassified" />
 										</c:otherwise>
 									</c:choose>
 								 - ${orderSet.name}</option>
@@ -427,15 +590,13 @@ function validAddDrugPanel() {
 					<th class="padding"><spring:message code="orderextension.regimen.patientPrescription" />:</th>
 				</tr>
 				<tr class="drugDetails">
-					<td class="padding"><spring:message code="orderextension.orderset.field.relativeStartDay" />*:  <openmrs_tag:dateField formFieldName="startDateDrug" startValue=""/></td>
-					<td class="padding"><spring:message code="orderextension.regimen.stopDate" />:  <openmrs_tag:dateField formFieldName="stopDateDrug" startValue=""/></td>
-					<td class="padding"><spring:message code="DrugOrder.dose" />*:  <input type="text" name="dose" id="dose" size="10"/></td><td id="units"></td>
+					<td class="padding"><spring:message code="DrugOrder.dose" />*:  <input type="text" name="dose" id="dose" size="10"/><span id="units"></span></td>
 					<td class="padding"><spring:message code="DrugOrder.frequency"/>:			
 						<select name="frequencyDay" id="frequencyDay">
-							<option value=""></option>
 							<% for ( int i = 1; i <= 10; i++ ) { %>
 								<option value="<%= i %>/<spring:message code="DrugOrder.frequency.day" />"><%= i %>/<spring:message code="DrugOrder.frequency.day" /></option>
 							<% } %>
+							<option value="<spring:message code="orderextension.regimen.onceOnlyDose" />"><spring:message code="orderextension.regimen.onceOnlyDose" /></option>
 						</select>
 						<span> x </span>
 						<select name="frequencyWeek" id="frequencyWeek">
@@ -444,16 +605,25 @@ function validAddDrugPanel() {
 								<option disabled>&nbsp; <spring:message code="DrugOrder.add.error.missingFrequency.interactions" arguments="dashboard.regimen.displayFrequencies"/></option>
 							</c:if>
 							<c:if test="${not empty drugFrequencies}">
-									<option value=""></option>
+								<option value=""></option>
 								<c:forEach var="drugFrequency" items="${drugFrequencies}">
 									<option value="${drugFrequency}">${drugFrequency}</option>
 								</c:forEach>
 							</c:if>											
 						</select>
-					<td class="padding"><input type="checkbox" name="asNeeded" id="asNeeded" value="<spring:message code='orderextension.orderset.DrugOrderSetMember.asNeeded'/>"><spring:message code='orderextension.orderset.DrugOrderSetMember.asNeeded'/></td>
+					</td>
+					<td class="padding"><input type="checkbox" name="asNeeded" id="asNeeded" value="asNeeded"><spring:message code='orderextension.orderset.DrugOrderSetMember.asNeeded'/></td>
 				</tr>
 			</table>
 			<table>
+				<tr class="drugDetails">	
+					<td class="padding"><spring:message code="orderextension.orderset.field.relativeStartDay" />*:  <openmrs_tag:dateField formFieldName="startDateDrug" startValue=""/></td>
+					<td class="padding"><spring:message code="orderextension.regimen.stopDate" />:  <openmrs_tag:dateField formFieldName="stopDateDrug" startValue=""/></td>	
+				</tr>
+			</table>
+		    
+		    <openmrs:hasPrivilege privilege="Edit Current/Complete Regimen">
+		    <table>
 				<tr	class="drugDetails">
 					<td class="padding"><spring:message code="orderextension.regimen.reasonForPrescription" />:
 						<select name="indication" id="indicationCombo" onChange="getIndicationClassifications()">
@@ -466,12 +636,13 @@ function validAddDrugPanel() {
 					<td id="indClassification" class="padding"></td>
 				</tr>
 			</table>
+			</openmrs:hasPrivilege>
 			<table>	
 				<tr class="drugDetails">
 					<td class="padding topAlignment"><spring:message code="orderextension.regimen.administrationInstructions"/>: <textarea rows="2" cols="40" name="adminInstructions" id="adminInstructions"></textarea></td>
 					<td class="padding topAlignment"><spring:message code="orderextension.regimen.instructions" />: <textarea rows="2" cols="40" name="instructions" id="instructions"></textarea></td>
 				</tr>							
-			</table>
+			</table> 
 		</form>
 	</div>
 </div>

@@ -1,4 +1,4 @@
-<openmrs:htmlInclude file="/scripts/jquery/jquery-1.3.2.min.js" />
+
 <openmrs:htmlInclude file="/moduleResources/orderextension/orderextension.css" />
 <openmrs:htmlInclude file="/moduleResources/orderextension/chosen/chosen.jquery.js" />
 <openmrs:htmlInclude file="/moduleResources/orderextension/chosen/chosen.css" />
@@ -28,8 +28,20 @@ jQuery(document).ready(function() {
 	
 	jQuery('.addDrugToGroupButton').click(function(){ 
 		jQuery('#addNewDrugToGroupDialog').dialog('open');
-		jQuery("#groupId").val(this.id);
+		
+		var val = this.id;
+		var values = val.split(",");
+		jQuery("#groupId").val(values[0]);
+		jQuery("#cycle").val(values[1]);
 		jQuery('.openmrs_error').hide();
+		if(values[1] == "true")
+		{
+			jQuery('.repeatCycleDiv').show();
+		}
+		else
+		{
+			jQuery('.repeatCycleDiv').hide();
+		}
 	});
 
 	jQuery('#addNewDrugToGroupDialog').dialog({
@@ -45,10 +57,54 @@ jQuery(document).ready(function() {
 		}
 	});	
 	
-	jQuery('.editButton').click(function(){ 
-		jQuery('#editDrugDialog').dialog('open');
-		jQuery("#orderId").val(this.id);
+	jQuery('.changeStartDateOfGroupButton').click(function(){ 
+		jQuery('#changeStartDateOfGroupDialog').dialog('open');
+		
+		var val = this.id;
+		var values = val.split(",");
+		jQuery("#changeStartGroupId").val(values[0]);
+		jQuery("#changeDate").val(values[2]);
 		jQuery('.openmrs_error').hide();
+		
+		if(values[1] == "true")
+		{
+			jQuery('.repeatCycleDiv').show();
+		}
+		else
+		{
+			jQuery('.repeatCycleDiv').hide();
+		}
+	});
+
+	jQuery('#changeStartDateOfGroupDialog').dialog({
+		position: 'middle',
+		autoOpen: false,
+		modal: true,
+		title: '<spring:message code="orderextension.regimen.changeStartDate" javaScriptEscape="true"/>',
+		height: 480,
+		width: '80%',
+		zIndex: 100,
+		buttons: { '<spring:message code="general.change"/>': function() { handleChangeStartDateOfGroup(); },
+				   '<spring:message code="general.cancel"/>': function() { $j(this).dialog("close"); }
+		}
+	});	
+	
+	jQuery('.editButton').click(function(){ 
+		var val = this.id;
+		var values = val.split(",");
+		
+		jQuery('#editDrugDialog').dialog('open');
+		jQuery("#orderId").val(values[0]);
+		jQuery('.openmrs_error').hide();
+		
+		if(values[1] == "true")
+		{
+			jQuery('.repeatCycleDiv').show();
+		}
+		else
+		{
+			jQuery('.repeatCycleDiv').hide();
+		}
 		
 		updateEditDrugDialog();
 	});
@@ -61,17 +117,30 @@ jQuery(document).ready(function() {
 		height: 480,
 		width: '80%',
 		zIndex: 100,
-		buttons: { '<spring:message code="general.add"/>': function() { handleEditDrugOrder(); },
+		buttons: { '<spring:message code="general.edit"/>': function() { handleEditDrugOrder(); },
 				   '<spring:message code="general.cancel"/>': function() { $j(this).dialog("close"); }
 		}
 	});	
 	
 	jQuery('.stopButton').click(function(){ 
+		
+		var val = this.id;
+		var values = val.split(",");
+		
 		jQuery('#stopDrugDialog').dialog('open');
-		jQuery("#stopOrderId").val(this.id);
+		jQuery("#stopOrderId").val(values[0]);
+		jQuery("#startDateInd").val(values[2]);
+		
 		jQuery('.openmrs_error').hide();
 		
-		updateEditDrugDialog();
+		if(values[1] == "true")
+		{
+			jQuery('.repeatCycleDiv').show();
+		}
+		else
+		{
+			jQuery('.repeatCycleDiv').hide();
+		}
 	});
 	
 	jQuery('#stopDrugDialog').dialog({
@@ -81,15 +150,28 @@ jQuery(document).ready(function() {
 		title: '<spring:message code="orderextension.regimen.stopDialog" javaScriptEscape="true"/>',
 		width: '80%',
 		zIndex: 100,
-		buttons: { '<spring:message code="general.add"/>': function() { handleStopDrugOrder(); },
+		buttons: { '<spring:message code="orderextension.regimen.stop"/>': function() { handleStopDrugOrder(); },
 				   '<spring:message code="general.cancel"/>': function() { $j(this).dialog("close"); }
 		}
 	});
 	
 	jQuery('.deleteButton').click(function(){ 
+		
+		var val = this.id;
+		var values = val.split(",");
+		
 		jQuery('#deleteDrugDialog').dialog('open');
-		jQuery("#deleteOrderId").val(this.id);
+		jQuery("#deleteOrderId").val(values[0]);
 		jQuery('.openmrs_error').hide();
+		
+		if(values[1] == "true")
+		{
+			jQuery('.repeatCycleDiv').show();
+		}
+		else
+		{
+			jQuery('.repeatCycleDiv').hide();
+		}
 	});
 	
 	jQuery('#deleteDrugDialog').dialog({
@@ -99,17 +181,29 @@ jQuery(document).ready(function() {
 		title: '<spring:message code="orderextension.regimen.deleteDialog" javaScriptEscape="true"/>',
 		width: '80%',
 		zIndex: 100,
-		buttons: { '<spring:message code="general.add"/>': function() { handleDeleteDrugOrder(); },
+		buttons: { '<spring:message code="general.delete"/>': function() { handleDeleteDrugOrder(); },
 				   '<spring:message code="general.cancel"/>': function() { jQuery(this).dialog("close"); }
 		}
 	});
 	
 	jQuery('.stopAllDrugsInGroupButton').click(function(){ 
+		
+		var val = this.id;
+		var values = val.split(",");
+		
 		jQuery('#stopAllDrugDialog').dialog('open');
-		jQuery("#stopAllOrderId").val(this.id);
+		jQuery("#stopAllOrderId").val(values[0]);
+		jQuery("#startDate").val(values[2]);
 		jQuery('.openmrs_error').hide();
 		
-		updateEditDrugDialog();
+		if(values[1] == "true")
+		{
+			jQuery('.repeatCycleDiv').show();
+		}
+		else
+		{
+			jQuery('.repeatCycleDiv').hide();
+		}
 	});
 	
 	jQuery('#stopAllDrugDialog').dialog({
@@ -119,15 +213,28 @@ jQuery(document).ready(function() {
 		title: '<spring:message code="orderextension.regimen.stopAllDialog" javaScriptEscape="true"/>',
 		width: '80%',
 		zIndex: 100,
-		buttons: { '<spring:message code="general.add"/>': function() { handleStopAllDrugOrder(); },
+		buttons: { '<spring:message code="orderextension.regimen.stop"/>': function() { handleStopAllDrugOrder(); },
 				   '<spring:message code="general.cancel"/>': function() { $j(this).dialog("close"); }
 		}
 	});
 	
 	jQuery('.deleteAllDrugsInGroupButton').click(function(){ 
+		
+		var val = this.id;
+		var values = val.split(",");
+		
 		jQuery('#deleteAllDrugDialog').dialog('open');
-		jQuery("#deleteAllOrderId").val(this.id);
+		jQuery("#deleteAllOrderId").val(values[0]);
 		jQuery('.openmrs_error').hide();
+		
+		if(values[1] == "true")
+		{
+			jQuery('.repeatCycleDiv').show();
+		}
+		else
+		{
+			jQuery('.repeatCycleDiv').hide();
+		}
 	});
 	
 	jQuery('#deleteAllDrugDialog').dialog({
@@ -137,7 +244,7 @@ jQuery(document).ready(function() {
 		title: '<spring:message code="orderextension.regimen.deleteAllDialog" javaScriptEscape="true"/>',
 		width: '80%',
 		zIndex: 100,
-		buttons: { '<spring:message code="general.add"/>': function() { handleDeleteAllDrugOrder(); },
+		buttons: { '<spring:message code="general.delete"/>': function() { handleDeleteAllDrugOrder(); },
 				   '<spring:message code="general.cancel"/>': function() { jQuery(this).dialog("close"); }
 		}
 	});
@@ -254,7 +361,7 @@ function updateDrugInfoTwo() {
 		{
 			route =  "<spring:message code='orderextension.regimen.route'/>" + ": " + drugDetailTwo[index].route;
 		}
-		units = drugDetailTwo[index].units;
+		units = " " + drugDetailTwo[index].units;
 	}
 	
 	jQuery("#routeInfoTwo").html(route);
@@ -305,7 +412,7 @@ function updateDrugInfoThree() {
 		{
 			route =  "<spring:message code='orderextension.regimen.route'/>" + ": " + drugDetailThree[index].route;
 		}
-		units = drugDetailThree[index].units;
+		units = " " + drugDetailThree[index].units;
 	}
 	
 	jQuery("#routeInfoThree").html(route);
@@ -357,6 +464,21 @@ function handleAddMedicationToGroup()
 	}
 }
 
+function handleChangeStartDateOfGroup()
+{	
+	var changeDate = jQuery("#changeDate").val();
+
+	if(changeDate == "")
+	{
+		jQuery('.openmrs_error').show();
+		jQuery('.openmrs_error').html("<spring:message code='orderextension.regimen.changeDateError' /> ");
+	}
+	else
+	{
+		jQuery('#changeStartDateOfGroup').submit();
+	}
+}
+
 function validAddDrugPanelTwo() {
 	
 	var error = '';
@@ -364,7 +486,7 @@ function validAddDrugPanelTwo() {
 	var selectedIndex = jQuery("#drugComboTwo").attr("selectedIndex");
 	if(selectedIndex == 0)
 	{
-		error = "<spring:message code='orderextension.regimen.drugError' /> ";
+		error = " <spring:message code='orderextension.regimen.drugError' /> ";
 	}
 	else
 	{
@@ -372,14 +494,14 @@ function validAddDrugPanelTwo() {
 
 		if(startDate == "")
 		{
-			error = error + "<spring:message code='orderextension.regimen.startDateError' /> ";
+			error = error + " <spring:message code='orderextension.regimen.startDateError' /> ";
 		}
 		
 		var dose = jQuery("#dosage").val();
 		
 		if(dose == "")
 		{
-			error = error + "<spring:message code='orderextension.regimen.doseError' /> ";
+			error = error + " <spring:message code='orderextension.regimen.doseError' /> ";
 
 		}
 	}
@@ -394,7 +516,7 @@ function updateEditDrugDialog() {
 	
 	var drugOrderId = jQuery("#orderId").val();
 	
-	var url = "${pageContext.request.contextPath}/module/orderextension/getExtendedDrugOrder.form?id=" + drugOrderId;
+	var url = "${pageContext.request.contextPath}/module/orderextension/getDrugOrder.form?id=" + drugOrderId;
 	jQuery.getJSON(url, function(result) 
 	{
 		 var comboHtml = "<select name='drugComboThree' id='drugComboThree' data-placeholder='<spring:message code='orderextension.regimen.chooseOption' />' style='width:350px;' onChange='fetchDrugsThree()'>";
@@ -455,7 +577,14 @@ function updateEditDrugDialog() {
 		
 		jQuery("#frequencyWeekThree").val(result.freqWeek);
 		
-		jQuery("#asNeededThree").attr('checked', result.asNeeded);
+		if(result.asNeeded == "true")
+		{
+			jQuery("#asNeededThree").attr('checked', 'checked');
+		}
+		else
+		{
+			jQuery("#asNeededThree").removeAttr('checked');
+		}
 		
 		var indicationHtml = "<spring:message code='orderextension.regimen.reasonForPrescription' />: <select name='indicationCombo' id='indicationComboThree' onChange='getIndicationClassificationsThree()'><option value='' ></option>";
 				
@@ -534,7 +663,7 @@ function validAddDrugPanelThree() {
 	var selectedIndex = jQuery("#drugComboThree").attr("selectedIndex");
 	if(selectedIndex == 0)
 	{
-		error = "<spring:message code='orderextension.regimen.drugError' /> ";
+		error = " <spring:message code='orderextension.regimen.drugError' /> ";
 	}
 	else
 	{
@@ -542,14 +671,14 @@ function validAddDrugPanelThree() {
 
 		if(startDate == "")
 		{
-			error = error + "<spring:message code='orderextension.regimen.startDateError' /> ";
+			error = error + " <spring:message code='orderextension.regimen.startDateError' /> ";
 		}
 		
 		var dose = jQuery("#dosageThree").val();
 		
 		if(dose == "")
 		{
-			error = error + "<spring:message code='orderextension.regimen.doseError' /> ";
+			error = error + " <spring:message code='orderextension.regimen.doseError' /> ";
 
 		}
 	}
@@ -564,7 +693,7 @@ function handleStopDrugOrder()
 	var selectedIndex = jQuery("#drugStopReason").attr("selectedIndex");
 	if(selectedIndex == 0)
 	{
-		error = "<spring:message code='orderextension.regimen.stopReasonError' /> ";
+		error = " <spring:message code='orderextension.regimen.stopReasonError' /> ";
 	}
 	else
 	{
@@ -572,10 +701,16 @@ function handleStopDrugOrder()
 
 		if(stopDate == "")
 		{
-			error = error + "<spring:message code='orderextension.regimen.stopDateError' /> ";
+			error = error + " <spring:message code='orderextension.regimen.stopDateError' /> ";
 		}
 		else {
+			var dateStop = new Date(stopDate);
+			var dateStart = new Date(jQuery("#startDateInd").val());
 			
+			if(dateStop < dateStart)
+			{
+				error = error + " <spring:message code='orderextension.regimen.stopDateLessStartError' /> ";
+			}
 		}
 	}
 	
@@ -613,7 +748,7 @@ function handleStopAllDrugOrder()
 	var selectedIndex = jQuery("#drugStopAllReason").attr("selectedIndex");
 	if(selectedIndex == 0)
 	{
-		error = "<spring:message code='orderextension.regimen.stopReasonError' /> ";
+		error = " <spring:message code='orderextension.regimen.stopReasonError' /> ";
 	}
 	else
 	{
@@ -621,10 +756,16 @@ function handleStopAllDrugOrder()
 
 		if(stopDate == "")
 		{
-			error = error + "<spring:message code='orderextension.regimen.stopDateError' /> ";
+			error = error + " <spring:message code='orderextension.regimen.stopDateError' /> ";
 		}
 		else {
+			var dateStop = new Date(stopDate);
+			var dateStart = new Date(jQuery("#startDate").val());
 			
+			if(dateStop < dateStart)
+			{
+				error = error + " <spring:message code='orderextension.regimen.stopDateLessStartError' /> ";
+			}
 		}
 	}
 	
@@ -663,6 +804,7 @@ function handleDeleteAllDrugOrder()
 			<input type="hidden" name="patientId" value="${patient.patientId}">
 			<input type="hidden" name="returnPage" value="/patientDashboard.form?patientId=${patient.patientId}"/>	
 			<input type="hidden" name="groupId" id="groupId"/>	
+			<input type="hidden" name="cycle" id="cycle"/>	
 			<table>
 				<tr>
 					<td class="padding"><spring:message code="orderextension.regimen.individualDrug" />*: </td>
@@ -683,30 +825,35 @@ function handleDeleteAllDrugOrder()
 						<th class="padding"><spring:message code="orderextension.regimen.patientPrescription" />:</th>
 					</tr>
 					<tr class="drugDetails">
-						<td class="padding"><spring:message code="orderextension.orderset.field.relativeStartDay" />*:  <openmrs_tag:dateField formFieldName="startDate" startValue=""/></td>
-						<td class="padding"><spring:message code="orderextension.regimen.stopDate" />:  <openmrs_tag:dateField formFieldName="stopDate" startValue=""/></td>
 						<td class="padding"><spring:message code="DrugOrder.dose" />*:  <input type="text" name="dose" id="dosage" size="10"/></td><td id="unitsTwo"></td>
 						<td class="padding"><spring:message code="DrugOrder.frequency"/>:			
 							<select name="frequencyDay" id="frequencyDay">
-								<option value=""></option>
 								<% for ( int i = 1; i <= 10; i++ ) { %>
-							<option value="<%= i %>/<spring:message code="DrugOrder.frequency.day" />"><%= i %>/<spring:message code="DrugOrder.frequency.day" /></option>
-						<% } %>
-					</select>
-					<span> x </span>
-					<select name="frequencyWeek" id="frequencyWeek">
-						<openmrs:globalProperty var="drugFrequencies" key="dashboard.regimen.displayFrequencies" listSeparator="," />
-						<c:if test="${empty drugFrequencies}">
-							<option disabled>&nbsp; <spring:message code="DrugOrder.add.error.missingFrequency.interactions" arguments="dashboard.regimen.displayFrequencies"/></option>
-						</c:if>
-						<c:if test="${not empty drugFrequencies}">
-								<option value=""></option>
-							<c:forEach var="drugFrequency" items="${drugFrequencies}">
-								<option value="${drugFrequency}">${drugFrequency}</option>
-							</c:forEach>
-						</c:if>											
-					</select>
-				<td class="padding"><input type="checkbox" name="asNeeded" id="asNeeded" value="<spring:message code='orderextension.orderset.DrugOrderSetMember.asNeeded'/>"><spring:message code='orderextension.orderset.DrugOrderSetMember.asNeeded'/></td>
+								<option value="<%= i %>/<spring:message code="DrugOrder.frequency.day" />"><%= i %>/<spring:message code="DrugOrder.frequency.day" /></option>
+								<% } %>
+								<option value="<spring:message code="orderextension.regimen.onceOnlyDose" />"><spring:message code="orderextension.regimen.onceOnlyDose" /></option>
+							</select>
+							<span> x </span>
+							<select name="frequencyWeek" id="frequencyWeek">
+								<openmrs:globalProperty var="drugFrequencies" key="dashboard.regimen.displayFrequencies" listSeparator="," />
+								<c:if test="${empty drugFrequencies}">
+									<option disabled>&nbsp; <spring:message code="DrugOrder.add.error.missingFrequency.interactions" arguments="dashboard.regimen.displayFrequencies"/></option>
+								</c:if>
+								<c:if test="${not empty drugFrequencies}">
+										<option value=""></option>
+									<c:forEach var="drugFrequency" items="${drugFrequencies}">
+										<option value="${drugFrequency}">${drugFrequency}</option>
+									</c:forEach>
+								</c:if>											
+							</select>
+							</td>
+							<td class="padding"><input type="checkbox" name="asNeeded" id="asNeeded" value="asNeeded"><spring:message code='orderextension.orderset.DrugOrderSetMember.asNeeded'/></td>
+						</tr>
+					</table>
+					<table>
+						<tr class="drugDetails">
+							<td class="padding"><spring:message code="orderextension.orderset.field.relativeStartDay" />*:  <openmrs_tag:dateField formFieldName="startDate" startValue=""/></td>
+							<td class="padding"><spring:message code="orderextension.regimen.stopDate" />:  <openmrs_tag:dateField formFieldName="stopDate" startValue=""/></td>
 					</tr>
 				</table>
 				<table>
@@ -727,7 +874,14 @@ function handleDeleteAllDrugOrder()
 						<td class="padding topAlignment"><spring:message code="orderextension.regimen.administrationInstructions"/>: <textarea rows="2" cols="40" name="adminInstructions" id="adminInstructions"></textarea></td>
 						<td class="padding topAlignment"><spring:message code="orderextension.regimen.instructions" />: <textarea rows="2" cols="40" name="instructions" id="instructions"></textarea></td>
 					</tr>							
-				</table>
+				</table> 
+				<div class="repeatCycleDiv">
+					<table>
+						<tr>
+							<td class="padding"><input type="checkbox" name="repeatCycles" id="repeatCycles" value="repeatCycles"><spring:message code='orderextension.regimen.addAllFutureCycles'/></td>
+						</tr>
+					</table>
+				</div>  
 		</form>
 	</div>
 </div>
@@ -737,6 +891,7 @@ function handleDeleteAllDrugOrder()
 	<div id="openmrs_error" class="openmrs_error"></div>
 		<form id="editDrug" name="editDrug" method="post" action="${pageContext.request.contextPath}/module/orderextension/editDrug.form">
 			<input type="hidden" name="orderId" id="orderId">
+			<input type="hidden" name="patientId" value="${patient.patientId}">
 			<input type="hidden" name="returnPage" value="/patientDashboard.form?patientId=${patient.patientId}"/>	
 			<table>
 				<tr>
@@ -751,16 +906,14 @@ function handleDeleteAllDrugOrder()
 						<th class="padding"><spring:message code="orderextension.regimen.patientPrescription" />:</th>
 					</tr>
 					<tr class="drugDetails">
-						<td class="padding"><spring:message code="orderextension.orderset.field.relativeStartDay" />*:  <openmrs_tag:dateField formFieldName="editStartDate" startValue=""/></td>
-						<td class="padding"><spring:message code="orderextension.regimen.stopDate" />:  <openmrs_tag:dateField formFieldName="editStopDate" startValue=""/></td>
-						<td class="padding"><spring:message code="DrugOrder.dose" />*:  <input type="text" name="dose" id="dosageThree" size="10"/></td><td id="unitsThree"></td>
+						<td class="padding"><spring:message code="DrugOrder.dose" />*:  <input type="text" name="dose" id="dosageThree" size="10"/><span id="unitsThree"></span></td>
 						<td class="padding"><spring:message code="DrugOrder.frequency"/>:			
 							<select name="frequencyDay" id="frequencyDayThree">
-								<option value=""></option>
 								<% for ( int i = 1; i <= 10; i++ ) { %>
-							<option value="<%= i %>/<spring:message code="DrugOrder.frequency.day" />"><%= i %>/<spring:message code="DrugOrder.frequency.day" /></option>
-						<% } %>
-					</select>
+								<option value="<%= i %>/<spring:message code="DrugOrder.frequency.day" />"><%= i %>/<spring:message code="DrugOrder.frequency.day" /></option>
+							<% } %>
+							<option value="<spring:message code="orderextension.regimen.onceOnlyDose" />"><spring:message code="orderextension.regimen.onceOnlyDose" /></option>
+							</select>
 					<span> x </span>
 					<select name="frequencyWeek" id="frequencyWeekThree">
 						<openmrs:globalProperty var="drugFrequencies" key="dashboard.regimen.displayFrequencies" listSeparator="," />
@@ -773,11 +926,17 @@ function handleDeleteAllDrugOrder()
 								<option value="${drugFrequency}">${drugFrequency}</option>
 							</c:forEach>
 						</c:if>											
-					</select>
-				<td class="padding"><input type="checkbox" name="asNeeded" id="asNeededThree" value="<spring:message code='orderextension.orderset.DrugOrderSetMember.asNeeded'/>"><spring:message code='orderextension.orderset.DrugOrderSetMember.asNeeded'/></td>
+					</select></td>
+					<td class="padding"><input type="checkbox" name="asNeeded" id="asNeededThree" value="asNeeded"><spring:message code='orderextension.orderset.DrugOrderSetMember.asNeeded'/></td>
 					</tr>
 				</table>
 				<table>
+					<tr class="drugDetails">
+						<td class="padding"><spring:message code="orderextension.orderset.field.relativeStartDay" />*:  <openmrs_tag:dateField formFieldName="editStartDate" startValue=""/></td>
+						<td class="padding"><spring:message code="orderextension.regimen.stopDate" />:  <openmrs_tag:dateField formFieldName="editStopDate" startValue=""/></td>
+					</tr>	
+				</table>
+			 	<table>
 					<tr	class="drugDetails">
 						<td class="padding" id="indicationSelector"></td>
 						<td id="indClassificationThree" class="padding"></td>
@@ -789,6 +948,13 @@ function handleDeleteAllDrugOrder()
 						<td class="padding topAlignment"><spring:message code="orderextension.regimen.instructions" />: <textarea rows="2" cols="40" name="instructions" id="instructionsThree"></textarea></td>
 					</tr>							
 				</table>
+				<div class="repeatCycleDiv">
+					<table>
+						<tr>
+							<td class="padding"><input type="checkbox" name="repeatCycles" id="repeatCycles" value="repeatCycles"><spring:message code='orderextension.regimen.editAllFutureCycles'/></td>
+						</tr>
+					</table>
+				</div> 
 		</form>
 	</div>
 </div>
@@ -798,11 +964,35 @@ function handleDeleteAllDrugOrder()
 	<div id="openmrs_error" class="openmrs_error"></div>
 		<form id="stopDrug" name="stopDrug" method="post" action="${pageContext.request.contextPath}/module/orderextension/stopDrug.form">
 			<input type="hidden" name="orderId" id="stopOrderId">
+			<input type="hidden" name="startDate" id="startDateInd">
+			<input type="hidden" name="patientId" value="${patient.patientId}">
 			<input type="hidden" name="returnPage" value="/patientDashboard.form?patientId=${patient.patientId}"/>	
 			<table>
 				<tr>
 					<td class="padding"><spring:message code="orderextension.regimen.stopDate"/>: <openmrs_tag:dateField formFieldName="drugStopDate" startValue=""/></td>
 					<td class="padding"><spring:message code="orderextension.regimen.stopReason"/>:<openmrs:fieldGen type="org.openmrs.DrugOrder.discontinuedReason" formFieldName="drugStopReason" val="" parameters="optionHeader=[blank]|globalProp=concept.reasonOrderStopped" /></td>
+				</tr>
+				<tr class="repeatCycleDiv">
+					<td class="padding"><input type="checkbox" name="repeatCycles" id="repeatCycles" value="repeatCycles"><spring:message code='orderextension.regimen.deleteInAllFutureCycles'/></td>
+				</tr>
+			</table>
+		</form>
+	</div>
+</div>
+
+<div id="changeStartDateOfGroupDialog">	
+	<div class="box">
+	<div id="openmrs_error" class="openmrs_error"></div>
+		<form id="changeStartDateOfGroup" name="changeStartDateOfGroup" method="post" action="${pageContext.request.contextPath}/module/orderextension/changeStartDateOfGroup.form">
+			<input type="hidden" name="groupId" id="changeStartGroupId">
+			<input type="hidden" name="patientId" value="${patient.patientId}">
+			<input type="hidden" name="returnPage" value="/patientDashboard.form?patientId=${patient.patientId}"/>	
+			<table>
+				<tr>
+					<td class="padding"><spring:message code="orderextension.regimen.changeStartDate"/>: <openmrs_tag:dateField formFieldName="changeDate" startValue=""/></td>
+				</tr>
+				<tr class="repeatCycleDiv">
+					<td class="padding"><input type="checkbox" name="repeatCycles" id="repeatCycles" value="repeatCycles"><spring:message code='orderextension.regimen.changeAllFutureCycles'/></td>
 				</tr>
 			</table>
 		</form>
@@ -814,10 +1004,14 @@ function handleDeleteAllDrugOrder()
 	<div id="openmrs_error" class="openmrs_error"></div>
 		<form id="deleteDrug" name="deleteDrug" method="post" action="${pageContext.request.contextPath}/module/orderextension/deleteDrug.form">
 			<input type="hidden" name="orderId" id="deleteOrderId">
+			<input type="hidden" name="patientId" value="${patient.patientId}">
 			<input type="hidden" name="returnPage" value="/patientDashboard.form?patientId=${patient.patientId}"/>	
 			<table>
 				<tr>
 					<td class="padding"><spring:message code="orderextension.regimen.deleteReason"/>: <input type="text" name="deleteReason" id="deleteReason" size="100"/></td>
+				</tr>
+				<tr class="repeatCycleDiv">
+					<td class="padding"><input type="checkbox" name="repeatCycles" id="repeatCycles" value="repeatCycles"><spring:message code='orderextension.regimen.deleteInAllFutureCycles'/></td>
 				</tr>
 			</table>
 		</form>
@@ -829,11 +1023,16 @@ function handleDeleteAllDrugOrder()
 	<div id="openmrs_error" class="openmrs_error"></div>
 		<form id="stopAllDrug" name="stopAllDrug" method="post" action="${pageContext.request.contextPath}/module/orderextension/stopAllDrugsInGroup.form">
 			<input type="hidden" name="groupId" id="stopAllOrderId">
+			<input type="hidden" name="patientId" value="${patient.patientId}">
+			<input type="hidden" name="startDate" id="startDate">
 			<input type="hidden" name="returnPage" value="/patientDashboard.form?patientId=${patient.patientId}"/>	
 			<table>
 				<tr>
 					<td class="padding"><spring:message code="orderextension.regimen.stopDate"/>: <openmrs_tag:dateField formFieldName="drugStopAllDate" startValue=""/></td>
 					<td class="padding"><spring:message code="orderextension.regimen.stopReason"/>:<openmrs:fieldGen type="org.openmrs.DrugOrder.discontinuedReason" formFieldName="drugStopAllReason" val="" parameters="optionHeader=[blank]|globalProp=concept.reasonOrderStopped" /></td>
+				</tr>
+				<tr class="repeatCycleDiv">
+					<td class="padding"><input type="checkbox" name="repeatCycles" id="repeatCycles" value="repeatCycles"><spring:message code='orderextension.regimen.deleteAllFutureCycles'/></td>
 				</tr>
 			</table>
 		</form>
@@ -845,10 +1044,14 @@ function handleDeleteAllDrugOrder()
 	<div id="openmrs_error" class="openmrs_error"></div>
 		<form id="deleteAllDrug" name="deleteAllDrug" method="post" action="${pageContext.request.contextPath}/module/orderextension/deleteAllDrugsInGroup.form">
 			<input type="hidden" name="groupId" id="deleteAllOrderId">
+			<input type="hidden" name="patientId" value="${patient.patientId}">
 			<input type="hidden" name="returnPage" value="/patientDashboard.form?patientId=${patient.patientId}"/>	
 			<table>
 				<tr>
 					<td class="padding"><spring:message code="orderextension.regimen.deleteReason"/>: <input type="text" name="deleteReason" id="deleteAllReason" size="100"/></td>
+				</tr>
+				<tr class="repeatCycleDiv">
+					<td class="padding"><input type="checkbox" name="repeatCycles" id="repeatCycles" value="repeatCycles"><spring:message code='orderextension.regimen.deleteAllFutureCycles'/></td>
 				</tr>
 			</table>
 		</form>

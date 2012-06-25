@@ -122,21 +122,17 @@ public class HibernateOrderExtensionDAO implements OrderExtensionDAO {
 	}
 	
 	/**
-	 * @see OrderExtensionDAO#saveExtendedDrugOrder(ExtendedDrugOrder)
-	 */
-	@Override
-	public <T extends ExtendedDrugOrder> T saveExtendedDrugOrder(T extendedDrugOrder) {
-		getCurrentSession().saveOrUpdate(extendedDrugOrder);
-		return extendedDrugOrder;
-	}
-	
-	/**
-	 * @see OrderExtensionDAO#getExtendedDrugOrder(Integer)
-	 */
-	@Override
-	public ExtendedDrugOrder getExtendedDrugOrder(Integer id) {
-		return (ExtendedDrugOrder) getCurrentSession().get(ExtendedDrugOrder.class, id);
-	}
+     * @see org.openmrs.module.orderextension.api.db.OrderExtensionDAO#getExtendedDrugOrdersForPatient(Patient patient)
+     */
+    @Override
+    public List<ExtendedDrugOrder> getExtendedDrugOrdersForPatient(Patient patient) {
+    	Criteria criteria = getCurrentSession().createCriteria(ExtendedDrugOrder.class);
+		
+    	criteria.add(Restrictions.eq("patient", patient));
+		criteria.add(Restrictions.eq("voided", false));
+		return criteria.list();
+    }
+
 	
 	/**
 	 * @see OrderExtensionDAO#getDrugRegimen(Integer)
@@ -165,7 +161,7 @@ public class HibernateOrderExtensionDAO implements OrderExtensionDAO {
 		criteria.add(Restrictions.eq("voided", false));
 		return criteria.list();
 	}
-
+	
 	/**
 	 * @return the sessionFactory
 	 */

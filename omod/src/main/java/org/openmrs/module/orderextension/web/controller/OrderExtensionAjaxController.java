@@ -25,9 +25,9 @@ import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.openmrs.Concept;
 import org.openmrs.Drug;
+import org.openmrs.DrugOrder;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.orderextension.ExtendedDrugOrder;
-import org.openmrs.module.orderextension.api.OrderExtensionService;
 import org.openmrs.module.orderextension.util.DrugConceptHelper;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -117,10 +117,10 @@ public class OrderExtensionAjaxController {
         }	
 	}	
 	
-	@RequestMapping("/module/orderextension/getExtendedDrugOrder")
-	public void getExtendedDrugOrder(@RequestParam(value = "id", required=true) Integer id, HttpServletResponse response)
+	@RequestMapping("/module/orderextension/getDrugOrder")
+	public void getDrugOrder(@RequestParam(value = "id", required=true) Integer id, HttpServletResponse response)
 	{
-		ExtendedDrugOrder drugOrder = Context.getService(OrderExtensionService.class).getExtendedDrugOrder(id);
+		DrugOrder drugOrder = Context.getOrderService().getOrder(id, DrugOrder.class);
 		
 		Drug drug = drugOrder.getDrug();
 		
@@ -170,39 +170,41 @@ public class OrderExtensionAjaxController {
 		
 		info.put("asNeeded", drugOrder.getPrn().toString());
 		
-		String adminInstructions = "";
-		String instructions = "";
-		
-		info.put("adminInstructions", drugOrder.getAdministrationInstructions());
 		info.put("instructions", drugOrder.getInstructions());
 		
-		String ind = "";
-		String classification = "";
-		
-		Concept indication = drugOrder.getIndication();
-		if(indication != null)
+		if(drugOrder instanceof ExtendedDrugOrder)
 		{
-			DrugConceptHelper drugHelper = new DrugConceptHelper();
-			List<Concept> classifications = drugHelper.getIndications();
-			
-			for(Concept concept: classifications)
-			{
-				List<Concept> setMembers = concept.getSetMembers();
-				if(setMembers.contains(indication))
-				{
-					ind = concept.getId().toString();
-					classification =  indication.getId().toString();
-				}
-				else if(indication.equals(concept))
-				{
-					ind =  indication.getId().toString();
-					break;
-				}	
-			}
-		}
+			ExtendedDrugOrder eDrugOrder = (ExtendedDrugOrder)drugOrder;
+			info.put("adminInstructions", eDrugOrder.getAdministrationInstructions());
 		
-		info.put("classification", classification);
-		info.put("indication", ind);
+			String ind = "";
+			String classification = "";
+			
+			Concept indication = eDrugOrder.getIndication();
+			if(indication != null)
+			{
+				DrugConceptHelper drugHelper = new DrugConceptHelper();
+				List<Concept> classifications = drugHelper.getIndications();
+				
+				for(Concept concept: classifications)
+				{
+					List<Concept> setMembers = concept.getSetMembers();
+					if(setMembers.contains(indication))
+					{
+						ind = concept.getId().toString();
+						classification =  indication.getId().toString();
+					}
+					else if(indication.equals(concept))
+					{
+						ind =  indication.getId().toString();
+						break;
+					}	
+				}
+			}
+		
+			info.put("classification", classification);
+			info.put("indication", ind);
+		}
 		
 		info.put("startDate", Context.getDateFormat().format(drugOrder.getStartDate()));
 		

@@ -13,6 +13,7 @@
  */
 package org.openmrs.module.orderextension.web.controller;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -21,6 +22,7 @@ import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
 import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
+import org.openmrs.Order;
 import org.openmrs.OrderType;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
@@ -101,18 +103,18 @@ public class OrderExtensionOrderController {
 								 @RequestParam(value="adminInstructions", required=false) String adminInstructions,
 								 @RequestParam(value="returnPage", required=true) String returnPage) {
 		
-		ExtendedDrugOrder drugOrder = setUpDrugOrder(patientId, drugId, dose, frequencyDay, frequencyWeek, startDateDrug, stopDateDrug, asNeeded, classification, indication, instructions, adminInstructions);
+		DrugOrder drugOrder = setUpDrugOrder(patientId, drugId, dose, frequencyDay, frequencyWeek, startDateDrug, stopDateDrug, asNeeded, classification, indication, instructions, adminInstructions);
 	
-		Context.getService(OrderExtensionService.class).saveExtendedDrugOrder(drugOrder);
+		Context.getOrderService().saveOrder(drugOrder);
 	
 		return "redirect:"+returnPage;
 	}
 	
-	private ExtendedDrugOrder setUpDrugOrder(Integer patientId, Integer drugId, Double dose, String frequencyDay, String frequencyWeek, Date startDateDrug, Date stopDateDrug, String asNeeded, Integer classification, Integer indication, String instructions, String adminInstructions)
+	private DrugOrder setUpDrugOrder(Integer patientId, Integer drugId, Double dose, String frequencyDay, String frequencyWeek, Date startDateDrug, Date stopDateDrug, String asNeeded, Integer classification, Integer indication, String instructions, String adminInstructions)
 	{
 		Patient patient = Context.getPatientService().getPatient(patientId);
 		
-		ExtendedDrugOrder drugOrder = new ExtendedDrugOrder();
+		DrugOrder drugOrder = new ExtendedDrugOrder();
 		drugOrder.setPatient(patient);
 		
 		drugOrder = updateDrugOrder(drugOrder, drugId, dose, frequencyDay, frequencyWeek, startDateDrug, stopDateDrug, asNeeded, classification, indication, instructions, adminInstructions);
@@ -120,7 +122,7 @@ public class OrderExtensionOrderController {
 		return drugOrder;
 	}
 	
-	private ExtendedDrugOrder updateDrugOrder(ExtendedDrugOrder drugOrder, Integer drugId, Double dose, String frequencyDay, String frequencyWeek, Date startDateDrug, Date stopDateDrug, String asNeeded, Integer classification, Integer indication, String instructions, String adminInstructions)
+	private DrugOrder updateDrugOrder(DrugOrder drugOrder, Integer drugId, Double dose, String frequencyDay, String frequencyWeek, Date startDateDrug, Date stopDateDrug, String asNeeded, Integer classification, Integer indication, String instructions, String adminInstructions)
 	{
 		Drug drug = Context.getConceptService().getDrug(drugId);
 		drugOrder.setDrug(drug);
@@ -143,26 +145,32 @@ public class OrderExtensionOrderController {
 		}
 		drugOrder.setFrequency(frequency);
 		drugOrder.setStartDate(startDateDrug);
-		if(asNeeded != null && asNeeded.equals("true"))
+		if(asNeeded != null)
 		{
 			drugOrder.setPrn(true);
 		}
-		if(classification != null)
+		if(drugOrder instanceof ExtendedDrugOrder)
 		{
-			drugOrder.setIndication(Context.getConceptService().getConcept(classification));
+			ExtendedDrugOrder eDrugOrder = (ExtendedDrugOrder)drugOrder;
+			if(classification != null)
+			{
+				eDrugOrder.setIndication(Context.getConceptService().getConcept(classification));
+			}
+			else if(indication != null)
+			{
+				eDrugOrder.setIndication(Context.getConceptService().getConcept(indication));
+			}
+			if(adminInstructions != null && adminInstructions.length() > 0)
+			{
+				eDrugOrder.setAdministrationInstructions(adminInstructions);
+			}
 		}
-		else if(indication != null)
-		{
-			drugOrder.setIndication(Context.getConceptService().getConcept(indication));
-		}
+		
 		if(instructions != null && instructions.length() > 0)
 		{
 			drugOrder.setInstructions(instructions);
 		}
-		if(adminInstructions != null && adminInstructions.length() > 0)
-		{
-			drugOrder.setAdministrationInstructions(adminInstructions);
-		}
+		
 		
 		if(stopDateDrug != null)
 		{
@@ -190,14 +198,84 @@ public class OrderExtensionOrderController {
 								 @RequestParam(value="indication", required=false) Integer indication,
 								 @RequestParam(value="instructions", required=false) String instructions,
 								 @RequestParam(value="adminInstructions", required=false) String adminInstructions,
+								 @RequestParam(value="repeatCycles", required=false) String repeatCycle,
 								 @RequestParam(value="returnPage", required=true) String returnPage) {
 		
 		DrugRegimen regimen = Context.getService(OrderExtensionService.class).getDrugRegimen(groupId);
 		
-		ExtendedDrugOrder drugOrder = setUpDrugOrder(patientId, drugId, dose, frequencyDay, frequencyWeek, startDateDrug, stopDateDrug, asNeeded, classification, indication, instructions, adminInstructions);
+		if(repeatCycle != null)
+		{
+			Patient patient = Context.getPatientService().getPatient(patientId);
+			List<DrugRegimen> futureOrders = Context.getService(OrderExtensionService.class).getFutureDrugRegimensOfSameOrderSet(patient, regimen, regimen.getFirstDrugOrderStartDate());
+			
+			for(DrugRegimen drugRegimen: futureOrders)
+			{	
+				Date startDate = adjustDate(drugRegimen.getFirstDrugOrderStartDate(), regimen.getFirstDrugOrderStartDate(), startDateDrug);
+				
+				Date stopDate = null;
+				if(stopDateDrug != null)
+				{
+					stopDate = adjustDate(drugRegimen.getFirstDrugOrderStartDate(), regimen.getFirstDrugOrderStartDate(), stopDateDrug);
+				}
+				
+				ExtendedDrugOrder drugOrder = (ExtendedDrugOrder)setUpDrugOrder(patientId, drugId, dose, frequencyDay, frequencyWeek, startDate, stopDate, asNeeded, classification, indication, instructions, adminInstructions);
+				drugRegimen.addMember(drugOrder);
+				
+				Context.getService(OrderExtensionService.class).saveOrderGroup(drugRegimen);
+			}
+		}
+		
+		ExtendedDrugOrder drugOrder = (ExtendedDrugOrder)setUpDrugOrder(patientId, drugId, dose, frequencyDay, frequencyWeek, startDateDrug, stopDateDrug, asNeeded, classification, indication, instructions, adminInstructions);
 		regimen.addMember(drugOrder);
 		
 		Context.getService(OrderExtensionService.class).saveOrderGroup(regimen);
+	
+		return "redirect:"+returnPage;
+	}
+	
+	@RequestMapping(value = "/module/orderextension/changeStartDateOfGroup")
+	public String changeStartDateOfGroup(ModelMap model, 
+								 @RequestParam(value="patientId", required=true) Integer patientId,
+								 @RequestParam(value="groupId", required=true) Integer groupId,
+								 @RequestParam(value="changeDate", required=true) Date changeDate,
+								 @RequestParam(value="repeatCycles", required=false) String repeatCycle,
+								 @RequestParam(value="returnPage", required=true) String returnPage) {
+		
+		DrugRegimen regimen = Context.getService(OrderExtensionService.class).getDrugRegimen(groupId);
+		
+		if(repeatCycle != null)
+		{
+			Patient patient = Context.getPatientService().getPatient(patientId);
+			List<DrugRegimen> futureOrders = Context.getService(OrderExtensionService.class).getFutureDrugRegimensOfSameOrderSet(patient, regimen, regimen.getFirstDrugOrderStartDate());
+			
+			for(DrugRegimen drugRegimen: futureOrders)
+			{	
+				Date startDate = adjustDate(drugRegimen.getFirstDrugOrderStartDate(), regimen.getFirstDrugOrderStartDate(), changeDate);
+				
+				for(ExtendedDrugOrder order: drugRegimen.getMembers())
+				{ 
+					if(order.getAutoExpireDate() != null)
+					{
+						order.setAutoExpireDate(adjustDate(order.getAutoExpireDate(), regimen.getFirstDrugOrderStartDate(), changeDate));
+					}
+					
+					order.setStartDate(adjustDate(order.getStartDate(), regimen.getFirstDrugOrderStartDate(), changeDate));
+					Context.getOrderService().saveOrder(order);
+				}
+			}
+		}
+		
+		Date sDate = regimen.getFirstDrugOrderStartDate();
+		for(ExtendedDrugOrder order: regimen.getMembers())
+		{ 
+			if(order.getAutoExpireDate() != null)
+			{
+				order.setAutoExpireDate(adjustDate(order.getAutoExpireDate(), sDate, changeDate));
+			}
+			
+			order.setStartDate(adjustDate(order.getStartDate(), sDate, changeDate));
+			Context.getOrderService().saveOrder(order);
+		}
 	
 		return "redirect:"+returnPage;
 	}
@@ -216,13 +294,59 @@ public class OrderExtensionOrderController {
 								 @RequestParam(value="indication", required=false) Integer indication,
 								 @RequestParam(value="instructions", required=false) String instructions,
 								 @RequestParam(value="adminInstructions", required=false) String adminInstructions,
-								 @RequestParam(value="returnPage", required=true) String returnPage) {
+								 @RequestParam(value="repeatCycles", required=false) String repeatCycle,
+								 @RequestParam(value="returnPage", required=true) String returnPage,
+								 @RequestParam(value="patientId", required=true) Integer patientId) {
 		
-		ExtendedDrugOrder drugOrder = Context.getService(OrderExtensionService.class).getExtendedDrugOrder(orderId);
+		DrugOrder o = Context.getOrderService().getOrder(orderId, DrugOrder.class);
 		
-		drugOrder = updateDrugOrder(drugOrder, drugId, dose, frequencyDay, frequencyWeek, startDateDrug, stopDateDrug, asNeeded, classification, indication, instructions, adminInstructions);
+		if(o instanceof ExtendedDrugOrder)
+		{
+			ExtendedDrugOrder drugOrder = (ExtendedDrugOrder)o;
 		
-		Context.getService(OrderExtensionService.class).saveExtendedDrugOrder(drugOrder);
+			if(repeatCycle != null)
+			{
+				DrugRegimen regimen = Context.getService(OrderExtensionService.class).getDrugRegimen(drugOrder.getGroup().getId());
+				Patient patient = Context.getPatientService().getPatient(patientId);
+				List<ExtendedDrugOrder> futureOrders = Context.getService(OrderExtensionService.class).getFutureDrugOrdersOfSameOrderSet(patient, regimen.getOrderSet(), regimen.getFirstDrugOrderStartDate());
+				
+				for(ExtendedDrugOrder order: futureOrders)
+				{
+					if((order.getDrug() != null && drugOrder.getDrug() != null && order.getDrug().equals(drugOrder.getDrug())) || (order.getConcept() != null && drugOrder.getConcept() != null && order.getConcept().equals(drugOrder.getConcept())))
+					{
+						//assuming that the same drug won't appear twice in the same indication within a cycle and that you would want to change the dose on one 
+						if((order.getIndication() == null && drugOrder.getIndication() == null) || (order.getIndication() != null && drugOrder.getIndication() != null && drugOrder.getIndication().equals(order.getIndication())))
+						{
+							Date startDate = order.getStartDate();
+							Date endDate = order.getAutoExpireDate();
+							if(drugOrder.getStartDate().getTime() != startDateDrug.getTime())
+							{
+								startDate = adjustDate(startDate, drugOrder.getStartDate(), startDateDrug);
+							}
+							if(drugOrder.getAutoExpireDate() == null && stopDateDrug != null)
+							{
+								endDate = stopDateDrug;
+							}
+							else if(drugOrder.getAutoExpireDate() != null && stopDateDrug == null)
+							{
+								endDate = null;
+							}
+							else if(drugOrder.getAutoExpireDate() != null && stopDateDrug != null && drugOrder.getAutoExpireDate().getTime() != stopDateDrug.getTime())
+							{
+								endDate = adjustDate(endDate, drugOrder.getAutoExpireDate(), stopDateDrug);
+							}
+							
+							DrugOrder orderDrug = updateDrugOrder(order, drugId, dose, frequencyDay, frequencyWeek, startDate, endDate, asNeeded, classification, indication, instructions, adminInstructions);
+							Context.getOrderService().saveOrder(orderDrug);
+						}
+					}
+				}
+			}
+		}
+		
+		o = updateDrugOrder(o, drugId, dose, frequencyDay, frequencyWeek, startDateDrug, stopDateDrug, asNeeded, classification, indication, instructions, adminInstructions);
+		
+		Context.getOrderService().saveOrder(o);
 	
 		return "redirect:"+returnPage;
 	}
@@ -232,11 +356,45 @@ public class OrderExtensionOrderController {
 								 @RequestParam(value="orderId", required=true) Integer orderId,
 								 @RequestParam(value="drugStopDate", required=true) Date stopDate,
 								 @RequestParam(value="drugStopReason", required=true) Integer stopReason,
-								 @RequestParam(value="returnPage", required=true) String returnPage) {
+								 @RequestParam(value="repeatCycles", required=false) String repeatCycle,
+								 @RequestParam(value="returnPage", required=true) String returnPage,
+								 @RequestParam(value="patientId", required=true) Integer patientId) {
 		
-		ExtendedDrugOrder drugOrder = Context.getService(OrderExtensionService.class).getExtendedDrugOrder(orderId);
+		Concept stopConcept = Context.getConceptService().getConcept(stopReason);
 		
-		Context.getOrderService().discontinueOrder(drugOrder, Context.getConceptService().getConcept(stopReason), stopDate);
+		Order o = Context.getOrderService().getOrder(orderId, DrugOrder.class);
+		
+		if(o instanceof ExtendedDrugOrder)
+		{
+			ExtendedDrugOrder drugOrder = (ExtendedDrugOrder)o;
+		
+			if(repeatCycle != null)
+			{
+				DrugRegimen regimen = Context.getService(OrderExtensionService.class).getDrugRegimen(drugOrder.getGroup().getId());
+				Patient patient = Context.getPatientService().getPatient(patientId);
+				List<ExtendedDrugOrder> futureOrders = Context.getService(OrderExtensionService.class).getFutureDrugOrdersOfSameOrderSet(patient, regimen.getOrderSet(), regimen.getFirstDrugOrderStartDate());
+				
+				for(ExtendedDrugOrder order: futureOrders)
+				{
+					if(order.getDrug() != null && drugOrder.getDrug() != null)
+					{
+						if(order.getDrug().equals(drugOrder.getDrug()))
+						{
+							Context.getOrderService().voidOrder(order, stopConcept.getDisplayString());
+						}
+					}
+					else if(order.getConcept() != null && drugOrder.getConcept() != null)
+					{
+						if(order.getConcept().equals(drugOrder.getConcept()))
+						{
+							Context.getOrderService().voidOrder(order, stopConcept.getDisplayString());
+						}
+					}
+				}
+			}
+		}
+		
+		Context.getOrderService().discontinueOrder(o, stopConcept, stopDate);
 		
 		return "redirect:"+returnPage;
 	}
@@ -245,11 +403,43 @@ public class OrderExtensionOrderController {
 	public String deleteDrug(ModelMap model, 
 								 @RequestParam(value="orderId", required=true) Integer orderId,
 								 @RequestParam(value="deleteReason", required=true) String voidReason,
-								 @RequestParam(value="returnPage", required=true) String returnPage) {
+								 @RequestParam(value="repeatCycles", required=false) String repeatCycle,
+								 @RequestParam(value="returnPage", required=true) String returnPage,
+								 @RequestParam(value="patientId", required=true) Integer patientId) {
 		
-		ExtendedDrugOrder drugOrder = Context.getService(OrderExtensionService.class).getExtendedDrugOrder(orderId);
+		DrugOrder o = Context.getOrderService().getOrder(orderId, DrugOrder.class);
 		
-		Context.getOrderService().voidOrder(drugOrder, voidReason);
+		if(o instanceof ExtendedDrugOrder)
+		{
+			ExtendedDrugOrder drugOrder = (ExtendedDrugOrder)o;
+			
+			if(repeatCycle != null)
+			{
+				DrugRegimen regimen = Context.getService(OrderExtensionService.class).getDrugRegimen(drugOrder.getGroup().getId());
+				Patient patient = Context.getPatientService().getPatient(patientId);
+				List<ExtendedDrugOrder> futureOrders = Context.getService(OrderExtensionService.class).getFutureDrugOrdersOfSameOrderSet(patient, regimen.getOrderSet(), regimen.getFirstDrugOrderStartDate());
+				
+				for(ExtendedDrugOrder order: futureOrders)
+				{
+					if(order.getDrug() != null && drugOrder.getDrug() != null)
+					{
+						if(order.getDrug().equals(drugOrder.getDrug()))
+						{
+							Context.getOrderService().voidOrder(order, voidReason);
+						}
+					}
+					else if(order.getConcept() != null && drugOrder.getConcept() != null)
+					{
+						if(order.getConcept().equals(drugOrder.getConcept()))
+						{
+							Context.getOrderService().voidOrder(order, voidReason);
+						}
+					}
+				}
+			}
+		}
+		
+		Context.getOrderService().voidOrder(o, voidReason);
 		
 		return "redirect:"+returnPage;
 	}
@@ -258,9 +448,22 @@ public class OrderExtensionOrderController {
 	public String deleteAllDrugsInGroup(ModelMap model, 
 								 @RequestParam(value="groupId", required=true) Integer groupId,
 								 @RequestParam(value="deleteReason", required=true) String voidReason,
-								 @RequestParam(value="returnPage", required=true) String returnPage) {
+								 @RequestParam(value="repeatCycles", required=false) String repeatCycle,
+								 @RequestParam(value="returnPage", required=true) String returnPage,
+								 @RequestParam(value="patientId", required=true) Integer patientId) {
 		
 		DrugRegimen regimen = Context.getService(OrderExtensionService.class).getDrugRegimen(groupId);
+		
+		if(repeatCycle != null)
+		{
+			Patient patient = Context.getPatientService().getPatient(patientId);
+			List<ExtendedDrugOrder> futureOrders = Context.getService(OrderExtensionService.class).getFutureDrugOrdersOfSameOrderSet(patient, regimen.getOrderSet(), regimen.getLastDrugOrderEndDate());
+			
+			for(ExtendedDrugOrder order: futureOrders)
+			{
+				Context.getOrderService().voidOrder(order, voidReason);
+			}
+		}
 		
 		for(ExtendedDrugOrder order: regimen.getMembers())
 		{
@@ -275,11 +478,24 @@ public class OrderExtensionOrderController {
 								 @RequestParam(value="groupId", required=true) Integer groupId,
 								 @RequestParam(value="drugStopAllDate", required=true) Date stopDate,
 								 @RequestParam(value="drugStopAllReason", required=true) Integer stopReason,
-								 @RequestParam(value="returnPage", required=true) String returnPage) {
+								 @RequestParam(value="repeatCycles", required=false) String repeatCycle,
+								 @RequestParam(value="returnPage", required=true) String returnPage,
+								 @RequestParam(value="patientId", required=true) Integer patientId) {
 		
 		DrugRegimen regimen = Context.getService(OrderExtensionService.class).getDrugRegimen(groupId);
 		
 		Concept stopConcept = Context.getConceptService().getConcept(stopReason);
+		
+		if(repeatCycle != null)
+		{
+			Patient patient = Context.getPatientService().getPatient(patientId);
+			List<ExtendedDrugOrder> futureOrders = Context.getService(OrderExtensionService.class).getFutureDrugOrdersOfSameOrderSet(patient, regimen.getOrderSet(), regimen.getLastDrugOrderEndDate());
+			
+			for(ExtendedDrugOrder order: futureOrders)
+			{
+				Context.getOrderService().voidOrder(order, stopConcept.getDisplayString());
+			}
+		}
 		
 		for(ExtendedDrugOrder order: regimen.getMembers())
 		{
@@ -287,5 +503,20 @@ public class OrderExtensionOrderController {
 		}
 		
 		return "redirect:"+returnPage;
+	}
+	
+	private Date adjustDate(Date dateToAdjust, Date startDateComparison, Date endDateComparison)
+	{
+		long milis2 = startDateComparison.getTime();
+		long milis1 = endDateComparison.getTime();
+		
+		long diff = milis1 - milis2;
+		
+		long diffDays = diff / (24 * 60 * 60 * 1000);
+	
+		Calendar adjusted = Calendar.getInstance();
+		adjusted.setTime(dateToAdjust);
+		adjusted.add(Calendar.DAY_OF_YEAR, (int)diffDays);
+		return adjusted.getTime();
 	}
 }

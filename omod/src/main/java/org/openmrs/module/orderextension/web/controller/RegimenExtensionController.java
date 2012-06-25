@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openmrs.Concept;
 import org.openmrs.DrugOrder;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
@@ -55,11 +56,24 @@ public class RegimenExtensionController {
 		List<DrugOrder> drugOrdersContinuous = new ArrayList<DrugOrder>();
 		List<DrugRegimen> cycles = new ArrayList<DrugRegimen>();
 		
+		List<Concept> inclusionConcepts = getInclusionIndications();
+		
+		StringBuilder regimenHeading = new StringBuilder();
+		
 		for(DrugOrder drugOrder : allDrugOrders)
 		{
 			if(drugOrder.getDiscontinuedDate() != null || drugOrder.getAutoExpireDate() != null)
 			{
-				drugOrdersNonContinuous.add(drugOrder);
+				//now check if they are one of the indications that we want to show in the calendar
+				if(drugOrder instanceof ExtendedDrugOrder)
+				{
+					ExtendedDrugOrder edo = (ExtendedDrugOrder)drugOrder;
+					if(edo.getIndication() != null && inclusionConcepts.contains(edo.getIndication()))
+					{
+						drugOrdersNonContinuous.add(drugOrder);
+					}
+				}
+				
 			}
 			else
 			{
@@ -73,7 +87,47 @@ public class RegimenExtensionController {
 					if (regimen.isCyclical() && !cycles.contains(regimen))
 					{
 						cycles.add(regimen);
+						if((drugOrder.isCurrent() || drugOrder.isFuture()) && !regimenHeading.toString().contains(regimen.getName()))
+						{
+							if(regimenHeading.length() > 0)
+							{
+								regimenHeading.append(", ");
+							}
+							regimenHeading.append(regimen.getName());
+						}
 					}
+					else{
+						if(drugOrder.isCurrent()  && !regimenHeading.toString().contains(regimen.getName()))
+						{
+							if(regimenHeading.length() > 0)
+							{
+								regimenHeading.append(", ");
+							}
+							regimenHeading.append(regimen.getName());
+						}
+					}
+				}
+				else
+				{
+					if(drugOrder.isCurrent() && !drugOrder.isFuture())
+					{
+						if(regimenHeading.length() > 0)
+						{
+							regimenHeading.append(", ");
+						}
+						regimenHeading.append(drugOrder.getDrug().getName());
+					}
+				}
+			}
+			else
+			{
+				if(drugOrder.isCurrent() && !drugOrder.isFuture())
+				{
+					if(regimenHeading.length() > 0)
+					{
+						regimenHeading.append(", ");
+					}
+					regimenHeading.append(drugOrder.getDrug().getName());
 				}
 			}
 		}
@@ -83,6 +137,7 @@ public class RegimenExtensionController {
 		DrugConceptHelper drugHelper = new DrugConceptHelper();
 		
 		model.put("drugOrdersNonContinuous", drugOrdersNonContinuous);
+		model.put("regimenHeading", regimenHeading.toString());
 		model.put("drugOrdersContinuous", drugOrdersContinuous);
 		model.put("cycles", cycles);
 		
@@ -95,5 +150,32 @@ public class RegimenExtensionController {
 		model.addAttribute("patient", Context.getPatientService().getPatient(patientId));
 		
 		return new ModelAndView(SUCCESS_FORM_VIEW, "model", model);
+	}
+	
+	
+	private List<Concept> getInclusionIndications()
+	{
+		List<Concept> inclusionConcepts = new ArrayList<Concept>();
+		
+		String inclusionStr = Context.getAdministrationService().getGlobalProperty("orderextension.getIndicationConceptsToIncludeInCalendar");
+		
+		String[] inclusions = inclusionStr.split(",");
+		
+		for(String inclusion: inclusions)
+		{
+			Concept inc = Context.getConceptService().getConceptByUuid(inclusion);
+			
+			if(inc == null)
+			{
+				inc = Context.getConceptService().getConcept(Integer.parseInt(inclusion));
+			}
+			
+			if(inc != null)
+			{
+				inclusionConcepts.add(inc);
+			}
+		}
+		
+		return inclusionConcepts;
 	}
 }
