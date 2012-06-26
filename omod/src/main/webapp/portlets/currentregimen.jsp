@@ -44,9 +44,11 @@ DrugClassificationHelper helper = (DrugClassificationHelper)pageContext.getAttri
 			</div>
 			<%@ include file="../include/regimenTable.jsp"%> 
 			<div class="cycleLinks">
+			<openmrs:hasPrivilege privilege="Edit Regimen">
 				<input type="button" class="addDrugToGroupButton" value="<spring:message code="orderextension.regimen.addDrugCycle"/>" id="${drugGroup.id},true">
 				<input type="button" class="stopAllDrugsInGroupButton" value="<spring:message code="orderextension.regimen.stopAllDrugCycle"/>" id="${drugGroup.id},true,${drugGroup.firstDrugOrderStartDate}">
 				<input type="button" class="deleteAllDrugsInGroupButton" value="<spring:message code="orderextension.regimen.deleteDrugCycle"/>" id="${drugGroup.id},true">
+			</openmrs:hasPrivilege>
 			</div>
 		</c:forEach>
 		</div>
@@ -72,8 +74,10 @@ DrugClassificationHelper helper = (DrugClassificationHelper)pageContext.getAttri
 			<openmrs:hasPrivilege privilege="Edit Current/Completed Regimen">
 				<input type="button" class="addDrugToGroupButton" value="<spring:message code="orderextension.regimen.addDrugGroup"/>" id="${drugGroup.id},false">
 			</openmrs:hasPrivilege>
+			<openmrs:hasPrivilege privilege="Edit Regimen">
 				<input type="button" class="stopAllDrugsInGroupButton" value="<spring:message code="orderextension.regimen.stopAllDrugGroup"/>" id="${drugGroup.id},false,${drugGroup.firstDrugOrderStartDate}">
 				<input type="button" class="deleteAllDrugsInGroupButton" value="<spring:message code="orderextension.regimen.deleteAllDrugGroup"/>" id="${drugGroup.id},false">
+			</openmrs:hasPrivilege>
 			</div>
 		</c:forEach>
 		</div>

@@ -50,18 +50,6 @@
 		<file>messages.properties</file>
 	</messages>
 	<!-- /Internationalization -->
-
-	<globalProperty>
-		<property>orderextension.IVRouteConcept</property>
-		<defaultValue>6271</defaultValue>
-		<description>The concept for the IV route concept</description>
-	</globalProperty>
-	
-	<globalProperty>
-		<property>orderextension.drugClassification</property>
-		<defaultValue>6272</defaultValue>
-		<description>The concept for drug classification concept set</description>
-	</globalProperty>
 	
 	<globalProperty>
 		<property>orderextension.drugGroupClassification</property>

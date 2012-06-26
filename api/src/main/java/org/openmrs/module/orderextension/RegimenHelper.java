@@ -165,24 +165,6 @@ public class RegimenHelper {
 		return ret;
 	}
 	
-	public boolean hasIVDrugs(DrugRegimen drugGroup)
-	{
-		String ivConceptGp = Context.getAdministrationService().getGlobalProperty("orderextension.IVRouteConcept");
-		Concept ivConcept = Context.getConceptService().getConcept(ivConceptGp); 
-		for (DrugOrder o : ordersInDrugGroups.get(drugGroup))
-		{
-			if (o instanceof ExtendedDrugOrder) {
-				ExtendedDrugOrder edo = (ExtendedDrugOrder)o;
-				if (ivConcept.equals(edo.getRoute())) {
-					return true;
-				}
-			}
-		}
-		
-		return false;
-	}
-	
-	
 	private class DrugGroupSorter implements Comparator<DrugRegimen>
 	{
 		public int compare(DrugRegimen c1, DrugRegimen c2) {

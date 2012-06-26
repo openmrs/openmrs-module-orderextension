@@ -188,6 +188,10 @@ h2#regimenPortlet {
 
 }
 
+.regimenCurrentDrugLength {
+	text-align: center;
+}
+
 .regimenCurrentDrugScheduledStopDate {
 	text-align: center;
 }

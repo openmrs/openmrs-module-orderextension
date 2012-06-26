@@ -47,8 +47,10 @@ DrugClassificationHelper helper = (DrugClassificationHelper)pageContext.getAttri
 				
 				<%@ include file="../include/regimenTable.jsp"%> 
 				<div class="cycleLinks">
+				<openmrs:hasPrivilege privilege="Edit Regimen">
 					<input type="button" class="addDrugToGroupButton" value="<spring:message code="orderextension.regimen.addDrugCycle"/>" id="${drugGroup.id},true">
 					<input type="button" class="deleteAllDrugsInGroupButton" value="<spring:message code="orderextension.regimen.deleteDrugCycle"/>" id="${drugGroup.id},true">
+				</openmrs:hasPrivilege>
 				</div>
 			</div>
 		</c:forEach>
@@ -76,7 +78,9 @@ DrugClassificationHelper helper = (DrugClassificationHelper)pageContext.getAttri
 				<openmrs:hasPrivilege privilege="Edit Current/Completed Regimen">
 					<input type="button" class="addDrugToGroupButton" value="<spring:message code="orderextension.regimen.addDrugGroup"/>" id="${drugGroup.id},false">
 				</openmrs:hasPrivilege>
+				<openmrs:hasPrivilege privilege="Edit Regimen">
 				<input type="button" class="deleteAllDrugsInGroupButton" value="<spring:message code="orderextension.regimen.deleteAllDrugGroup"/>" id="${drugGroup.id},false">
+				</openmrs:hasPrivilege>
 			</div>
 		</c:forEach>
 		</div>

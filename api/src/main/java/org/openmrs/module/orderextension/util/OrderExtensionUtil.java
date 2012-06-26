@@ -58,6 +58,10 @@ public class OrderExtensionUtil  {
 						return calculateDaysDifference(drugOrder.getAutoExpireDate(), drugOrder.getStartDate());
 						
 					}
+					else
+					{
+						return "";
+					}
 				}
 				
 				if ("administrationInstructions".equals(format)) {
