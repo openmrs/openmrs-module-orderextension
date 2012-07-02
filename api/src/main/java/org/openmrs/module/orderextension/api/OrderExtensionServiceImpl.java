@@ -150,11 +150,23 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 	}
 	
 	/**
+     * @see org.openmrs.module.orderextension.api.OrderExtensionService#getMaxNumberOfCyclesForRegimen(org.openmrs.module.orderextension.DrugRegimen)
+     */
+    @Override
+    public Integer getMaxNumberOfCyclesForRegimen(Patient patient, DrugRegimen regimen) {
+	    if(regimen.isCyclical() && regimen.getCycleNumber() != null)
+	    {
+	    	return dao.getMaxNumberOfCyclesForRegimen(patient, regimen);
+	    }
+	    return 1;
+    }
+	
+	/**
      * @see org.openmrs.module.orderextension.api.OrderExtensionService#getDrugsOfGroupForPatient(Patient patient, Integer groupId)
      */
     @Override
-    public List<ExtendedDrugOrder> getExtendedDrugOrdersForPatient(Patient patient) {
-	    return dao.getExtendedDrugOrdersForPatient(patient);    
+    public List<ExtendedDrugOrder> getExtendedDrugOrders(Patient patient, Concept indication, Date startDateAfter, Date startDateBefore) {
+	    return dao.getExtendedDrugOrdersForPatient(patient, indication, startDateAfter, startDateBefore);    
     }
     
     /**
@@ -162,7 +174,7 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
      */
     @Override
     public List<ExtendedDrugOrder> getFutureDrugOrdersOfSameOrderSet(Patient patient, OrderSet orderSet, Date startDate) {
-    	List<ExtendedDrugOrder> allOrders = getExtendedDrugOrdersForPatient(patient);
+    	List<ExtendedDrugOrder> allOrders = getExtendedDrugOrders(patient, null, startDate, null);
 	    
     	List<ExtendedDrugOrder> futureOrders = new ArrayList<ExtendedDrugOrder>();
     	for(ExtendedDrugOrder order: allOrders)
@@ -180,7 +192,7 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
      */
     @Override
     public List<DrugRegimen> getFutureDrugRegimensOfSameOrderSet(Patient patient, DrugRegimen drugRegimen, Date startDate) {
-    	List<ExtendedDrugOrder> allOrders = getExtendedDrugOrdersForPatient(patient);
+    	List<ExtendedDrugOrder> allOrders = getExtendedDrugOrders(patient, null, startDate, null);
 	    
     	List<DrugRegimen> futureRegimens = new ArrayList<DrugRegimen>();
     	for(ExtendedDrugOrder order: allOrders)

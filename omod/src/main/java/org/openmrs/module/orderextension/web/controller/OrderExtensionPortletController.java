@@ -16,6 +16,7 @@ package org.openmrs.module.orderextension.web.controller;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,6 +26,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.DrugOrder;
 import org.openmrs.Patient;
+import org.openmrs.api.context.Context;
 import org.openmrs.module.orderextension.DrugClassificationHelper;
 import org.openmrs.module.orderextension.DrugRegimen;
 import org.openmrs.module.orderextension.ExtendedDrugOrder;
@@ -122,5 +124,22 @@ public class OrderExtensionPortletController extends PortletController {
 		model.put("drugs", drugHelper.getDistinctSortedDrugs());
 		
 		model.put("indications", drugHelper.getIndications());
+		
+		model.put("redirect", getRedirectMappings().get(request.getRequestURI()));
+	}
+	
+	private Map<String,String> getRedirectMappings()
+	{
+		Map<String, String> mappings = new HashMap<String, String>();
+		String gp = Context.getAdministrationService().getGlobalProperty("orderextension.getPageRedirect");
+		
+		String[] redirects = gp.split(",");
+		for(String mapping: redirects)
+		{
+			String[] redirect = mapping.split(":");
+			mappings.put(redirect[0], redirect[1]);
+		}
+		
+		return mappings;
 	}
 }

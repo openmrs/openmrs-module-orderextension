@@ -13,11 +13,13 @@
  */
 package org.openmrs.module.orderextension.api.db;
 
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
+import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.MatchMode;
@@ -125,14 +127,33 @@ public class HibernateOrderExtensionDAO implements OrderExtensionDAO {
      * @see org.openmrs.module.orderextension.api.db.OrderExtensionDAO#getExtendedDrugOrdersForPatient(Patient patient)
      */
     @Override
-    public List<ExtendedDrugOrder> getExtendedDrugOrdersForPatient(Patient patient) {
+    public List<ExtendedDrugOrder>  getExtendedDrugOrdersForPatient(Patient patient, Concept indication, Date startDateAfter, Date startDateBefore) {
     	Criteria criteria = getCurrentSession().createCriteria(ExtendedDrugOrder.class);
 		
-    	criteria.add(Restrictions.eq("patient", patient));
+    	if(patient != null)
+    	{
+    		criteria.add(Restrictions.eq("patient", patient));
+    	}
+    	
+    	if(indication != null)
+    	{	
+    		criteria.add(Restrictions.eq("indication", indication));
+    	}
+    	if(startDateAfter != null && startDateBefore != null) 
+    	{
+    		criteria.add(Restrictions.between("startDate", startDateAfter, startDateBefore));
+    	}
+    	else if(startDateAfter != null)
+    	{
+    		criteria.add(Restrictions.ge("startDate", startDateAfter));
+    	}
+    	else if(startDateBefore != null)
+    	{
+    		criteria.add(Restrictions.lt("startDate", startDateAfter));
+    	}
 		criteria.add(Restrictions.eq("voided", false));
 		return criteria.list();
     }
-
 	
 	/**
 	 * @see OrderExtensionDAO#getDrugRegimen(Integer)
@@ -141,6 +162,20 @@ public class HibernateOrderExtensionDAO implements OrderExtensionDAO {
 	public DrugRegimen getDrugRegimen(Integer id) {
 		return (DrugRegimen) getCurrentSession().get(DrugRegimen.class, id);
 	}
+	
+	/**
+     * @see org.openmrs.module.orderextension.api.db.OrderExtensionDAO#getMaxNumberOfCyclesForRegimen(org.openmrs.module.orderextension.DrugRegimen)
+     */
+    @Override
+    public Integer getMaxNumberOfCyclesForRegimen(Patient patient, DrugRegimen regimen) {
+  
+    	SQLQuery query = sessionFactory.getCurrentSession().createSQLQuery("select MAX(og.cycle_number) from orderextension_order_group og, orderextension_order er, orders o where og.id = er.group_id and er.order_id = o.order_id and o.voided = 0 and og.voided = 0 and og.order_set_id = :orderSetId and o.patient_id = :patientId and o.start_date >= :startDate");
+		query.setInteger("patientId", patient.getId());
+		query.setInteger("orderSetId", regimen.getOrderSet().getId());
+		query.setDate("startDate", regimen.getFirstDrugOrderStartDate());
+		
+		return (Integer)query.uniqueResult();
+    }
 
 	/**
 	 * @see OrderExtensionDAO#getOrderGroup(Integer)

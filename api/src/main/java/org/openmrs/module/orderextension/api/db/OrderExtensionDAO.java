@@ -13,6 +13,7 @@
  */
 package org.openmrs.module.orderextension.api.db;
 
+import java.util.Date;
 import java.util.List;
 
 import org.openmrs.Concept;
@@ -89,7 +90,12 @@ public interface OrderExtensionDAO {
     /**
      * @see OrderExtensionService#getExtendedDrugOrdersForPatient(Patient patient)
      */
-    public List<ExtendedDrugOrder> getExtendedDrugOrdersForPatient(Patient patient);
+    public List<ExtendedDrugOrder> getExtendedDrugOrdersForPatient(Patient patient, Concept indication, Date startDateAfter, Date startDateBefore);
 
+	/**
+     * @see OrderExtensionService#getMaxNumberOfCyclesForRegimen(DrugRegimen regimen)
+     */
+    public Integer getMaxNumberOfCyclesForRegimen(Patient patient, DrugRegimen regimen);
+    
 }
 

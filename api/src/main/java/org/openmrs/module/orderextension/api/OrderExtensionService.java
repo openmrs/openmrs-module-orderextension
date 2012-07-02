@@ -151,6 +151,13 @@ public interface OrderExtensionService extends OpenmrsService {
      * @return the requested drugRegimen
      */
     public DrugRegimen getDrugRegimen(Integer id);
+    
+    /**
+     * @param The regimen for which the maximum number of cycles should be retrieved for 
+     * @param The patient for which the regimens belong
+     * @return the Integer representing the maximum number of cycles
+     */
+    public Integer getMaxNumberOfCyclesForRegimen(Patient patient, DrugRegimen regimen);
 
 	/**
      * @param patient the Patient for whom to retrieve orders
@@ -165,10 +172,7 @@ public interface OrderExtensionService extends OpenmrsService {
     public List<DrugRegimen> getFutureDrugRegimensOfSameOrderSet(Patient patient, DrugRegimen drugRegimen, Date startDate);
     
 	/**
-     * Auto generated method comment
-     * 
      * @param patient the Patient for whom to retrieve the orders
      */
-     public List<ExtendedDrugOrder> getExtendedDrugOrdersForPatient(Patient patient);
-    
+     public List<ExtendedDrugOrder> getExtendedDrugOrders(Patient patient, Concept indication, Date startDateAfter, Date startDateBefore);
 }

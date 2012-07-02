@@ -536,7 +536,7 @@ function printRoadMap() {
 		<div id="openmrs_error" class="openmrs_error"></div>
 		<form id="addOrderSet" name="addMedication" method="post" action="${pageContext.request.contextPath}/module/orderextension/addOrderSet.form">
 			<input type="hidden" name="patientId" value="${patient.patientId}">
-			<input type="hidden" name="returnPage" value="/patientDashboard.form?patientId=${patient.patientId}"/>
+			<input type="hidden" name="returnPage" value="${model.redirect}?patientId=${patient.patientId}"/>
 			<table>
 				<tr>
 					<td class="padding">
@@ -569,7 +569,7 @@ function printRoadMap() {
 		</form>
 		<form id="addIndividualDrug" name="addIndividualDrug" method="post" action="${pageContext.request.contextPath}/module/orderextension/addDrugOrder.form">
 			<input type="hidden" name="patientId" value="${patient.patientId}">
-			<input type="hidden" name="returnPage" value="/patientDashboard.form?patientId=${patient.patientId}"/>	
+			<input type="hidden" name="returnPage" value="${model.redirect}?patientId=${patient.patientId}"/>	
 			<table>
 				<tr>
 					<td class="padding"><spring:message code="orderextension.regimen.individualDrug" />*: </td>

@@ -802,7 +802,7 @@ function handleDeleteAllDrugOrder()
 	<div id="openmrs_error" class="openmrs_error"></div>
 		<form id="addDrugToGroup" name="addDrugToGroup" method="post" action="${pageContext.request.contextPath}/module/orderextension/addDrugOrderToGroup.form">
 			<input type="hidden" name="patientId" value="${patient.patientId}">
-			<input type="hidden" name="returnPage" value="/patientDashboard.form?patientId=${patient.patientId}"/>	
+			<input type="hidden" name="returnPage" value="${model.redirect}?patientId=${patient.patientId}"/>	
 			<input type="hidden" name="groupId" id="groupId"/>	
 			<input type="hidden" name="cycle" id="cycle"/>	
 			<table>
@@ -892,7 +892,7 @@ function handleDeleteAllDrugOrder()
 		<form id="editDrug" name="editDrug" method="post" action="${pageContext.request.contextPath}/module/orderextension/editDrug.form">
 			<input type="hidden" name="orderId" id="orderId">
 			<input type="hidden" name="patientId" value="${patient.patientId}">
-			<input type="hidden" name="returnPage" value="/patientDashboard.form?patientId=${patient.patientId}"/>	
+			<input type="hidden" name="returnPage" value="${model.redirect}?patientId=${patient.patientId}"/>	
 			<table>
 				<tr>
 					<td class="padding"><spring:message code="orderextension.regimen.individualDrug" />*: </td>
@@ -966,7 +966,7 @@ function handleDeleteAllDrugOrder()
 			<input type="hidden" name="orderId" id="stopOrderId">
 			<input type="hidden" name="startDate" id="startDateInd">
 			<input type="hidden" name="patientId" value="${patient.patientId}">
-			<input type="hidden" name="returnPage" value="/patientDashboard.form?patientId=${patient.patientId}"/>	
+			<input type="hidden" name="returnPage" value="${model.redirect}?patientId=${patient.patientId}"/>	
 			<table>
 				<tr>
 					<td class="padding"><spring:message code="orderextension.regimen.stopDate"/>: <openmrs_tag:dateField formFieldName="drugStopDate" startValue=""/></td>
@@ -986,7 +986,7 @@ function handleDeleteAllDrugOrder()
 		<form id="changeStartDateOfGroup" name="changeStartDateOfGroup" method="post" action="${pageContext.request.contextPath}/module/orderextension/changeStartDateOfGroup.form">
 			<input type="hidden" name="groupId" id="changeStartGroupId">
 			<input type="hidden" name="patientId" value="${patient.patientId}">
-			<input type="hidden" name="returnPage" value="/patientDashboard.form?patientId=${patient.patientId}"/>	
+			<input type="hidden" name="returnPage" value="${model.redirect}?patientId=${patient.patientId}"/>	
 			<table>
 				<tr>
 					<td class="padding"><spring:message code="orderextension.regimen.changeStartDate"/>: <openmrs_tag:dateField formFieldName="changeDate" startValue=""/></td>
@@ -1025,7 +1025,7 @@ function handleDeleteAllDrugOrder()
 			<input type="hidden" name="groupId" id="stopAllOrderId">
 			<input type="hidden" name="patientId" value="${patient.patientId}">
 			<input type="hidden" name="startDate" id="startDate">
-			<input type="hidden" name="returnPage" value="/patientDashboard.form?patientId=${patient.patientId}"/>	
+			<input type="hidden" name="returnPage" value="${model.redirect}?patientId=${patient.patientId}"/>	
 			<table>
 				<tr>
 					<td class="padding"><spring:message code="orderextension.regimen.stopDate"/>: <openmrs_tag:dateField formFieldName="drugStopAllDate" startValue=""/></td>
@@ -1045,7 +1045,7 @@ function handleDeleteAllDrugOrder()
 		<form id="deleteAllDrug" name="deleteAllDrug" method="post" action="${pageContext.request.contextPath}/module/orderextension/deleteAllDrugsInGroup.form">
 			<input type="hidden" name="groupId" id="deleteAllOrderId">
 			<input type="hidden" name="patientId" value="${patient.patientId}">
-			<input type="hidden" name="returnPage" value="/patientDashboard.form?patientId=${patient.patientId}"/>	
+			<input type="hidden" name="returnPage" value="${model.redirect}?patientId=${patient.patientId}"/>	
 			<table>
 				<tr>
 					<td class="padding"><spring:message code="orderextension.regimen.deleteReason"/>: <input type="text" name="deleteReason" id="deleteAllReason" size="100"/></td>

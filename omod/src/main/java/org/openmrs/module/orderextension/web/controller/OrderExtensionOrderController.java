@@ -17,6 +17,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import javax.servlet.ServletContext;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
@@ -143,12 +145,18 @@ public class OrderExtensionOrderController {
 			
 			frequency = frequency + frequencyWeek;
 		}
+		
 		drugOrder.setFrequency(frequency);
 		drugOrder.setStartDate(startDateDrug);
 		if(asNeeded != null)
 		{
 			drugOrder.setPrn(true);
 		}
+		else
+		{
+			drugOrder.setPrn(false);
+		}
+		
 		if(drugOrder instanceof ExtendedDrugOrder)
 		{
 			ExtendedDrugOrder eDrugOrder = (ExtendedDrugOrder)drugOrder;
@@ -160,20 +168,21 @@ public class OrderExtensionOrderController {
 			{
 				eDrugOrder.setIndication(Context.getConceptService().getConcept(indication));
 			}
-			if(adminInstructions != null && adminInstructions.length() > 0)
-			{
-				eDrugOrder.setAdministrationInstructions(adminInstructions);
+			else {
+				eDrugOrder.setIndication(null);
 			}
+			
+			eDrugOrder.setAdministrationInstructions(adminInstructions);
+			
 		}
 		
-		if(instructions != null && instructions.length() > 0)
+		drugOrder.setInstructions(instructions);
+		
+		if(drugOrder.isDiscontinuedRightNow())
 		{
-			drugOrder.setInstructions(instructions);
+			drugOrder.setDiscontinuedDate(stopDateDrug);
 		}
-		
-		
-		if(stopDateDrug != null)
-		{
+		else{
 			drugOrder.setAutoExpireDate(stopDateDrug);
 		}
 		
@@ -276,6 +285,7 @@ public class OrderExtensionOrderController {
 			order.setStartDate(adjustDate(order.getStartDate(), sDate, changeDate));
 			Context.getOrderService().saveOrder(order);
 		}
+		
 	
 		return "redirect:"+returnPage;
 	}
@@ -298,7 +308,7 @@ public class OrderExtensionOrderController {
 								 @RequestParam(value="returnPage", required=true) String returnPage,
 								 @RequestParam(value="patientId", required=true) Integer patientId) {
 		
-		DrugOrder o = Context.getOrderService().getOrder(orderId, DrugOrder.class);
+ 		DrugOrder o = Context.getOrderService().getOrder(orderId, DrugOrder.class);
 		
 		if(o instanceof ExtendedDrugOrder)
 		{
