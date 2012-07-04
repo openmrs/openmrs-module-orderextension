@@ -15,9 +15,7 @@ package org.openmrs.module.orderextension.web.controller;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -47,11 +45,13 @@ public class RegimenExtensionController {
 	
 	protected final Log log = LogFactory.getLog(getClass());
 	
+	protected final static String DEFAULT_REDIRECT_URL = "/patientDashboard.form";
+	
 	/** Success form view name */
 	private final String SUCCESS_FORM_VIEW = "/module/orderextension/extendedregimen";
 	
 	@RequestMapping(method=RequestMethod.GET)
-	public ModelAndView regimenTab(@RequestParam(required = true, value = "patientId") Integer patientId, ModelMap model, HttpServletRequest request) {
+	public ModelAndView regimenTab(@RequestParam(required = true, value = "patientId") Integer patientId, @RequestParam(required = false, value = "returnUrl") String redirectUrl, ModelMap model, HttpServletRequest request) {
 		
 		Patient patient = Context.getPatientService().getPatient(patientId);
 		
@@ -153,26 +153,16 @@ public class RegimenExtensionController {
 		
 		model.addAttribute("patient", Context.getPatientService().getPatient(patientId));
 		
-		System.out.println(getRedirectMappings().get(request.getRequestURI()));
-		model.addAttribute("redirect", getRedirectMappings().get(request.getRequestURI()));
+		String redirect = DEFAULT_REDIRECT_URL;
+		if(redirectUrl != null && !redirectUrl.equals(""))
+		{
+			redirect = redirectUrl;
+		}
+		model.addAttribute("redirect", redirect);
 				
 		return new ModelAndView(SUCCESS_FORM_VIEW, "model", model);
 	}
-	
-	private Map<String,String> getRedirectMappings()
-	{
-		Map<String, String> mappings = new HashMap<String, String>();
-		String gp = Context.getAdministrationService().getGlobalProperty("orderextension.getPageRedirect");
-		
-		String[] redirects = gp.split(",");
-		for(String mapping: redirects)
-		{
-			String[] redirect = mapping.split(":");
-			mappings.put(redirect[0], redirect[1]);
-		}
-		
-		return mappings;
-	}
+
 	
 	private List<Concept> getInclusionIndications()
 	{

@@ -454,21 +454,21 @@ function printRoadMap() {
 	<div class="regimenPortletCurrent">	
 		<div class="boxHeader${model.patientVariation}"><spring:message code="orderextension.regimen.current" /></div>
 		<div class="box${model.patientVariation}">
-			<openmrs:portlet url="currentregimen" moduleId="orderextension" id="patientRegimenCurrent" patientId="${patient.patientId}" parameters="mode=current"/>	
+			<openmrs:portlet url="currentregimen" moduleId="orderextension" id="patientRegimenCurrent" patientId="${patient.patientId}" parameters="mode=current|redirect=${model.redirect}"/>	
 		</div>			
 	</div>
 	<br />
 	<div class="regimenPortletFuture">
 		<div class="boxHeader${model.patientVariation}"><spring:message code="orderextension.regimen.future" /></div>
 		<div class="box${model.patientVariation}">
-			<openmrs:portlet url="futureregimen" moduleId="orderextension" id="patientRegimenCompleted" patientId="${patient.patientId}" parameters="mode=future"/>
+			<openmrs:portlet url="futureregimen" moduleId="orderextension" id="patientRegimenCompleted" patientId="${patient.patientId}" parameters="mode=future|redirect=${model.redirect}"/>
 		</div>
 	</div>
 	<br />
 	<div class="regimenPortletCompleted">
 		<div class="boxHeader${model.patientVariation}"><spring:message code="orderextension.regimen.completed" /></div>
 		<div class="box${model.patientVariation}">
-			<openmrs:portlet url="completedregimen" moduleId="orderextension" id="patientRegimenCompleted" patientId="${patient.patientId}" parameters="mode=completed"/>
+			<openmrs:portlet url="completedregimen" moduleId="orderextension" id="patientRegimenCompleted" patientId="${patient.patientId}" parameters="mode=completed|redirect=${model.redirect}"/>
 		</div>
 	</div>
 </div>

@@ -63,10 +63,4 @@
 		<description>A list of uuids or concepts ids for the indication concepts that should be included in the calendar</description>
 	</globalProperty>
 	
-	<globalProperty>
-		<property>orderextension.getPageRedirect</property>
-		<defaultValue>/openmrs/WEB-INF/view/patientDashboardForm.jsp:/patientDashboard.form</defaultValue>
-		<description>A comma separated list of requestURI and the corresponding redirect page, separated by |</description>
-	</globalProperty>
-	
 </module>
