@@ -50,7 +50,7 @@ jQuery(document).ready(function() {
 		modal: true,
 		title: '<spring:message code="orderextension.regimen.addDrugGroup" javaScriptEscape="true"/>',
 		height: 480,
-		width: '80%',
+		width: '100%',
 		zIndex: 100,
 		buttons: { '<spring:message code="general.add"/>': function() { handleAddMedicationToGroup(); },
 				   '<spring:message code="general.cancel"/>': function() { $j(this).dialog("close"); }
@@ -115,7 +115,7 @@ jQuery(document).ready(function() {
 		modal: true,
 		title: '<spring:message code="orderextension.regimen.editDialog" javaScriptEscape="true"/>',
 		height: 480,
-		width: '80%',
+		width: '100%',
 		zIndex: 100,
 		buttons: { '<spring:message code="general.edit"/>': function() { handleEditDrugOrder(); },
 				   '<spring:message code="general.cancel"/>': function() { $j(this).dialog("close"); }
