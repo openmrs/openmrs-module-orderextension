@@ -159,7 +159,7 @@ jQuery(document).ready(function() {
 		modal: true,
 		title: '<spring:message code="orderextension.regimen.addMedication" javaScriptEscape="true"/>',
 		height: 480,
-		width: '80%',
+		width: '100%',
 		zIndex: 100,
 		buttons: { '<spring:message code="general.add"/>': function() { handleAddMedication(); },
 				   '<spring:message code="general.cancel"/>': function() { $j(this).dialog("close"); }
