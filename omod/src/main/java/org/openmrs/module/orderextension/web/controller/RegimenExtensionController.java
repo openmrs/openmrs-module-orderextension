@@ -45,7 +45,9 @@ public class RegimenExtensionController {
 	
 	protected final Log log = LogFactory.getLog(getClass());
 	
+	//TODO: remove after onc demo
 	protected final static String DEFAULT_REDIRECT_URL = "/patientDashboard.form";
+	
 	
 	/** Success form view name */
 	private final String SUCCESS_FORM_VIEW = "/module/orderextension/extendedregimen";
@@ -59,6 +61,7 @@ public class RegimenExtensionController {
 		List<DrugOrder> drugOrdersNonContinuous = new ArrayList<DrugOrder>();
 		List<DrugOrder> drugOrdersContinuous = new ArrayList<DrugOrder>();
 		List<DrugRegimen> cycles = new ArrayList<DrugRegimen>();
+		List<DrugRegimen> fixedLengthRegimens = new ArrayList<DrugRegimen>();
 		
 		List<Concept> inclusionConcepts = getInclusionIndications();
 		
@@ -88,16 +91,19 @@ public class RegimenExtensionController {
 				ExtendedDrugOrder edo = (ExtendedDrugOrder)drugOrder;
 				if(edo.getGroup() != null && edo.getGroup() instanceof DrugRegimen) {
 					DrugRegimen regimen = (DrugRegimen)edo.getGroup();
-					if (regimen.isCyclical() && !cycles.contains(regimen))
+					if (regimen.isCyclical())
 					{
-						cycles.add(regimen);
-						if((drugOrder.isCurrent() || drugOrder.isFuture()) && !regimenHeading.toString().contains(regimen.getName()))
+						if(!cycles.contains(regimen))
 						{
-							if(regimenHeading.length() > 0)
+							cycles.add(regimen);
+							if((drugOrder.isCurrent() || drugOrder.isFuture()) && !regimenHeading.toString().contains(regimen.getName()))
 							{
-								regimenHeading.append(", ");
+								if(regimenHeading.length() > 0)
+								{
+									regimenHeading.append(", ");
+								}
+								regimenHeading.append(regimen.getName());
 							}
-							regimenHeading.append(regimen.getName());
 						}
 					}
 					else{
@@ -108,6 +114,11 @@ public class RegimenExtensionController {
 								regimenHeading.append(", ");
 							}
 							regimenHeading.append(regimen.getName());
+						}
+						
+						if(regimen.getLastDrugOrderEndDate() != null && !fixedLengthRegimens.contains(regimen))
+						{
+							fixedLengthRegimens.add(regimen);
 						}
 					}
 				}
@@ -144,6 +155,7 @@ public class RegimenExtensionController {
 		model.put("regimenHeading", regimenHeading.toString());
 		model.put("drugOrdersContinuous", drugOrdersContinuous);
 		model.put("cycles", cycles);
+		model.put("fixedLengthRegimen", fixedLengthRegimens);
 		
 		model.addAttribute("orderSets", Context.getService(OrderExtensionService.class).getNamedOrderSets(false));
 		
@@ -154,9 +166,9 @@ public class RegimenExtensionController {
 		model.addAttribute("patient", Context.getPatientService().getPatient(patientId));
 		
 		String redirect = DEFAULT_REDIRECT_URL;
-		if(redirectUrl != null && !redirectUrl.equals(""))
+		if(request.getAttribute("returnUrl") != null)
 		{
-			redirect = redirectUrl;
+			redirect = request.getAttribute("returnUrl").toString();
 		}
 		model.addAttribute("redirect", redirect);
 				

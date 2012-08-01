@@ -55,7 +55,7 @@
 		<c:forEach items="${drugOrders}" var="drugOrder">
 			<tr class="drugLine">
 				<td class="regimenCurrentDrugOrdered"><orderextension:format object="${drugOrder}"/></td>
-				<td class="regimenCurrentDrugDose">${drugOrder.dose} ${drugOrder.units}</td>
+				<td class="regimenCurrentDrugDose"><orderextension:format object="${drugOrder.dose}"/> ${drugOrder.units}</td>
 				<td class="regimenCurrentDrugRoute"><orderextension:format object="${drugOrder}" format="route"/></td>
 				<td class="regimenCurrentDrugFrequency">${drugOrder.frequency} <c:if test="${drugOrder.prn}"><spring:message code="orderextension.orderset.DrugOrderSetMember.asNeeded" /></c:if></td>
 				<td class="regimenCurrentDrugLength"><orderextension:format object="${drugOrder}" format="length"/></td>

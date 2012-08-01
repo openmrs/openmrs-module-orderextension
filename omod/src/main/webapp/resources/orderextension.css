@@ -18,7 +18,7 @@
 }
 
 #printCalendarContents {
-	width: 900px;	
+	width: 1350px;	
 }
 
 .ongoingHeaderDrug {
@@ -35,6 +35,14 @@
 
 .ongoingHeaderStart {
 	width: 20%;	
+}
+
+.regimenShort {
+	width: 50%;
+}
+
+.regimenTableShort {
+	width: 100%;
 }
 
 #ongoing {
@@ -135,6 +143,7 @@ h2#regimenPortlet {
 .regimenTable {
 	width: 100%;
 	border-collapse: collapse;
+	font-size: 0.9em;
 }
 
 .regimenCurrentHeaderRow {

@@ -53,6 +53,7 @@ public class OrderExtensionOrderController {
 	@RequestMapping(value = "/module/orderextension/orderList")
 	public void listOrders(ModelMap model, @RequestParam(value="patientId", required=true) Integer patientId) {
 		Patient patient = Context.getPatientService().getPatient(patientId);
+		
 		model.addAttribute("patient", patient);
 		
 		List<DrugRegimen> regimens = Context.getService(OrderExtensionService.class).getOrderGroups(patient, DrugRegimen.class);

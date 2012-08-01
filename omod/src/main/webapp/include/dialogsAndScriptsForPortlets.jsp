@@ -361,7 +361,7 @@ function updateDrugInfoTwo() {
 		{
 			route =  "<spring:message code='orderextension.regimen.route'/>" + ": " + drugDetailTwo[index].route;
 		}
-		units = " " + drugDetailTwo[index].units;
+		units = " " + drugDetailTwo[index].doseForm;
 	}
 	
 	jQuery("#routeInfoTwo").html(route);
@@ -550,14 +550,14 @@ function updateEditDrugDialog() {
 			var i=0;
 			for (i=0;i< result.length;i++)
 			{
-				html = html + "<option value=" + result[i].id + ">" + result[i].name + " " + result[i].doseStrength + " " + result[i].doseForm + "</option>";
+				html = html + "<option value=" + result[i].id + ">" + result[i].name + " " + result[i].doseStrength + " " + result[i].units + "</option>";
 			}
 			
 			html = html + "</select>";
 			
 			if(result.length == 1)
 			{
-				html = html + result[0].name + " " + result[0].doseStrength + " " + result[0].doseForm;
+				html = html + result[0].name + " " + result[0].doseStrength + " " + result[0].units;
 			}
 			
 			jQuery("#drugNameThree").html(html);
@@ -1005,7 +1005,8 @@ function handleDeleteAllDrugOrder()
 		<form id="deleteDrug" name="deleteDrug" method="post" action="${pageContext.request.contextPath}/module/orderextension/deleteDrug.form">
 			<input type="hidden" name="orderId" id="deleteOrderId">
 			<input type="hidden" name="patientId" value="${patient.patientId}">
-			<input type="hidden" name="returnPage" value="/patientDashboard.form?patientId=${patient.patientId}"/>	
+			<!--  <input type="hidden" name="returnPage" value="/patientDashboard.form?patientId=${patient.patientId}"/>	-->
+			<input type="hidden" name="returnPage" value="/patientDashboard.form?patientId=${patient.patientId}"/>
 			<table>
 				<tr>
 					<td class="padding"><spring:message code="orderextension.regimen.deleteReason"/>: <input type="text" name="deleteReason" id="deleteReason" size="100"/></td>

@@ -13,6 +13,7 @@
  */
 package org.openmrs.module.orderextension.util;
 
+import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -20,7 +21,6 @@ import org.openmrs.Concept;
 import org.openmrs.DrugOrder;
 import org.openmrs.OpenmrsMetadata;
 import org.openmrs.module.orderextension.ExtendedDrugOrder;
-import org.openmrs.reporting.export.CalculatedColumn;
 
 /**
  * Defines any utility methods
@@ -85,6 +85,11 @@ public class OrderExtensionUtil  {
 			else if (o instanceof OpenmrsMetadata) {
 				OpenmrsMetadata m = (OpenmrsMetadata)o;
 				return m.getName();
+			}
+			else if (o instanceof Double)
+			{
+				final DecimalFormat f = new DecimalFormat("0.#");
+				return f.format(o);
 			}
 			
 			return o.toString();

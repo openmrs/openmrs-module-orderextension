@@ -146,6 +146,7 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 	@Override
 	@Transactional(readOnly=true)
 	public DrugRegimen  getDrugRegimen(Integer id) {
+		
 		return dao.getDrugRegimen(id);
 	}
 	
