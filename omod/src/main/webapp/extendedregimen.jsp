@@ -303,14 +303,14 @@ function fetchDrugs() {
 			var i=0;
 			for (i=0;i< result.length;i++)
 			{
-				html = html + "<option value=" + result[i].id + ">" + result[i].name + " " + result[i].doseStrength + " " + result[i].units + "</option>";
+				html = html + "<option value=" + result[i].id + ">" + result[i].name + "</option>";
 			}
 			
 			html = html + "</select>";
 			
 			if(result.length == 1)
 			{
-				html = html + result[0].name + " " + result[0].doseStrength + " " + result[0].units;
+				html = html + result[0].name;
 			}
 			
 			jQuery("#drugName").html(html);

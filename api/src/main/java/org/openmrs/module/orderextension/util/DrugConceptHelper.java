@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.openmrs.Concept;
+import org.openmrs.ConceptName;
 import org.openmrs.Drug;
 import org.openmrs.api.context.Context;
 
@@ -34,18 +35,28 @@ public class DrugConceptHelper {
 	{
 		Map<String, List<Drug>> drugs = new HashMap<String, List<Drug>>();
 		List<Drug> allDrugs = Context.getConceptService().getAllDrugs(false);
+		
 		for(Drug drug: allDrugs)
 		{
-			if(drugs.containsKey(drug.getName()))
+			if(drug.getConcept() != null)
 			{
-				List<Drug> drugsForConcept = drugs.get(drug.getName());
-				drugsForConcept.add(drug);
-			}
-			else
-			{
-				List<Drug> drugsForConcept =  new ArrayList<Drug>();
-				drugsForConcept.add(drug);
-				drugs.put(drug.getName(), drugsForConcept);
+				Concept concept = drug.getConcept();
+				List<ConceptName> names = concept.getCompatibleNames(Context.getLocale());
+			
+				for(ConceptName name: names)
+				{
+					if(drugs.containsKey(name.getName()))
+					{
+						List<Drug> drugsForConcept = drugs.get(name.getName());
+						drugsForConcept.add(drug);
+					}
+					else
+					{
+						List<Drug> drugsForConcept =  new ArrayList<Drug>();
+						drugsForConcept.add(drug);
+						drugs.put(name.getName(), drugsForConcept);
+					}
+				}
 			}
 		}
 		
