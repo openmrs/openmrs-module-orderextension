@@ -13,11 +13,15 @@
  */
 package org.openmrs.module.orderextension.web.controller;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,6 +34,7 @@ import org.openmrs.module.orderextension.DrugRegimen;
 import org.openmrs.module.orderextension.ExtendedDrugOrder;
 import org.openmrs.module.orderextension.api.OrderExtensionService;
 import org.openmrs.module.orderextension.util.DrugConceptHelper;
+import org.openmrs.web.controller.PortletController;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,21 +46,20 @@ import org.springframework.web.servlet.ModelAndView;
  * The main controller.
  */
 @Controller
-public class RegimenExtensionController {
+public class RegimenExtensionController extends PortletController{
 	
 	protected final Log log = LogFactory.getLog(getClass());
 	
-	//TODO: remove after onc demo
-	protected final static String DEFAULT_REDIRECT_URL = "/patientDashboard.form";
+	protected final static String DEFAULT_REDIRECT_URL = "/patientDashboard.form?";
 	
 	
 	/** Success form view name */
 	private final String SUCCESS_FORM_VIEW = "/module/orderextension/extendedregimen";
 	
 	@RequestMapping(method=RequestMethod.GET)
-	public ModelAndView regimenTab(@RequestParam(required = true, value = "patientId") Integer patientId, @RequestParam(required = false, value = "returnUrl") String redirectUrl, ModelMap model, HttpServletRequest request) {
-		
-		Patient patient = Context.getPatientService().getPatient(patientId);
+	protected void populateModel(HttpServletRequest request, Map<String, Object> model)
+	{	
+		Patient patient = Context.getPatientService().getPatient((Integer)model.get("patientId"));
 		
 		List<DrugOrder> allDrugOrders = Context.getOrderService().getDrugOrdersByPatient(patient);
 		List<DrugOrder> drugOrdersNonContinuous = new ArrayList<DrugOrder>();
@@ -157,25 +161,33 @@ public class RegimenExtensionController {
 		model.put("cycles", cycles);
 		model.put("fixedLengthRegimen", fixedLengthRegimens);
 		
-		model.addAttribute("orderSets", Context.getService(OrderExtensionService.class).getNamedOrderSets(false));
+		model.put("orderSets", Context.getService(OrderExtensionService.class).getNamedOrderSets(false));
 		
-		model.addAttribute("drugs", drugHelper.getDistinctSortedDrugs());
+		model.put("drugs", drugHelper.getDistinctSortedDrugs());
 		
-		model.addAttribute("indications", drugHelper.getIndications());
+		model.put("indications", drugHelper.getIndications());
 		
-		model.addAttribute("patient", Context.getPatientService().getPatient(patientId));
+		model.put("patient", Context.getPatientService().getPatient((Integer)model.get("patientId")));
 		
 		String redirect = DEFAULT_REDIRECT_URL;
-		if(request.getAttribute("returnUrl") != null)
+		if(model.get("returnUrl") != null)
 		{
-			redirect = request.getAttribute("returnUrl").toString();
+			redirect = model.get("returnUrl").toString();
 		}
-		model.addAttribute("redirect", redirect);
-				
-		return new ModelAndView(SUCCESS_FORM_VIEW, "model", model);
+		model.put("redirect", redirect);
 	}
 
 	
+	
+	@Override
+    public ModelAndView handleRequest(HttpServletRequest arg0, HttpServletResponse arg1) throws ServletException,
+        IOException {
+	    ModelAndView mav = super.handleRequest(arg0, arg1);
+	    return new ModelAndView(SUCCESS_FORM_VIEW, mav.getModel());
+    }
+
+
+
 	private List<Concept> getInclusionIndications()
 	{
 		List<Concept> inclusionConcepts = new ArrayList<Concept>();

@@ -122,7 +122,5 @@ public class OrderExtensionPortletController extends PortletController {
 		model.put("drugs", drugHelper.getDistinctSortedDrugs());
 		
 		model.put("indications", drugHelper.getIndications());
-		
-		model.put("redirect", redirect);
 	}
 }

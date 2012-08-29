@@ -7,6 +7,7 @@
 <openmrs:htmlInclude file="/moduleResources/orderextension/jquery.jqprint-0.3.js" />
 <openmrs:htmlInclude file="/moduleResources/orderextension/chosen/chosen.css" />
 
+<c:set var="patient"  value="${model.patient}"/>
 <script type="text/javascript">
 jQuery(document).ready(function() {
 	 
@@ -43,6 +44,7 @@ jQuery(document).ready(function() {
 		  jQuery("#drugListView").removeClass("selectedLink");
 		  jQuery("#calendarView").addClass("selectedLink");
 		  
+		  jQuery('#calendar').html('');
 		  jQuery('#calendar').fullCalendar({
 			  events: [
 				<c:forEach items="${model.cycles}" var="cycle" varStatus="loop">
@@ -78,6 +80,7 @@ jQuery(document).ready(function() {
 			       ]
 		    });
 		  
+		  	jQuery('#printCalendarContents').html('');
 		  	jQuery('#printCalendarContents').fullCalendar({ 
 				height: 900,
 				header: {
@@ -436,7 +439,7 @@ function printRoadMap() {
 	
 		var index;
 		
-		jQuery("#printCalendar").html('<h1><spring:message code="orderextension.regimen.printCalendarTitle" /> - <c:out value="${patient.givenName}"/> <c:out value="${patient.familyName}"/></h1>');
+		jQuery("#printCalendar").html('<h1><spring:message code="orderextension.regimen.printCalendarTitle" /> - <c:out value="${model.patient.givenName}"/> <c:out value="${model.patient.familyName}"/></h1>');
 		
 		for (index = 0; index < monthsToIncrement; index++) {
 	
@@ -475,21 +478,21 @@ function printRoadMap() {
 	<div class="regimenPortletCurrent">	
 		<div class="boxHeader${model.patientVariation}"><spring:message code="orderextension.regimen.current" /></div>
 		<div class="box${model.patientVariation}">
-			<openmrs:portlet url="currentregimen" moduleId="orderextension" id="patientRegimenCurrent" patientId="${patient.patientId}" parameters="mode=current|redirect=${model.redirect}"/>	
+			<openmrs:portlet url="currentregimen" moduleId="orderextension" id="patientRegimenCurrent" patientId="${model.patient.patientId}" parameters="mode=current|redirect=${model.redirect}"/>	
 		</div>			
 	</div>
 	<br />
 	<div class="regimenPortletFuture">
 		<div class="boxHeader${model.patientVariation}"><spring:message code="orderextension.regimen.future" /></div>
 		<div class="box${model.patientVariation}">
-			<openmrs:portlet url="futureregimen" moduleId="orderextension" id="patientRegimenCompleted" patientId="${patient.patientId}" parameters="mode=future|redirect=${model.redirect}"/>
+			<openmrs:portlet url="futureregimen" moduleId="orderextension" id="patientRegimenCompleted" patientId="${model.patient.patientId}" parameters="mode=future|redirect=${model.redirect}"/>
 		</div>
 	</div>
 	<br />
 	<div class="regimenPortletCompleted">
 		<div class="boxHeader${model.patientVariation}"><spring:message code="orderextension.regimen.completed" /></div>
 		<div class="box${model.patientVariation}">
-			<openmrs:portlet url="completedregimen" moduleId="orderextension" id="patientRegimenCompleted" patientId="${patient.patientId}" parameters="mode=completed|redirect=${model.redirect}"/>
+			<openmrs:portlet url="completedregimen" moduleId="orderextension" id="patientRegimenCompleted" patientId="${model.patient.patientId}" parameters="mode=completed|redirect=${model.redirect}"/>
 		</div>
 	</div>
 </div>
@@ -549,8 +552,8 @@ function printRoadMap() {
 	<div class="box">
 		<div id="openmrs_error" class="openmrs_error"></div>
 		<form id="addOrderSet" name="addMedication" method="post" action="${pageContext.request.contextPath}/module/orderextension/addOrderSet.form">
-			<input type="hidden" name="patientId" value="${patient.patientId}">
-			<input type="hidden" name="returnPage" value="${model.redirect}?patientId=${patient.patientId}"/>
+			<input type="hidden" name="patientId" value="${model.patient.patientId}">
+			<input type="hidden" name="returnPage" value="${model.redirect}&patientId=${model.patient.patientId}"/>
 			<table>
 				<tr>
 					<td class="padding">
@@ -582,8 +585,8 @@ function printRoadMap() {
 			</table>
 		</form>
 		<form id="addIndividualDrug" name="addIndividualDrug" method="post" action="${pageContext.request.contextPath}/module/orderextension/addDrugOrder.form">
-			<input type="hidden" name="patientId" value="${patient.patientId}">
-			<input type="hidden" name="returnPage" value="${model.redirect}?patientId=${patient.patientId}"/>	
+			<input type="hidden" name="patientId" value="${model.patient.patientId}">
+			<input type="hidden" name="returnPage" value="${model.redirect}&patientId=${model.patient.patientId}"/>	
 			<table>
 				<tr>
 					<td class="padding"><spring:message code="orderextension.regimen.individualDrug" />*: </td>

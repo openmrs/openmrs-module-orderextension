@@ -13,6 +13,7 @@
  */
 package org.openmrs.module.orderextension.web.controller;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -45,7 +46,8 @@ public class OrderExtensionAjaxController {
 	@RequestMapping("/module/orderextension/getDrugsByName")
 	public void getDrugByName(@RequestParam(value = "name", required=true) String name, HttpServletResponse response)
 	{
-		List<Drug> drugs = Context.getConceptService().getDrugs(name);
+		Concept concept = Context.getConceptService().getConceptByName(name);
+		List<Drug> drugs = Context.getConceptService().getDrugsByConcept(concept);
 		
 		List<Map<String, String>> drugInfo = new ArrayList<Map<String, String>>();
 		for(Drug drug: drugs)
@@ -129,6 +131,7 @@ public class OrderExtensionAjaxController {
 		if(drug != null)
 		{
 			info.put("name", drug.getName());
+			info.put("concept", drug.getConcept().getDisplayString());
 			
 			info.put("drugId", drug.getId().toString());
 		}
@@ -140,7 +143,8 @@ public class OrderExtensionAjaxController {
 		String dose = "";
 		if(drugOrder.getDose() != null)
 		{
-			dose = drugOrder.getDose().toString();
+			DecimalFormat f = new DecimalFormat("0.#");
+			dose = f.format(drugOrder.getDose());
 		}
 		info.put("dose", dose);
 		

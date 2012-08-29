@@ -1,7 +1,7 @@
 <%@ include file="/WEB-INF/view/module/orderextension/include/include.jsp"%>
 <%@ include file="/WEB-INF/view/module/orderextension/include/localHeader.jsp"%>
 
-<h2>Drug Orders for ${patient.personName.fullName}</h2>
+<h2>Drug Orders for ${model.patient.personName.fullName}</h2>
 
 <c:forEach items="${regimens}" var="regimen">
 	<b class="boxHeader">
@@ -123,7 +123,7 @@
 </b>
 <div class="box">
 	<form action="addOrdersFromSet.form">
-		<input type="hidden" name="patientId" value="${patient.patientId}"
+		<input type="hidden" name="patientId" value="${model.patient.patientId}"
 		<table>
 			<tr>
 				<td>

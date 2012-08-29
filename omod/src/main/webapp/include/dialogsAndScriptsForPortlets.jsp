@@ -324,19 +324,19 @@ function fetchDrugsThree() {
 			var i=0;
 			for (i=0;i< result.length;i++)
 			{
-				html = html + "<option value=" + result[i].id + ">" + result[i].name + " " + result[i].doseStrength + " " + result[i].doseForm + "</option>";
+				html = html + "<option value=" + result[i].id + ">" + result[i].name  + "</option>";
 			}
 			
 			html = html + "</select>";
 			
 			if(result.length == 1)
 			{
-				html = html + result[0].name + " " + result[0].doseStrength + " " + result[0].doseForm;
+				html = html + result[0].name;
 			}
 			
 			jQuery("#drugNameThree").html(html);
 			
-			updateDrugInfoTwo();
+			updateDrugInfoThree();
 		});
 		
 		jQuery(".drugDetails").show();
@@ -346,6 +346,7 @@ function fetchDrugsThree() {
 		jQuery(".drugDetails").hide();
 		jQuery("#drugNameThree").html("");
 	}
+	
 }
 
 function updateDrugInfoTwo() {
@@ -519,21 +520,22 @@ function updateEditDrugDialog() {
 	var url = "${pageContext.request.contextPath}/module/orderextension/getDrugOrder.form?id=" + drugOrderId;
 	jQuery.getJSON(url, function(result) 
 	{
-		 var comboHtml = "<select name='drugComboThree' id='drugComboThree' data-placeholder='<spring:message code='orderextension.regimen.chooseOption' />' style='width:350px;' onChange='fetchDrugsThree()'>";
+		 var comboHtml = "<select name='drugComboThree' id='drugComboThree' data-placeholder='<spring:message code='orderextension.regimen.chooseOption' />' style='width:350px;'>";
 			
 		 comboHtml = comboHtml + "<option value=''></option>";
 		 <c:forEach items="${model.drugs}" var="drug">
-				comboHtml = comboHtml + "<option value='${drug}'>${drug}</option>";
+			comboHtml = comboHtml + "<option value='${drug}'>${drug}</option>";
 		</c:forEach>
-				comboHtml = comboHtml + "</select>";
+		comboHtml = comboHtml + "</select>";
 				
 		jQuery("#drugSelector").html(comboHtml);	
 		
-		jQuery("#drugComboThree").val(result.name);
+		jQuery("#drugComboThree").val(result.concept);
 		
 		jQuery("#drugComboThree").chosen({allow_single_deselect: true});
 		
-		var drugUrl = "${pageContext.request.contextPath}/module/orderextension/getDrugsByName.form?name=" + result.name;
+		var drugUrl = "${pageContext.request.contextPath}/module/orderextension/getDrugsByName.form?name=" + result.concept;
+		var drugId = result.drugId;
 		jQuery.getJSON(drugUrl, function(result) 
 		{ 
 			drugDetailThree = result;
@@ -550,22 +552,22 @@ function updateEditDrugDialog() {
 			var i=0;
 			for (i=0;i< result.length;i++)
 			{
-				html = html + "<option value=" + result[i].id + ">" + result[i].name + " " + result[i].doseStrength + " " + result[i].units + "</option>";
+				html = html + "<option value=" + result[i].id + ">" + result[i].name + "</option>";
 			}
 			
 			html = html + "</select>";
 			
 			if(result.length == 1)
 			{
-				html = html + result[0].name + " " + result[0].doseStrength + " " + result[0].units;
+				html = html + result[0].name;
 			}
 			
 			jQuery("#drugNameThree").html(html);
+			jQuery("#drugThree").val(drugId);
 			
-			updateDrugInfoThree();
 		});
-				
-		jQuery("#drugThree").val(result.drugId);
+		
+		jQuery("#drugComboThree").attr("onChange", "fetchDrugsThree()"); 
 		
 		jQuery("#editStartDate").val(result.startDate);
 		
@@ -635,9 +637,8 @@ function updateEditDrugDialog() {
 		jQuery("#adminInstructionsThree").val(result.adminInstructions);
 		
 		jQuery("#instructionsThree").val(result.instructions);
-		
+			
 		jQuery(".drugDetails").show();
-
 	});
 }
 
@@ -801,8 +802,8 @@ function handleDeleteAllDrugOrder()
 	<div class="box">
 	<div id="openmrs_error" class="openmrs_error"></div>
 		<form id="addDrugToGroup" name="addDrugToGroup" method="post" action="${pageContext.request.contextPath}/module/orderextension/addDrugOrderToGroup.form">
-			<input type="hidden" name="patientId" value="${patient.patientId}">
-			<input type="hidden" name="returnPage" value="${model.redirect}?patientId=${patient.patientId}"/>	
+			<input type="hidden" name="patientId" value="${model.patient.patientId}">
+			<input type="hidden" name="returnPage" value="${model.redirect}&patientId=${model.patient.patientId}"/>	
 			<input type="hidden" name="groupId" id="groupId"/>	
 			<input type="hidden" name="cycle" id="cycle"/>	
 			<table>
@@ -891,8 +892,8 @@ function handleDeleteAllDrugOrder()
 	<div id="openmrs_error" class="openmrs_error"></div>
 		<form id="editDrug" name="editDrug" method="post" action="${pageContext.request.contextPath}/module/orderextension/editDrug.form">
 			<input type="hidden" name="orderId" id="orderId">
-			<input type="hidden" name="patientId" value="${patient.patientId}">
-			<input type="hidden" name="returnPage" value="${model.redirect}?patientId=${patient.patientId}"/>	
+			<input type="hidden" name="patientId" value="${model.patient.patientId}">
+			<input type="hidden" name="returnPage" value="${model.redirect}&patientId=${model.patient.patientId}"/>	
 			<table>
 				<tr>
 					<td class="padding"><spring:message code="orderextension.regimen.individualDrug" />*: </td>
@@ -965,8 +966,8 @@ function handleDeleteAllDrugOrder()
 		<form id="stopDrug" name="stopDrug" method="post" action="${pageContext.request.contextPath}/module/orderextension/stopDrug.form">
 			<input type="hidden" name="orderId" id="stopOrderId">
 			<input type="hidden" name="startDate" id="startDateInd">
-			<input type="hidden" name="patientId" value="${patient.patientId}">
-			<input type="hidden" name="returnPage" value="${model.redirect}?patientId=${patient.patientId}"/>	
+			<input type="hidden" name="patientId" value="${model.patient.patientId}">
+			<input type="hidden" name="returnPage" value="${model.redirect}&patientId=${model.patient.patientId}"/>	
 			<table>
 				<tr>
 					<td class="padding"><spring:message code="orderextension.regimen.stopDate"/>: <openmrs_tag:dateField formFieldName="drugStopDate" startValue=""/></td>
@@ -985,8 +986,8 @@ function handleDeleteAllDrugOrder()
 	<div id="openmrs_error" class="openmrs_error"></div>
 		<form id="changeStartDateOfGroup" name="changeStartDateOfGroup" method="post" action="${pageContext.request.contextPath}/module/orderextension/changeStartDateOfGroup.form">
 			<input type="hidden" name="groupId" id="changeStartGroupId">
-			<input type="hidden" name="patientId" value="${patient.patientId}">
-			<input type="hidden" name="returnPage" value="${model.redirect}?patientId=${patient.patientId}"/>	
+			<input type="hidden" name="patientId" value="${model.patient.patientId}">
+			<input type="hidden" name="returnPage" value="${model.redirect}&patientId=${model.patient.patientId}"/>	
 			<table>
 				<tr>
 					<td class="padding"><spring:message code="orderextension.regimen.changeStartDate"/>: <openmrs_tag:dateField formFieldName="changeDate" startValue=""/></td>
@@ -1004,9 +1005,8 @@ function handleDeleteAllDrugOrder()
 	<div id="openmrs_error" class="openmrs_error"></div>
 		<form id="deleteDrug" name="deleteDrug" method="post" action="${pageContext.request.contextPath}/module/orderextension/deleteDrug.form">
 			<input type="hidden" name="orderId" id="deleteOrderId">
-			<input type="hidden" name="patientId" value="${patient.patientId}">
-			<!--  <input type="hidden" name="returnPage" value="/patientDashboard.form?patientId=${patient.patientId}"/>	-->
-			<input type="hidden" name="returnPage" value="/patientDashboard.form?patientId=${patient.patientId}"/>
+			<input type="hidden" name="patientId" value="${model.patient.patientId}">
+			<input type="hidden" name="returnPage" value="${model.redirect}&patientId=${model.patient.patientId}"/>
 			<table>
 				<tr>
 					<td class="padding"><spring:message code="orderextension.regimen.deleteReason"/>: <input type="text" name="deleteReason" id="deleteReason" size="100"/></td>
@@ -1024,9 +1024,9 @@ function handleDeleteAllDrugOrder()
 	<div id="openmrs_error" class="openmrs_error"></div>
 		<form id="stopAllDrug" name="stopAllDrug" method="post" action="${pageContext.request.contextPath}/module/orderextension/stopAllDrugsInGroup.form">
 			<input type="hidden" name="groupId" id="stopAllOrderId">
-			<input type="hidden" name="patientId" value="${patient.patientId}">
+			<input type="hidden" name="patientId" value="${model.patient.patientId}">
 			<input type="hidden" name="startDate" id="startDate">
-			<input type="hidden" name="returnPage" value="${model.redirect}?patientId=${patient.patientId}"/>	
+			<input type="hidden" name="returnPage" value="${model.redirect}&patientId=${model.patient.patientId}"/>	
 			<table>
 				<tr>
 					<td class="padding"><spring:message code="orderextension.regimen.stopDate"/>: <openmrs_tag:dateField formFieldName="drugStopAllDate" startValue=""/></td>
@@ -1045,8 +1045,8 @@ function handleDeleteAllDrugOrder()
 	<div id="openmrs_error" class="openmrs_error"></div>
 		<form id="deleteAllDrug" name="deleteAllDrug" method="post" action="${pageContext.request.contextPath}/module/orderextension/deleteAllDrugsInGroup.form">
 			<input type="hidden" name="groupId" id="deleteAllOrderId">
-			<input type="hidden" name="patientId" value="${patient.patientId}">
-			<input type="hidden" name="returnPage" value="${model.redirect}?patientId=${patient.patientId}"/>	
+			<input type="hidden" name="patientId" value="${model.patient.patientId}">
+			<input type="hidden" name="returnPage" value="${model.redirect}&patientId=${model.patient.patientId}"/>	
 			<table>
 				<tr>
 					<td class="padding"><spring:message code="orderextension.regimen.deleteReason"/>: <input type="text" name="deleteReason" id="deleteAllReason" size="100"/></td>
