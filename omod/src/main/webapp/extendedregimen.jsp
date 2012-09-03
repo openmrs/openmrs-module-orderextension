@@ -169,6 +169,9 @@ jQuery(document).ready(function() {
 		jQuery(".newCycleNumber").hide();
 		includeCycle();
 		
+		jQuery("#addOrderSetLabel").show();
+		jQuery("#addIndividualDrugLabel").hide();
+		
 		jQuery("#addOrderSetButton").attr("disabled", "disabled");
 		jQuery("#addIndividualDrugButton").removeAttr("disabled");
 		
@@ -193,6 +196,9 @@ jQuery(document).ready(function() {
 	jQuery('#addOrderSetButton').click(function(){ 
 		jQuery('#addOrderSet').show();
 		jQuery('#addIndividualDrug').hide();
+	
+		jQuery("#addOrderSetLabel").show();
+		jQuery("#addIndividualDrugLabel").hide();
 		
 		jQuery("#addOrderSetButton").attr("disabled", "disabled");
 		jQuery("#addIndividualDrugButton").removeAttr("disabled");
@@ -203,6 +209,9 @@ jQuery(document).ready(function() {
 	jQuery('#addIndividualDrugButton').click(function(){ 
 		jQuery('#addOrderSet').hide();
 		jQuery('#addIndividualDrug').show();
+		
+		jQuery("#addOrderSetLabel").hide();
+		jQuery("#addIndividualDrugLabel").show()
 		
 		jQuery("#addIndividualDrugButton").attr("disabled", "disabled");
 		jQuery("#addOrderSetButton").removeAttr("disabled");
@@ -469,6 +478,10 @@ function printRoadMap() {
 }
 </script>
 
+<openmrs:extensionPoint pointId="org.openmrs.module.orderextension.header">
+	<openmrs:portlet url="${extension.portletUrl}" moduleId="${extension.moduleId}" patientId="${model.patient.patientId}"/>
+</openmrs:extensionPoint>
+
 <openmrs:hasPrivilege privilege="Edit Regimen">
 <div id="addMedicationLink"><input type="button" id="addMedicationButton" value="<spring:message code="orderextension.regimen.addMedication" />"></div>
 </openmrs:hasPrivilege>
@@ -545,8 +558,18 @@ function printRoadMap() {
 <div id="addNewRegimenDialog">
 
 	<div id="buttonDiv">
-		<input type="button" id="addOrderSetButton" value="<spring:message code="orderextension.regimen.chooseOrderSet" />">
-		<input type="button" id="addIndividualDrugButton" value="<spring:message code="orderextension.regimen.addMedication" />">
+		<table width="100%">
+			<tr>
+				<td>
+					<span id="addOrderSetLabel"><strong><spring:message code="orderextension.regimen.chooseOrderSet" /></strong></span>
+					<span id="addIndividualDrugLabel"><strong><spring:message code="orderextension.regimen.addMedication" /></strong></span>
+				</td>
+				<td id="medicationButtonSpan">
+					<input type="button" id="addOrderSetButton" value="<spring:message code="orderextension.regimen.chooseOrderSet" />"></span>
+					<span id="addIndividualDrugButtonSpan"><input type="button" id="addIndividualDrugButton" value="<spring:message code="orderextension.regimen.addMedication" />"></span>
+				</td>
+			</tr>		
+		</table>
 	</div>
 	
 	<div class="box">
