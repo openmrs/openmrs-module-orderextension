@@ -201,7 +201,7 @@ public class OrderExtensionOrderController {
 								 @RequestParam(value="dose", required=true) Double dose,
 								 @RequestParam(value="frequencyDay", required=false) String frequencyDay,
 								 @RequestParam(value="frequencyWeek", required=false) String frequencyWeek,
-								 @RequestParam(value="startDate", required=true) Date startDateDrug,
+								 @RequestParam(value="addCycleStartDate", required=true) Date startDateDrug,
 								 @RequestParam(value="stopDate", required=false) Date stopDateDrug,
 								 @RequestParam(value="asNeeded", required=false) String asNeeded,
 								 @RequestParam(value="classification", required=false) Integer classification,

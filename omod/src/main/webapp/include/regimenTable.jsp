@@ -75,7 +75,7 @@
 					<c:when test="${empty drugGroup}">
 						<c:choose>
 							<c:when test="${drugOrder.current}">
-								<td class="regimenLinks"><input type="button" id="${drugOrder.id}" class="stopButton" value="<spring:message code="orderextension.regimen.stop" />"></td>
+								<td class="regimenLinks"><input type="button" id="${drugOrder.id},false,<openmrs:formatDate date="${drugOrder.startDate}" />" class="stopButton" value="<spring:message code="orderextension.regimen.stop" />"></td>
 							</c:when>
 							<c:otherwise>
 								<td></td>
@@ -104,10 +104,10 @@
 								<c:when test="${drugOrder.current}">
 									<c:choose>
 										<c:when test="${drugGroup.cyclical }">
-											<td class="regimenLinks"><input type="button" id="${drugOrder.id},true,${drugOrder.startDate}" class="stopButton" value="<spring:message code="orderextension.regimen.stop" />"></td>
+											<td class="regimenLinks"><input type="button" id="${drugOrder.id},true,<openmrs:formatDate date="${drugOrder.startDate}"/>" class="stopButton" value="<spring:message code="orderextension.regimen.stop" />"></td>
 										</c:when>
 										<c:otherwise>
-											<td class="regimenLinks"><input type="button" id="${drugOrder.id},false,${drugOrder.startDate}" class="stopButton" value="<spring:message code="orderextension.regimen.stop" />"></td>
+											<td class="regimenLinks"><input type="button" id="${drugOrder.id},false,<openmrs:formatDate date="${drugOrder.startDate}" />" class="stopButton" value="<spring:message code="orderextension.regimen.stop" />"></td>
 										</c:otherwise>
 									</c:choose>
 								</c:when>

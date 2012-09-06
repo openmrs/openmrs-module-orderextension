@@ -491,7 +491,7 @@ function validAddDrugPanelTwo() {
 	}
 	else
 	{
-		var startDate = jQuery("#startDate").val();
+		var startDate = jQuery("#addCycleStartDate").val();
 
 		if(startDate == "")
 		{
@@ -705,8 +705,22 @@ function handleStopDrugOrder()
 			error = error + " <spring:message code='orderextension.regimen.stopDateError' /> ";
 		}
 		else {
-			var dateStop = new Date(stopDate);
-			var dateStart = new Date(jQuery("#startDateInd").val());
+			var datePattern = '<openmrs:datePattern />';
+			
+			var startYears = datePattern.indexOf("yyyy");
+			
+			var startMonths =  datePattern.indexOf("mm");
+			
+			var startDays = datePattern.indexOf("dd");
+			
+			var convertDateStop = stopDate.substring(startYears, startYears + 4) + "/" + stopDate.substring(startMonths, startMonths + 2) + "/" + stopDate.substring(startDays, startDays + 2);
+			var dateStop = new Date(convertDateStop);
+			
+			
+			var startDate = jQuery("#startDateInd").val();
+			var convertDateStart = startDate.substring(startYears, startYears + 4) + "/" + startDate.substring(startMonths, startMonths + 2) + "/" + startDate.substring(startDays, startDays + 2);
+			var dateStart = new Date(convertDateStart);
+			
 			
 			if(dateStop < dateStart)
 			{
@@ -853,7 +867,7 @@ function handleDeleteAllDrugOrder()
 					</table>
 					<table>
 						<tr class="drugDetails">
-							<td class="padding"><spring:message code="orderextension.orderset.field.relativeStartDay" />*:  <openmrs_tag:dateField formFieldName="startDate" startValue=""/></td>
+							<td class="padding"><spring:message code="orderextension.orderset.field.relativeStartDay" />*:  <openmrs_tag:dateField formFieldName="addCycleStartDate" startValue=""/></td>
 							<td class="padding"><spring:message code="orderextension.regimen.stopDate" />:  <openmrs_tag:dateField formFieldName="stopDate" startValue=""/></td>
 					</tr>
 				</table>

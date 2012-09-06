@@ -584,7 +584,7 @@ function printRoadMap() {
 						<td>
 						<select name="orderSet" id="orderSet" data-placeholder="<spring:message code="orderextension.regimen.chooseOption" />" style="width:450px;">
 							<option value="" selected="selected"></option>
-							<c:forEach items="${orderSets}" var="orderSet">
+							<c:forEach items="${model.orderSets}" var="orderSet">
 								<option value="${orderSet.id}">
 									<c:choose>
 									 	<c:when test="${!empty orderSet.indication}">
