@@ -13,13 +13,16 @@
  */
 package org.openmrs.module.orderextension;
 
+import java.io.Serializable;
+
 import org.openmrs.BaseOpenmrsObject;
 import org.openmrs.OpenmrsObject;
+import org.openmrs.util.OpenmrsUtil;
 
 /**
  * This represents a single member within an OrderSet
  */
-public abstract class OrderSetMember extends BaseOpenmrsObject implements java.io.Serializable {
+public abstract class OrderSetMember extends BaseOpenmrsObject implements Serializable, Comparable<OrderSetMember> {
 	
 	public static final long serialVersionUID = 1L;
 	
@@ -75,6 +78,32 @@ public abstract class OrderSetMember extends BaseOpenmrsObject implements java.i
 	 * particular OrderSetMember in more detail, including default values and restrictions
 	 */
 	private String template;
+	
+	/**
+	 * This field should be used to determine the order of a particular order set member
+	 * in relation to another within an Order Set.
+	 */
+	private Integer sortWeight;
+	
+	//***** INSTANCE METHODS *****
+	
+	/**
+	 * @see Comparable#compareTo(Object)
+	 */
+	@Override
+	public int compareTo(OrderSetMember that) {
+		int ret = OpenmrsUtil.compareWithNullAsGreatest(this.getOrderSet().getId(), that.getOrderSet().getId());
+		if (ret == 0) {
+			ret = OpenmrsUtil.compareWithNullAsGreatest(this.getSortWeight(), that.getSortWeight());
+		}
+		if (ret == 0) {
+			ret = OpenmrsUtil.compareWithNullAsGreatest(this.getId(), that.getId());
+		}
+		if (ret == 0) {
+			ret = OpenmrsUtil.compareWithNullAsGreatest(this.getUuid(), that.getUuid());
+		}
+		return ret;
+	}
 	
 	/**
 	 * @see OpenmrsObject#getId()
@@ -186,5 +215,19 @@ public abstract class OrderSetMember extends BaseOpenmrsObject implements java.i
 	 */
 	public void setTemplate(String template) {
 		this.template = template;
+	}
+
+	/**
+	 * @return the sortWeight
+	 */
+	public Integer getSortWeight() {
+		return sortWeight;
+	}
+
+	/**
+	 * @param sortWeight the sortWeight to set
+	 */
+	public void setSortWeight(Integer sortWeight) {
+		this.sortWeight = sortWeight;
 	}
 }

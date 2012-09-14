@@ -144,6 +144,11 @@ public class OrderExtensionOrderSetMemberFormController {
 		if (!orderSet.getMembers().contains(orderSetMember)) {
 			orderSet.addMember(orderSetMember);
 		}
+		
+		if (orderSetMember.getSortWeight() == null) {
+			orderSetMember.setSortWeight(orderSet.getMembers().size()-1);
+		}
+		
 		orderSet = getOrderExtensionService().saveOrderSet(orderSet);
 		
 		String redirect = "redirect:orderSet.list?id="+orderSet.getId();

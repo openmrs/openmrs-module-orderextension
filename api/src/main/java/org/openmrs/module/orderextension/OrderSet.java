@@ -13,8 +13,8 @@
  */
 package org.openmrs.module.orderextension;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.openmrs.BaseOpenmrsMetadata;
 import org.openmrs.Concept;
@@ -91,10 +91,8 @@ public class OrderSet extends BaseOpenmrsMetadata implements java.io.Serializabl
 	 * An order-able Concept
 	 * A template describing a pre-defined Order
 	 * Another OrderSet
-	 * This is a List in order to preserve the order in which the members have been
-	 * added to this OrderSet, which may have meaning
 	 */
-	private List<OrderSetMember> members;
+	private Set<OrderSetMember> members;
 	
 	/**
 	 * Default Constructor
@@ -174,9 +172,9 @@ public class OrderSet extends BaseOpenmrsMetadata implements java.io.Serializabl
 	/**
 	 * @return the members
 	 */
-	public List<OrderSetMember> getMembers() {
+	public Set<OrderSetMember> getMembers() {
 		if (members == null) {
-			members = new ArrayList<OrderSetMember>();
+			members = new TreeSet<OrderSetMember>();
 		}
 		return members;
 	}
@@ -184,7 +182,7 @@ public class OrderSet extends BaseOpenmrsMetadata implements java.io.Serializabl
 	/**
 	 * @param members the members to set
 	 */
-	public void setMembers(List<OrderSetMember> members) {
+	public void setMembers(Set<OrderSetMember> members) {
 		this.members = members;
 	}
 	
@@ -193,6 +191,7 @@ public class OrderSet extends BaseOpenmrsMetadata implements java.io.Serializabl
 	 */
 	public void addMember(OrderSetMember member) {
 		getMembers().add(member);
+		member.setOrderSet(this);
 	}
 	
 	/**

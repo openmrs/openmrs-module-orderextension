@@ -26,11 +26,10 @@
 		<property name="cyclical" type="java.lang.Boolean" length="1" not-null="true"/>
 		<property name="cycleLengthInDays" type="int" column="cycle_length"/>
 
-		<list name="members" cascade="all-delete-orphan" lazy="false" inverse="false" batch-size="1000">
-            <key column="order_set_id" not-null="true"/>
-            <list-index column="order_index" base="0"/>
+		<set name="members" cascade="all-delete-orphan" lazy="false" inverse="true" sort="natural">
+            <key column="order_set_id"/>
             <one-to-many class="OrderSetMember" />
-        </list>
+		</set>
 
 		<many-to-one name="creator" class="org.openmrs.User" not-null="true" />
 		<property name="dateCreated" type="java.util.Date" column="date_created" not-null="true" />
@@ -54,13 +53,14 @@
         <discriminator column="member_type" type="string" not-null="true" length="255"/>
         
         <property name="uuid" type="string" column="uuid" length="38" unique="true" not-null="true" />
-        <many-to-one name="orderSet" class="OrderSet" column="order_set_id" not-null="true" insert="false" update="false"/>
+        <many-to-one name="orderSet" class="OrderSet" column="order_set_id" not-null="true"/>
 		<property name="title" type="string" column="title" />
 		<property name="comment" type="string" column="comment" />
 		<property name="selected" type="java.lang.Boolean" length="1" not-null="true"/>
 		<property name="relativeStartDay" type="int" column="relative_start_day"/>
 		<property name="lengthInDays" type="int" column="length_days"/>
 		<property name="template" type="string"/>
+		<property name="sortWeight" type="int" column="sort_weight"/>
 
 		<subclass name="TestOrderSetMember">
 			<many-to-one name="indication" class="org.openmrs.Concept" />
@@ -82,7 +82,7 @@
     	</subclass>
     	
     	<subclass name="NestedOrderSetMember">
-    		<many-to-one name="nestedOrderSet" class="OrderSet" column="nested_order_set_id" not-null="true"/>
+    		<many-to-one name="nestedOrderSet" class="OrderSet" column="nested_order_set_id"/>
     	</subclass>
 
     </class>
