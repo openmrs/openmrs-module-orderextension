@@ -77,31 +77,22 @@
     font-size: 14px;
 }
 
-.regimenPortletFuture .boxHeader {
+.regimenPortletFuture div.boxHeader {
 	background-color: #8FABC7;
 	border: 1px solid #8FABC7;
 }
 
-.regimenPortletFuture .box {
+.regimenPortletFuture div.box {
 	border: 1px solid #8FABC7;
 }
 
-.regimenPortletCurrent .boxHeader  {
+.regimenPortletCurrent div.boxHeader  {
 	background-color: #1AAC9B;
 	border: 1px solid #1AAC9B;
 }
 
-.regimenPortletCurrent .box {
+.regimenPortletCurrent div.box {
 	border: 1px solid #1AAC9B;
-}
-
-.regimenPortletCompleted .box {
-	border: 1px solid #666666;
-}
-
-.regimenPortletCompleted .boxHeader {
-	background-color: #666666;
-	border: 1px solid #666666;
 }
 
 h2#regimenPortlet {

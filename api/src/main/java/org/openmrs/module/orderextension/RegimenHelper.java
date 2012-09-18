@@ -99,11 +99,11 @@ public class RegimenHelper {
 		return ordersInDrugGroups.get(null);
 	}
 	
-    public boolean isHasCycles() {
+    public boolean getHasCycles() {
     	return hasCycles;
     }
 	
-    public boolean isHasDrugGroups() {
+    public boolean getHasDrugGroups() {
     	return hasDrugGroups;
     }
 

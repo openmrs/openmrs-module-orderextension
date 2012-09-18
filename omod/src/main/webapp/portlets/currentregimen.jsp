@@ -4,7 +4,7 @@
 <%@ page import="java.util.*" %>
 <%@ page import="org.openmrs.module.orderextension.*" %>
 
-<%@ include file="../include/dialogsAndScriptsForPortlets.jsp"%> 
+<%@ include file="../include/dialogsAndScriptsForPortlets.jsp"%>
 
 <c:set var="classifications" value="${model.classifications}"/>
 
@@ -13,10 +13,10 @@ DrugClassificationHelper helper = (DrugClassificationHelper)pageContext.getAttri
 %>
 
 <c:forEach items="${classifications.classificationsForRegimenList}" var="classification" varStatus="status">
-
+	
  	<c:choose>
  		<c:when test="${!empty classification}"><div class="regimenClassificationTitle"><c:out value="${classification.displayString}" /></div></c:when>
- 		<c:otherwise><c:if test="${status.count > 0}"><div class="regimenClassificationTitle"><spring:message code="orderextension.regimen.otherMedicationTitle" /></div></c:if></c:otherwise>
+ 		<c:otherwise><c:if test="${status.count > 1}"><div class="regimenClassificationTitle"><spring:message code="orderextension.regimen.otherMedicationTitle" /></div></c:if></c:otherwise>
  	</c:choose>
 	
 	<%
@@ -45,9 +45,11 @@ DrugClassificationHelper helper = (DrugClassificationHelper)pageContext.getAttri
 			<%@ include file="../include/regimenTable.jsp"%> 
 			<div class="cycleLinks">
 			<openmrs:hasPrivilege privilege="Edit Regimen">
+			<c:if test="${model.readOnly ne true}">
 				<input type="button" class="addDrugToGroupButton" value="<spring:message code="orderextension.regimen.addDrugCycle"/>" id="${drugGroup.id},true">
 				<input type="button" class="stopAllDrugsInGroupButton" value="<spring:message code="orderextension.regimen.stopAllDrugCycle"/>" id="${drugGroup.id},true,${drugGroup.firstDrugOrderStartDate}">
 				<input type="button" class="deleteAllDrugsInGroupButton" value="<spring:message code="orderextension.regimen.deleteDrugCycle"/>" id="${drugGroup.id},true">
+			</c:if>
 			</openmrs:hasPrivilege>
 			</div>
 		</c:forEach>
@@ -71,6 +73,7 @@ DrugClassificationHelper helper = (DrugClassificationHelper)pageContext.getAttri
 			
 			<%@ include file="../include/regimenTable.jsp"%>
 			<div class="drugLinks">
+			<c:if test="${model.readOnly != true}">
 			<openmrs:hasPrivilege privilege="Edit Current/Completed Regimen">
 				<input type="button" class="addDrugToGroupButton" value="<spring:message code="orderextension.regimen.addDrugGroup"/>" id="${drugGroup.id},false">
 			</openmrs:hasPrivilege>
@@ -78,6 +81,7 @@ DrugClassificationHelper helper = (DrugClassificationHelper)pageContext.getAttri
 				<input type="button" class="stopAllDrugsInGroupButton" value="<spring:message code="orderextension.regimen.stopAllDrugGroup"/>" id="${drugGroup.id},false,${drugGroup.firstDrugOrderStartDate}">
 				<input type="button" class="deleteAllDrugsInGroupButton" value="<spring:message code="orderextension.regimen.deleteAllDrugGroup"/>" id="${drugGroup.id},false">
 			</openmrs:hasPrivilege>
+			</c:if>
 			</div>
 		</c:forEach>
 		</div>

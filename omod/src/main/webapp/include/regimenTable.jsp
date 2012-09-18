@@ -18,6 +18,7 @@
 			<th class="regimenCurrentDrugDateStartHeader"> <spring:message code="general.dateStart"/> </th>
 			<th class="regimenCurrentDrugScheduledStopDateHeader"><c:choose><c:when test="${completed eq 'true'}"> <spring:message code="DrugOrder.actualStopDate"/> </c:when><c:otherwise><spring:message code="DrugOrder.scheduledStopDate"/></c:otherwise></c:choose></th>
 			<th class="regimenCurrentDrugInstructionsHeader"> <spring:message code="orderextension.regimen.instructions" /> </th>
+			<c:if test="${model.readOnly != 'true'}">
 			<c:choose>
 				<c:when test="${empty drugGroup}">
 				<openmrs:hasPrivilege privilege="Edit Regimen"> 
@@ -29,8 +30,10 @@
 			    <openmrs:hasPrivilege privilege="Edit Regimen"> 
 					<th class="regimenCurrentEmptyHeader"> </th>
 				</openmrs:hasPrivilege>
+				
 				</c:when>
 				<c:otherwise>
+				
 					<openmrs:hasPrivilege privilege="Edit Current/Completed Regimen">
 						<th class="regimenCurrentEmptyHeader"> </th>
 						<th class="regimenCurrentEmptyHeader"> </th>
@@ -38,6 +41,7 @@
 					</openmrs:hasPrivilege>
 				</c:otherwise>
 			</c:choose>
+			</c:if>
 		</tr>
 	</thead>
 	<c:forEach items="${classifications}" var="c">
@@ -70,6 +74,7 @@
 																	</c:otherwise>
 																</c:choose></td>
 				<td class="regimenCurrentDrugInstructions">${drugOrder.instructions}</td>
+				<c:if test="${model.readOnly != 'true'}">
 				<openmrs:hasPrivilege privilege="Edit Regimen">
 				<c:choose>
 					<c:when test="${empty drugGroup}">
@@ -154,6 +159,7 @@
 					</c:otherwise>
 				</c:choose>	
 				</openmrs:hasPrivilege>
+				</c:if>
 			</tr>
 		</c:forEach>
 	</c:forEach>

@@ -53,7 +53,6 @@ public class OrderExtensionPortletController extends PortletController {
 
 		List<DrugOrder> allOrders = (List<DrugOrder>)model.get("patientDrugOrders");
 		String mode = (String) model.get("mode");
-		String redirect = (String) model.get("redirect");
 		
 		List<DrugOrder> orders = new ArrayList<DrugOrder>();
 		
