@@ -92,7 +92,10 @@ public abstract class OrderSetMember extends BaseOpenmrsObject implements Serial
 	 */
 	@Override
 	public int compareTo(OrderSetMember that) {
-		int ret = OpenmrsUtil.compareWithNullAsGreatest(this.getOrderSet().getId(), that.getOrderSet().getId());
+		int ret = 0;
+		if (this.getOrderSet() != null && that.getOrderSet() != null) {
+			ret = OpenmrsUtil.compareWithNullAsGreatest(this.getOrderSet().getId(), that.getOrderSet().getId());
+		}
 		if (ret == 0) {
 			ret = OpenmrsUtil.compareWithNullAsGreatest(this.getSortWeight(), that.getSortWeight());
 		}
