@@ -23,9 +23,6 @@ jQuery(document).ready(function() {
 	
 	
 	jQuery(".drugDetails").hide();
-	
-	jQuery("#drugCombo").chosen({allow_single_deselect: true});
-	jQuery("#orderSet").chosen({allow_single_deselect: true});
 		
 	jQuery("#drugListView").click(function()
 	{
@@ -166,6 +163,8 @@ jQuery(document).ready(function() {
 	
 	jQuery('#addMedicationButton').click(function(){ 
 		jQuery('#addNewRegimenDialog').dialog('open');
+		jQuery("#drugCombo").chosen({allow_single_deselect: true});
+		jQuery("#orderSet").chosen({allow_single_deselect: true});
 		jQuery(".newCycleNumber").hide();
 		includeCycle();
 		
