@@ -18,7 +18,7 @@
 			<th class="regimenCurrentDrugDateStartHeader"> <spring:message code="general.dateStart"/> </th>
 			<th class="regimenCurrentDrugScheduledStopDateHeader"><c:choose><c:when test="${completed eq 'true'}"> <spring:message code="DrugOrder.actualStopDate"/> </c:when><c:otherwise><spring:message code="DrugOrder.scheduledStopDate"/></c:otherwise></c:choose></th>
 			<th class="regimenCurrentDrugInstructionsHeader"> <spring:message code="orderextension.regimen.instructions" /> </th>
-			<c:if test="${completed eq 'true'}"><th class="regimenCurrentDrugInstructionsHeader"> <spring:message code="DrugOrder.discontinuedReason"/> </th></c:if>
+			<c:if test="${completed eq 'true'}"><th class="regimenDiscontinuedReasonHeader"> <spring:message code="DrugOrder.discontinuedReason"/> </th></c:if>
 			<c:if test="${model.readOnly != 'true'}">
 			<c:choose>
 				<c:when test="${empty drugGroup}">
@@ -75,7 +75,7 @@
 																	</c:otherwise>
 																</c:choose></td>
 				<td class="regimenCurrentDrugInstructions">${drugOrder.instructions}</td>
-				<c:if test="${completed eq 'true'}"><td class="regimenCurrentDrugInstructions"><c:if test="${!empty drugOrder.discontinuedReason}">${drugOrder.discontinuedReason.displayString}</c:if>  </td></c:if>
+				<c:if test="${completed eq 'true'}"><td class="regimenDiscontinuedReason"><c:if test="${!empty drugOrder.discontinuedReason}">${drugOrder.discontinuedReason.displayString}</c:if>  </td></c:if>
 				<c:if test="${model.readOnly != 'true'}">
 				<openmrs:hasPrivilege privilege="Edit Regimen">
 				<c:choose>
