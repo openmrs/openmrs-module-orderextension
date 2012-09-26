@@ -72,7 +72,11 @@ public class DrugConceptHelper {
 	public List<Concept> getIndications()
 	{
 		String indicationSet = Context.getAdministrationService().getGlobalProperty("orderextension.drugGroupClassification");
-		Concept indicationsSet = Context.getConceptService().getConcept(indicationSet);
+		Concept indicationsSet = Context.getConceptService().getConceptByUuid(indicationSet);
+		if(indicationsSet == null)
+		{
+			indicationsSet = Context.getConceptService().getConcept(indicationSet);
+		}
 		List<Concept> indicationConcepts = indicationsSet.getSetMembers();
 		
 		return indicationConcepts;

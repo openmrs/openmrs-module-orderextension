@@ -42,7 +42,11 @@ public class DrugClassificationHelper {
 	public DrugClassificationHelper(List<DrugOrder> drugOrders) 
 	{
 		String indicationSet = Context.getAdministrationService().getGlobalProperty("orderextension.drugGroupClassification");
-		Concept indicationsSet = Context.getConceptService().getConcept(indicationSet);
+		Concept indicationsSet = Context.getConceptService().getConceptByUuid(indicationSet);
+		if(indicationsSet == null)
+		{
+			indicationsSet = Context.getConceptService().getConcept(indicationSet);
+		}
 		indicationConcepts = indicationsSet.getSetMembers();
 		
 		for (Concept indication : indicationConcepts) {
