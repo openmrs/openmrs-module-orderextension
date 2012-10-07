@@ -276,7 +276,7 @@ function includeCycle() {
 	var selectedIndex = jQuery("#orderSet").attr("selectedIndex");
 	
 	var cycle = [];
-	<c:forEach items="${orderSets}" var="orderSet">
+	<c:forEach items="${model.orderSets}" var="orderSet">
 		cycle.push("${orderSet.cyclical}");
 	</c:forEach>
 	

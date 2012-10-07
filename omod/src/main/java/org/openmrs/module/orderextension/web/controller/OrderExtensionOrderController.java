@@ -131,6 +131,7 @@ public class OrderExtensionOrderController {
 		drugOrder.setDrug(drug);
 		drugOrder.setConcept(drug.getConcept());
 		drugOrder.setDose(dose);
+		drugOrder.setUnits(drug.getDosageForm().getDisplayString());
 		
 		String frequency = "";
 		if(frequencyDay != null && frequencyDay.length() > 0)

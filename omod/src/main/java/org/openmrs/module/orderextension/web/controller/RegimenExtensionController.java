@@ -32,14 +32,14 @@ import org.openmrs.api.context.Context;
 import org.openmrs.module.orderextension.DrugOrderComparator;
 import org.openmrs.module.orderextension.DrugRegimen;
 import org.openmrs.module.orderextension.ExtendedDrugOrder;
+import org.openmrs.module.orderextension.OrderSet;
+import org.openmrs.module.orderextension.OrderSetComparator;
 import org.openmrs.module.orderextension.api.OrderExtensionService;
 import org.openmrs.module.orderextension.util.DrugConceptHelper;
 import org.openmrs.web.controller.PortletController;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
@@ -153,6 +153,9 @@ public class RegimenExtensionController extends PortletController{
 		
 		Collections.sort(drugOrdersContinuous, new DrugOrderComparator());
 		
+		List<OrderSet> orderSets = Context.getService(OrderExtensionService.class).getNamedOrderSets(false);
+		Collections.sort(orderSets, new OrderSetComparator());
+		
 		DrugConceptHelper drugHelper = new DrugConceptHelper();
 		
 		model.put("drugOrdersNonContinuous", drugOrdersNonContinuous);
@@ -161,7 +164,7 @@ public class RegimenExtensionController extends PortletController{
 		model.put("cycles", cycles);
 		model.put("fixedLengthRegimen", fixedLengthRegimens);
 		
-		model.put("orderSets", Context.getService(OrderExtensionService.class).getNamedOrderSets(false));
+		model.put("orderSets", orderSets);
 		
 		model.put("drugs", drugHelper.getDistinctSortedDrugs());
 		
@@ -175,6 +178,8 @@ public class RegimenExtensionController extends PortletController{
 			redirect = model.get("returnUrl").toString();
 		}
 		model.put("redirect", redirect);
+		
+		DrugOrder order = new DrugOrder();
 	}
 
 	
