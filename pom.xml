@@ -4,7 +4,7 @@
 
 	<groupId>org.openmrs.module</groupId>
 	<artifactId>orderextension</artifactId>
-	<version>1.0</version>
+	<version>1.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>Order Extension</name>
 	<description>Provides support for extensions to the 1.6 Order Entry model</description>
@@ -22,9 +22,9 @@
 	</organization>
 
 	<scm>
-		<connection>scm:svn:http://svn.openmrs.org/openmrs-modules/orderextension/tags/orderextension-1.0</connection>
-		<developerConnection>scm:svn:http://svn.openmrs.org/openmrs-modules/orderextension/tags/orderextension-1.0</developerConnection>
-		<url>http://svn.openmrs.org/openmrs-modules/orderextension/tags/orderextension-1.0</url>
+		<connection>scm:svn:http://svn.openmrs.org/openmrs-modules/orderextension/trunk/</connection>
+		<developerConnection>scm:svn:http://svn.openmrs.org/openmrs-modules/orderextension/trunk/</developerConnection>
+		<url>http://svn.openmrs.org/openmrs-modules/orderextension/trunk/</url>
 	</scm>
 
 	<modules>
