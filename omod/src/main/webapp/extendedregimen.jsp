@@ -297,7 +297,7 @@ function fetchDrugs() {
 	
 	if(jQuery("#drugCombo").attr("selectedIndex") > 0)
 	{
-		var url = "${pageContext.request.contextPath}/module/orderextension/getDrugsByName.form?name=" + selected
+		var url = "${pageContext.request.contextPath}/module/orderextension/getDrugsByConcept.form?concept=" + selected
 		jQuery.getJSON(url, function(result) 
 		{ 
 			drugDetail = result;
@@ -616,7 +616,7 @@ function printRoadMap() {
 							<option value="" selected="selected"></option>
 							
 							<c:forEach items="${model.drugs}" var="drug">
-								<option value="${drug}">${drug}</option>
+								<option value="${drug.conceptId}">${drug.name}</option>
 							</c:forEach>
 						</select>
 					</td>

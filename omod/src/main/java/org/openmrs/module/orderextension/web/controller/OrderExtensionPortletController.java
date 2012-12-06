@@ -94,19 +94,25 @@ public class OrderExtensionPortletController extends PortletController {
 						orders.add(o);
 					}
 				}
-				else {
-					Calendar fiveYearsAgo = Calendar.getInstance();
-					fiveYearsAgo.add(Calendar.YEAR, -5);
-					Date historyDate = fiveYearsAgo.getTime();
-					if (COMPLETED_MODE.equals(mode)) {
-						if (o.getStartDate().compareTo(historyDate) >= 0) {
-							orders.add(o);
-						}
-					}
-					else if (HISTORY_MODE.equals(mode)) {
-						if (o.getStartDate().compareTo(historyDate) < 0) {
-							orders.add(o);
-						}
+				else
+				{
+					//TODO: add in history mode, toggle historical regimens
+//					Calendar fiveYearsAgo = Calendar.getInstance();
+//					fiveYearsAgo.add(Calendar.YEAR, -5);
+//					Date historyDate = fiveYearsAgo.getTime();
+//					if (COMPLETED_MODE.equals(mode)) {
+//						if (o.getStartDate().compareTo(historyDate) >= 0) {
+//							orders.add(o);
+//						}
+//					}
+//					else if (HISTORY_MODE.equals(mode)) {
+//						if (o.getStartDate().compareTo(historyDate) < 0) {
+//							orders.add(o);
+//						}
+//					}
+					if(COMPLETED_MODE.equals(mode))
+					{
+						orders.add(o);
 					}
 				}
 			}

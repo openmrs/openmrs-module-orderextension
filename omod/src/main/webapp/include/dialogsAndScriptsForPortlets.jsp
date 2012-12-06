@@ -258,7 +258,7 @@ function fetchDrugsTwo() {
 	
 	if(jQuery("#drugComboTwo").attr("selectedIndex") > 0)
 	{
-		var url = "${pageContext.request.contextPath}/module/orderextension/getDrugsByName.form?name=" + selected;
+		var url = "${pageContext.request.contextPath}/module/orderextension/getDrugsByConcept.form?concept=" + selected;
 		jQuery.getJSON(url, function(result) 
 		{ 
 			drugDetailTwo = result;
@@ -307,7 +307,7 @@ function fetchDrugsThree() {
 	
 	if(jQuery("#drugComboThree").attr("selectedIndex") > 0)
 	{
-		var url = "${pageContext.request.contextPath}/module/orderextension/getDrugsByName.form?name=" + selected;
+		var url = "${pageContext.request.contextPath}/module/orderextension/getDrugsByConcept.form?concept=" + selected;
 		jQuery.getJSON(url, function(result) 
 		{ 
 			drugDetailThree = result;
@@ -524,7 +524,7 @@ function updateEditDrugDialog() {
 			
 		 comboHtml = comboHtml + "<option value=''></option>";
 		 <c:forEach items="${model.drugs}" var="drug">
-			comboHtml = comboHtml + "<option value='${drug}'>${drug}</option>";
+			comboHtml = comboHtml + "<option value='${drug.conceptId}'>${drug.name}</option>";
 		</c:forEach>
 		comboHtml = comboHtml + "</select>";
 				
@@ -534,7 +534,7 @@ function updateEditDrugDialog() {
 		
 		jQuery("#drugComboThree").chosen({allow_single_deselect: true});
 		
-		var drugUrl = "${pageContext.request.contextPath}/module/orderextension/getDrugsByName.form?name=" + result.concept;
+		var drugUrl = "${pageContext.request.contextPath}/module/orderextension/getDrugsByConcept.form?concept=" + result.concept;
 		var drugId = result.drugId;
 		jQuery.getJSON(drugUrl, function(result) 
 		{ 
@@ -827,7 +827,7 @@ function handleDeleteAllDrugOrder()
 						<option value="" selected="selected"></option>
 						
 						<c:forEach items="${model.drugs}" var="drug">
-							<option value="${drug}">${drug}</option>
+							<option value="${drug.conceptId}">${drug.name}</option>
 								</c:forEach>
 							</select>
 						</td>

@@ -96,6 +96,59 @@ public class OrderExtensionAjaxController {
         }
 	}
 	
+	@RequestMapping("/module/orderextension/getDrugsByConcept")
+	public void getDrugByConcept(@RequestParam(value = "concept", required=true) Integer conceptId, HttpServletResponse response)
+	{
+		Concept concept = Context.getConceptService().getConcept(conceptId);
+		List<Drug> drugs = Context.getConceptService().getDrugsByConcept(concept);
+		
+		List<Map<String, String>> drugInfo = new ArrayList<Map<String, String>>();
+		for(Drug drug: drugs)
+		{
+			Map<String, String> info = new HashMap<String, String>();
+			info.put("id", drug.getId().toString());
+			info.put("name", drug.getName());
+			
+			String doseStrength = "";
+			if(drug.getDoseStrength() != null)
+			{
+				doseStrength = drug.getDoseStrength().toString();
+			}
+			info.put("doseStrength", doseStrength);
+			
+			String doseForm = "";
+			if(drug.getDosageForm() != null)
+			{
+				doseForm = drug.getDosageForm().getDisplayString();
+			}
+			info.put("doseForm", doseForm);
+			
+			String route = "";
+			if(drug.getRoute() != null)
+			{
+				route = drug.getRoute().getDisplayString();
+			}
+			info.put("route", route);
+			
+			String units = "";
+			if(drug.getUnits() != null)
+			{
+				units = drug.getUnits();
+			}
+			info.put("units", units);
+			
+			drugInfo.add(info);
+		}
+		
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+	        mapper.writeValue(response.getWriter(), drugInfo);
+        }
+        catch (Exception e) {
+        	log.error("Error occurred while writing to response: ", e);
+        }
+	}
+	
 	@RequestMapping("/module/orderextension/getClassificationsByIndication")
 	public void getClassificationByIndication(@RequestParam(value = "id", required=true) Integer id, HttpServletResponse response)
 	{

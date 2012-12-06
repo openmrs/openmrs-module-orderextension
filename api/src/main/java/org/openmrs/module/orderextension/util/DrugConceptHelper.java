@@ -31,9 +31,9 @@ import org.openmrs.api.context.Context;
  */
 public class DrugConceptHelper {
 	
-	public List<String> getDistinctSortedDrugs()
+	public List<DrugPOJO> getDistinctSortedDrugs()
 	{
-		Map<String, List<Drug>> drugs = new HashMap<String, List<Drug>>();
+		Map<DrugPOJO, List<Drug>> drugs = new HashMap<DrugPOJO, List<Drug>>();
 		List<Drug> allDrugs = Context.getConceptService().getAllDrugs(false);
 		
 		for(Drug drug: allDrugs)
@@ -45,24 +45,28 @@ public class DrugConceptHelper {
 			
 				for(ConceptName name: names)
 				{
-					if(drugs.containsKey(name.getName()))
+					DrugPOJO pojo = new DrugPOJO();
+					pojo.setConceptId(concept.getConceptId());
+					pojo.setName(name.getName());
+					
+					if(drugs.containsKey(pojo))
 					{
-						List<Drug> drugsForConcept = drugs.get(name.getName());
+						List<Drug> drugsForConcept = drugs.get(pojo);
 						drugsForConcept.add(drug);
 					}
 					else
 					{
 						List<Drug> drugsForConcept =  new ArrayList<Drug>();
 						drugsForConcept.add(drug);
-						drugs.put(name.getName(), drugsForConcept);
+						drugs.put(pojo, drugsForConcept);
 					}
 				}
 			}
 		}
 		
-		Set<String> distinctDrugs = drugs.keySet();
+		Set<DrugPOJO> distinctDrugs = drugs.keySet();
 		
-		List<String> distinct = new ArrayList<String>();
+		List<DrugPOJO> distinct = new ArrayList<DrugPOJO>();
 		distinct.addAll(distinctDrugs);
 		
 		Collections.sort(distinct);
