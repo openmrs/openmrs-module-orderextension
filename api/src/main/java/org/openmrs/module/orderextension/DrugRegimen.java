@@ -14,12 +14,7 @@
 package org.openmrs.module.orderextension;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.openmrs.Concept;
 
@@ -41,7 +36,7 @@ public class DrugRegimen extends OrderGroup implements Serializable {
 	/**
 	 * Contains the individual DrugOrders within this Regimen
 	 */
-	private List<ExtendedDrugOrder> members;
+	private Set<ExtendedDrugOrder> members;
 
 	/**
 	 * If this regimen is one of many in a cycle, this provides
@@ -143,9 +138,9 @@ public class DrugRegimen extends OrderGroup implements Serializable {
 	/**
 	 * @return the members
 	 */
-	public List<ExtendedDrugOrder> getMembers() {
+	public Set<ExtendedDrugOrder> getMembers() {
 		if (members == null) {
-			members = new ArrayList<ExtendedDrugOrder>();
+			members = new HashSet<ExtendedDrugOrder>();
 		}
 		return members;
 	}
@@ -153,7 +148,7 @@ public class DrugRegimen extends OrderGroup implements Serializable {
 	/**
 	 * @param members the members to set
 	 */
-	public void setMembers(List<ExtendedDrugOrder> members) {
+	public void setMembers(Set<ExtendedDrugOrder> members) {
 		this.members = members;
 	}
 	
