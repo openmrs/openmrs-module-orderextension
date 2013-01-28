@@ -661,7 +661,7 @@ function printRoadMap() {
 				</tr>
 			</table>
 		    
-		    <openmrs:hasPrivilege privilege="Edit Current/Complete Regimen">
+		    <openmrs:hasPrivilege privilege="Edit Current/Completed Regimen">
 		    <table>
 				<tr	class="drugDetails">
 					<td class="padding"><spring:message code="orderextension.regimen.reasonForPrescription" />:

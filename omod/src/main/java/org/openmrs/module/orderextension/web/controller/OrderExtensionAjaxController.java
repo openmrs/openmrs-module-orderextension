@@ -184,7 +184,7 @@ public class OrderExtensionAjaxController {
 		if(drug != null)
 		{
 			info.put("name", drug.getName());
-			info.put("concept", drug.getConcept().getDisplayString());
+			info.put("concept", Integer.toString(drug.getConcept().getId()));
 			
 			info.put("drugId", drug.getId().toString());
 		}

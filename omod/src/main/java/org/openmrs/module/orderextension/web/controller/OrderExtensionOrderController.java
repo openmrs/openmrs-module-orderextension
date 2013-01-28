@@ -514,7 +514,14 @@ public class OrderExtensionOrderController {
 		
 		for(ExtendedDrugOrder order: regimen.getMembers())
 		{
-			Context.getOrderService().discontinueOrder(order, stopConcept, stopDate);
+			if(order.isCurrent())
+			{
+				Context.getOrderService().discontinueOrder(order, stopConcept, stopDate);
+			}
+			else if(order.isFuture())
+			{
+				Context.getOrderService().voidOrder(order, stopConcept.getDisplayString());
+			}
 		}
 		
 		return "redirect:"+returnPage;

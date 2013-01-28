@@ -25,7 +25,7 @@
 				<openmrs:hasPrivilege privilege="Edit Regimen"> 
 					<th class="regimenCurrentEmptyHeader"> </th>
 				</openmrs:hasPrivilege> 
-			    <openmrs:hasPrivilege privilege="Edit Current/Complete Regimen">
+			    <openmrs:hasPrivilege privilege="Edit Current/Completed Regimen">
 					<th class="regimenCurrentEmptyHeader"> </th>
 				</openmrs:hasPrivilege>
 			    <openmrs:hasPrivilege privilege="Edit Regimen"> 
