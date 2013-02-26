@@ -242,7 +242,7 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 					memberStartDate = OrderExtensionUtil.incrementDate(memberStartDate, member.getRelativeStartDay() - 1);
 				}
 				if (member.getLengthInDays() != null) {
-					memberEndDate = OrderExtensionUtil.incrementDate(memberStartDate, member.getLengthInDays() - 1);
+					memberEndDate = OrderExtensionUtil.incrementDateEndOfDay(memberStartDate, member.getLengthInDays() - 1);
 				}
 				
 				if (member instanceof NestedOrderSetMember) {

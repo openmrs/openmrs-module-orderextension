@@ -64,11 +64,5 @@
 		<defaultValue>9b81d9ce-91a3-4da6-8d19-ba6ff020f64a</defaultValue>
 		<description>The concept for drug group classifications concept set</description>
 	</globalProperty>
-	
-	<globalProperty>
-		<property>orderextension.getIndicationConceptsToIncludeInCalendar</property>
-		<defaultValue>f08a431e-222e-479d-832a-43b345314080</defaultValue>
-		<description>A list of uuids or concepts ids for the indication concepts that should be included in the calendar</description>
-	</globalProperty>
-	
+
 </module>

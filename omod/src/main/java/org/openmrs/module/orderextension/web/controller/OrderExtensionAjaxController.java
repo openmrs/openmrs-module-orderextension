@@ -78,11 +78,24 @@ public class OrderExtensionAjaxController {
 			info.put("route", route);
 			
 			String units = "";
+			String doseReduction = "";
+			String protocolDose = "";
 			if(drug.getUnits() != null)
 			{
 				units = drug.getUnits();
+				if(units.contains("/"))
+				{
+					doseReduction = "true";
+					if(drug.getDoseStrength() != null)
+					{
+						protocolDose = drug.getDoseStrength().toString();
+					}
+				}
+				
 			}
 			info.put("units", units);
+			info.put("doseReduce", doseReduction);
+			info.put("protocolDose", protocolDose);
 			
 			drugInfo.add(info);
 		}
@@ -131,11 +144,24 @@ public class OrderExtensionAjaxController {
 			info.put("route", route);
 			
 			String units = "";
+			String doseReduction = "";
+			String protocolDose = "";
 			if(drug.getUnits() != null)
 			{
 				units = drug.getUnits();
+				if(units.contains("/"))
+				{
+					if(drug.getDoseStrength() != null)
+					{
+						protocolDose = drug.getDoseStrength().toString();
+						doseReduction = "true";
+					}
+				}
+				
 			}
 			info.put("units", units);
+			info.put("doseReduce", doseReduction);
+			info.put("protocolDose", protocolDose);
 			
 			drugInfo.add(info);
 		}
@@ -187,6 +213,12 @@ public class OrderExtensionAjaxController {
 			info.put("concept", Integer.toString(drug.getConcept().getId()));
 			
 			info.put("drugId", drug.getId().toString());
+			info.put("units", drug.getUnits());
+			info.put("protocolDose", drug.getDoseStrength().toString());
+			info.put("route", drug.getRoute().getDisplayString());
+			
+			String protocol = drug.getDoseStrength() + " "  + drug.getUnits();
+			info.put("protocol", protocol);
 		}
 		else if(drugOrder.getConcept() != null)
 		{

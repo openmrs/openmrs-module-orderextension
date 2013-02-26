@@ -47,6 +47,7 @@ DrugClassificationHelper helper = (DrugClassificationHelper)pageContext.getAttri
 			<openmrs:hasPrivilege privilege="Edit Regimen">
 			<c:if test="${model.readOnly ne true}">
 				<input type="button" class="addDrugToGroupButton" value="<spring:message code="orderextension.regimen.addDrugCycle"/>" id="${drugGroup.id},true">
+				<input type="button" class="changeStartDateOfGroupButton" value="<spring:message code="orderextension.regimen.changeStartDateOfCycle"/>" id="${drugGroup.id},true,<openmrs:formatDate date="${drugGroup.firstDrugOrderStartDate}"/>">
 				<input type="button" class="stopAllDrugsInGroupButton" value="<spring:message code="orderextension.regimen.stopAllDrugCycle"/>" id="${drugGroup.id},true,${drugGroup.firstDrugOrderStartDate}">
 				<input type="button" class="deleteAllDrugsInGroupButton" value="<spring:message code="orderextension.regimen.deleteDrugCycle"/>" id="${drugGroup.id},true">
 			</c:if>
@@ -76,6 +77,7 @@ DrugClassificationHelper helper = (DrugClassificationHelper)pageContext.getAttri
 			<c:if test="${model.readOnly != true}">
 			<openmrs:hasPrivilege privilege="Edit Current/Completed Regimen">
 				<input type="button" class="addDrugToGroupButton" value="<spring:message code="orderextension.regimen.addDrugGroup"/>" id="${drugGroup.id},false">
+				<input type="button" class="changeStartDateOfGroupButton" value="<spring:message code="orderextension.regimen.changeStartDateOfCycle"/>" id="${drugGroup.id},false,<openmrs:formatDate date="${drugGroup.firstDrugOrderStartDate}"/>">
 			</openmrs:hasPrivilege>
 			<openmrs:hasPrivilege privilege="Edit Regimen">
 				<input type="button" class="stopAllDrugsInGroupButton" value="<spring:message code="orderextension.regimen.stopAllDrugGroup"/>" id="${drugGroup.id},false,${drugGroup.firstDrugOrderStartDate}">

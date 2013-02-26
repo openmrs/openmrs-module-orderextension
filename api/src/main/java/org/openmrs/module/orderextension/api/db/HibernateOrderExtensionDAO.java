@@ -149,7 +149,7 @@ public class HibernateOrderExtensionDAO implements OrderExtensionDAO {
     	}
     	else if(startDateBefore != null)
     	{
-    		criteria.add(Restrictions.lt("startDate", startDateAfter));
+    		criteria.add(Restrictions.lt("startDate", startDateBefore));
     	}
 		criteria.add(Restrictions.eq("voided", false));
 		return criteria.list();

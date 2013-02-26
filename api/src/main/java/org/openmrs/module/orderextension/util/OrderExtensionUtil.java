@@ -88,7 +88,7 @@ public class OrderExtensionUtil  {
 			}
 			else if (o instanceof Double)
 			{
-				final DecimalFormat f = new DecimalFormat("0.#");
+				final DecimalFormat f = new DecimalFormat("0.###");
 				return f.format(o);
 			}
 			
@@ -104,6 +104,15 @@ public class OrderExtensionUtil  {
 		Calendar c = Calendar.getInstance();
 		c.setTime(d);
 		c.add(Calendar.DATE, increment);
+		return c.getTime();
+	}
+	
+	public static Date incrementDateEndOfDay(Date d, Integer increment) {
+		Calendar c = Calendar.getInstance();
+		c.setTime(d);
+		c.add(Calendar.DATE, increment);
+		c.set(Calendar.HOUR_OF_DAY, 23);
+		c.set(Calendar.MINUTE, 59);
 		return c.getTime();
 	}
 	

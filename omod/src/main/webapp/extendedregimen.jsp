@@ -21,8 +21,31 @@ jQuery(document).ready(function() {
 	
 	jQuery('.error').hide();
 	
-	
 	jQuery(".drugDetails").hide();
+	
+	jQuery("#doseReduction").change(function()
+	{
+		var protocol = jQuery("#doseProtocolValue").val();
+		
+		var reduction = jQuery("#doseReduction").val();
+		
+		var newValue = (reduction/100)*protocol;
+		newValue = myRound(newValue, 5);
+				
+		jQuery("#dose").val(newValue);
+	});
+	
+	jQuery("#dose").change(function()
+	{
+		var protocol = jQuery("#doseProtocolValue").val();
+		
+		var dose = jQuery("#dose").val();
+		
+		var newValue = (dose/protocol)*100;
+		newValue = myRound(newValue, 1);
+				
+		jQuery("#doseReduction").val(newValue);
+	});
 		
 	jQuery("#drugListView").click(function()
 	{
@@ -223,7 +246,17 @@ jQuery(document).ready(function() {
 	jQuery("#orderSet").change(function(){ 
 		includeCycle();
 	});
+	
+	jQuery("#doseReduction").change(function(){ 
+		calculateDoseReduction()
+	});
 });
+
+function myRound(value, places) {
+    var multiplier = Math.pow(10, places);
+
+    return (Math.round(value * multiplier) / multiplier);
+}
 
 function handleAddMedication() {
 	
@@ -342,6 +375,8 @@ function updateDrugInfo() {
 	
 	var route = "";
 	var units = "";
+	var reduce = "";
+	var protocol = "";
 	
 	var index = jQuery('#drug').attr("selectedIndex");
 	if(index != null && index >=0)
@@ -351,8 +386,21 @@ function updateDrugInfo() {
 			route =  "<spring:message code='orderextension.regimen.route'/>" + ": " + drugDetail[index].route;
 		}
 		units = " " + drugDetail[index].doseForm;
+		
+		if(drugDetail[index].doseReduce == "true")
+		{
+			jQuery("#doseReduce").show();
+			jQuery("#doseReduction").val("100");
+			jQuery("#dose").val(drugDetail[index].protocolDose);
+		}
+		else
+		{
+			jQuery("#doseReduce").hide();
+		}
+		protocol = drugDetail[index].protocolDose + " " + units;
+		jQuery("#doseProtocolValue").val(drugDetail[index].protocolDose);
 	}
-	
+	jQuery("#protocolDose").html(protocol);
 	jQuery("#routeInfo").html(route);
 	jQuery("#units").html(units);
 }
@@ -630,6 +678,9 @@ function printRoadMap() {
 				</tr>
 				<tr class="drugDetails">
 					<td class="padding"><spring:message code="DrugOrder.dose" />*:  <input type="text" name="dose" id="dose" size="10"/><span id="units"></span></td>
+					
+					<td class="padding"><span id="doseReduce"><spring:message code="orderextension.regimen.doseReduction" /> <input type="text" name="doseReduction" id="doseReduction" size="10"/> <input type="hidden" name="doseProtocolValue" id="doseProtocolValue"/><spring:message code="orderextension.regimen.doseReductionFrom" /> <span id="protocolDose"></span></span></div></td>
+					
 					<td class="padding"><spring:message code="DrugOrder.frequency"/>:			
 						<select name="frequencyDay" id="frequencyDay">
 							<% for ( int i = 1; i <= 10; i++ ) { %>
