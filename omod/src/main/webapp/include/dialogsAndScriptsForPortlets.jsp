@@ -123,6 +123,40 @@ jQuery(document).ready(function() {
 		}
 	});	
 	
+	jQuery('.changeStartDateOfPartGroupButton').click(function(){ 
+		
+		var val = this.id;
+		var values = val.split(",");
+		jQuery("#changeStartPartGroupId").val(values[0]);
+		jQuery("#changePartDate").val(values[2]);
+		jQuery("#cycleDay").val(values[3]);
+		jQuery('.openmrs_error').hide();
+		
+		if(values[1] == "true")
+		{
+			jQuery('.repeatCycleDiv').show();
+		}
+		else
+		{
+			jQuery('.repeatCycleDiv').hide();
+		}
+		
+		jQuery('#changeStartDateOfPartGroupDialog').dialog('open');
+	});
+
+	jQuery('#changeStartDateOfPartGroupDialog').dialog({
+		position: 'middle',
+		autoOpen: false,
+		modal: true,
+		title: '<spring:message code="orderextension.regimen.changeStartDateOfPartCycle" javaScriptEscape="true"/>',
+		height: 480,
+		width: '80%',
+		zIndex: 100,
+		buttons: { '<spring:message code="general.change"/>': function() { handleChangeStartDateOfPartGroup(); },
+				   '<spring:message code="general.cancel"/>': function() { $j(this).dialog("close"); }
+		}
+	});
+	
 	jQuery('.editButton').click(function(){ 
 		var val = this.id;
 		var values = val.split(",");
@@ -566,6 +600,22 @@ function handleChangeStartDateOfGroup()
 	}
 }
 
+function handleChangeStartDateOfPartGroup()
+{	
+	var changeDate = jQuery("#changePartDate").val();
+
+	
+	if(changeDate == "")
+	{
+		jQuery('.openmrs_error').show();
+		jQuery('.openmrs_error').html("<spring:message code='orderextension.regimen.changeDateError' /> ");
+	}
+	else
+	{
+		jQuery('#changeStartDateOfPartGroup').submit();
+	}
+}
+
 function validAddDrugPanelTwo() {
 	
 	var error = '';
@@ -724,13 +774,19 @@ function updateEditDrugDialog() {
 		
 		jQuery("#instructionsThree").val(result.instructions);
 		
-		jQuery("#doseProtocolValueThree").val(result.protocolDose);
-	
-		jQuery("#protocolDoseThree").html(result.protocol);
 		jQuery("#routeInfoThree").val(result.route);
 		jQuery("#unitsThree").html(result.units);
 		
-		updateDosageThree();
+		if(result.reduce == "true")
+		{
+			jQuery("#doseProtocolValueThree").val(result.protocolDose);
+			jQuery("#protocolDoseThree").html(result.protocol);
+			updateDosageThree();
+			jQuery("#doseReduceThree").show();
+		}
+		else {
+			jQuery("#doseReduceThree").hide();
+		}
 		
 		jQuery(".drugDetails").show();
 	});
@@ -1113,6 +1169,40 @@ function handleDeleteAllDrugOrder()
 		</form>
 	</div>
 </div>
+
+<div id="changeStartDateOfPartGroupDialog">	
+	<div class="box">
+	<div id="openmrs_error" class="openmrs_error"></div>
+		<form id="changeStartDateOfPartGroup" name="changeStartDateOfPartGroup" method="post" action="${pageContext.request.contextPath}/module/orderextension/changeStartDateOfPartGroup.form">
+			<input type="hidden" name="groupId" id="changeStartPartGroupId">
+			<input type="hidden" name="patientId" value="${model.patient.patientId}">
+			<input type="hidden" name="returnPage" value="${model.redirect}&patientId=${model.patient.patientId}"/>	
+			<input type="hidden" name="cycleDay" id="cycleDay"/>
+			<table>
+				<tr>
+					<td class="padding"><spring:message code="orderextension.regimen.changeStartDate"/>: <openmrs_tag:dateField formFieldName="changePartDate" startValue=""/></td>
+				</tr>
+				<span class="repeatCycleDiv"></span>
+				<tr >
+					<td>
+						<input type="checkbox" name="repeatThisCycle" id="repeatThisCycle" value="repeatThisCycle"><spring:message code='orderextension.regimen.changeAllFutureThisCycles'/>
+					</td>
+				<tr>
+				<tr>
+					<td>	
+						<input type="checkbox" name="repeatPartCycles" id="repeatPartCycles" value="repeatPartCycles"><spring:message code='orderextension.regimen.changeAllFuturePartCycles'/>
+					</td>
+				<tr>
+				<tr>
+					<td>
+						<input type="checkbox" name="repeatCycles" id="repeatCycles" value="repeatCycles"><spring:message code='orderextension.regimen.changeAllFutureDrugs'/>
+					</td>
+				</tr>
+			</table>
+		</form>
+	</div>
+</div>
+
 
 <div id="deleteDrugDialog">	
 	<div class="box">

@@ -340,4 +340,12 @@ padding: 3px;
 	text-align: right;
 }
 
+.cycleHeading {
+	background-color: #CCCCCC;
+}
+
+.cycleHeading td {
+	padding: 5px;
+}
+
 	

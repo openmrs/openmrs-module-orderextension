@@ -214,7 +214,13 @@ public class OrderExtensionAjaxController {
 			
 			info.put("drugId", drug.getId().toString());
 			info.put("units", drug.getUnits());
-			info.put("protocolDose", drug.getDoseStrength().toString());
+			
+			String protocolDose = "";
+			if(drug.getDoseStrength() != null)
+			{
+				protocolDose =  drug.getDoseStrength().toString();
+			}
+			info.put("protocolDose",protocolDose);
 			info.put("route", drug.getRoute().getDisplayString());
 			
 			String protocol = drug.getDoseStrength() + " "  + drug.getUnits();

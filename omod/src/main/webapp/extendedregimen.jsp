@@ -102,7 +102,7 @@ jQuery(document).ready(function() {
 		  
 		  	jQuery('#printCalendarContents').html('');
 		  	jQuery('#printCalendarContents').fullCalendar({ 
-				height: 900,
+				height: 600,
 				header: {
 					    left:   'title',
 					    center: '',
