@@ -14,6 +14,7 @@
 package org.openmrs.module.orderextension;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -111,14 +112,17 @@ public class RegimenHelper {
     	return hasOtherMedications;
     }
 
-	public List<Concept> getClassifications(DrugRegimen drugGroup, final Concept topLevelIndicator)
+	public List<Concept> getClassifications(DrugRegimen drugGroup, final Concept topLevelIndicator, Integer day)
 	{
 		List<Concept> classifications = new ArrayList<Concept>();
 		for(DrugOrder o : ordersInDrugGroups.get(drugGroup))
 		{		
 			Concept classification = null;
 			if (o instanceof ExtendedDrugOrder) {
-				classification = ((ExtendedDrugOrder)o).getIndication();
+				if(drugGroup == null || getCycleDay(drugGroup.getFirstDrugOrderStartDate(), o.getStartDate()) == day)
+				{
+					classification = ((ExtendedDrugOrder)o).getIndication();
+				}
 			}
 			if (!classifications.contains(classification)) {
 				classifications.add(classification);
@@ -141,28 +145,76 @@ public class RegimenHelper {
 		return classifications;
 	}
 	
-	public List<DrugOrder> getRegimensForClassification(DrugRegimen cycle, Concept classification)
+	public List<Integer> getDrugStartDates(DrugRegimen drugGroup)
+	{
+		List<Integer> startDays = new ArrayList<Integer>();
+		startDays.add(1);
+		
+		if(drugGroup != null)
+		{
+			Date startDate = drugGroup.getFirstDrugOrderStartDate();
+			
+			for(DrugOrder od: drugGroup.getMembers())
+			{
+				if(od.getStartDate() != null && startDate != null)
+				{
+					long cycleDay = od.getStartDate().getTime() - startDate.getTime();
+					if(cycleDay > 0)
+					{
+						cycleDay = cycleDay/86400000;
+						cycleDay = cycleDay + 1;
+						
+						Integer day = (int)cycleDay;
+						
+						if(!startDays.contains(day))
+						{
+							startDays.add(day);
+						}
+					}
+				}
+			}
+		}
+		
+		Collections.sort(startDays);
+		return startDays;
+	}
+	
+	
+	
+	public List<DrugOrder> getRegimensForClassification(DrugRegimen cycle, Concept classification, Integer day)
 	{
 		List<DrugOrder> ret = new ArrayList<DrugOrder>();
 		
 		for(DrugOrder o : ordersInDrugGroups.get(cycle))
 		{
-			Concept orderIndication = null;
-			if (o instanceof ExtendedDrugOrder) {
-				orderIndication = ((ExtendedDrugOrder)o).getIndication();
-			}
-			if(classification == null && orderIndication == null)
+			if(cycle == null || (cycle != null && getCycleDay(cycle.getFirstDrugOrderStartDate(), o.getStartDate()) == day))
 			{
-				ret.add(o);
-			}
-			else if(classification != null && orderIndication != null && orderIndication.equals(classification))
-			{
-				ret.add(o);
+				Concept orderIndication = null;
+				if (o instanceof ExtendedDrugOrder) {
+					orderIndication = ((ExtendedDrugOrder)o).getIndication();
+				}
+				if(classification == null && orderIndication == null)
+				{
+					ret.add(o);
+				}
+				else if(classification != null && orderIndication != null && orderIndication.equals(classification))
+				{
+					ret.add(o);
+				}
 			}
 		}
 		
 		Collections.sort(ret, new DrugOrderComparator());
 		return ret;
+	}
+	
+	public Date getCycleDate(DrugRegimen cycle, Integer day)
+	{
+		Date cycleStart = cycle.getFirstDrugOrderStartDate();
+		Calendar cycleDate = Calendar.getInstance();
+		cycleDate.setTime(cycleStart);
+		cycleDate.add(Calendar.DAY_OF_YEAR, day-1);
+		return cycleDate.getTime();
 	}
 	
 	private class DrugGroupSorter implements Comparator<DrugRegimen>
@@ -175,5 +227,21 @@ public class RegimenHelper {
             }
 			return 0;
          }
+	}
+	
+	private Integer getCycleDay(Date firstDrugStart, Date drugStart)
+	{
+		if(firstDrugStart != null && drugStart != null)
+		{
+			long cycleDay = drugStart.getTime() - firstDrugStart.getTime();
+			if(cycleDay > 0)
+			{
+				cycleDay = cycleDay/86400000;
+				cycleDay = cycleDay + 1;
+				return (int)cycleDay;
+			}
+		}
+		
+		return 1;
 	}
 }

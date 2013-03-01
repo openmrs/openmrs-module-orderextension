@@ -38,6 +38,7 @@ public class DrugOrderComparator implements Comparator<DrugOrder> {
      	   {
 					return 1;
      	   }
+
         }
         else
         {
@@ -47,7 +48,11 @@ public class DrugOrderComparator implements Comparator<DrugOrder> {
      	   }
      	   else if(r1.getStartDate().compareTo(r2.getStartDate()) > 0)
      	   {
-					return 10;
+				return 10;
+     	   }
+     	   else if(r1.getDrug() != null && r2.getDrug() != null)
+     	   {
+     		   return r1.getDrug().getName().compareTo(r2.getDrug().getName());
      	   }
         }
         
