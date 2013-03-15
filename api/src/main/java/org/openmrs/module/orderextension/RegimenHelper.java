@@ -115,11 +115,12 @@ public class RegimenHelper {
 	public List<Concept> getClassifications(DrugRegimen drugGroup, final Concept topLevelIndicator, Integer day)
 	{
 		List<Concept> classifications = new ArrayList<Concept>();
+		
 		for(DrugOrder o : ordersInDrugGroups.get(drugGroup))
 		{		
 			Concept classification = null;
 			if (o instanceof ExtendedDrugOrder) {
-				if(drugGroup == null || getCycleDay(drugGroup.getFirstDrugOrderStartDate(), o.getStartDate()) == day)
+				if(drugGroup == null || getCycleDay(drugGroup.getFirstDrugOrderStartDate(), o.getStartDate()).equals(day))
 				{
 					classification = ((ExtendedDrugOrder)o).getIndication();
 				}
@@ -187,7 +188,7 @@ public class RegimenHelper {
 		
 		for(DrugOrder o : ordersInDrugGroups.get(cycle))
 		{
-			if(cycle == null || (cycle != null && getCycleDay(cycle.getFirstDrugOrderStartDate(), o.getStartDate()) == day))
+			if(cycle == null || (cycle != null && getCycleDay(cycle.getFirstDrugOrderStartDate(), o.getStartDate()).equals(day)))
 			{
 				Concept orderIndication = null;
 				if (o instanceof ExtendedDrugOrder) {

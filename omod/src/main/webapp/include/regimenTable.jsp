@@ -50,6 +50,7 @@
 		<c:if test="${fn:length(cycleDays) > 1}">
 			<tr class="cycleHeading">
 				<td colspan="1"><b><spring:message code="orderextension.regimen.day" />: <c:out value="${cd}"/></b></td>
+				
 				<td colspan="8">
 				 	<c:if test="${count.index > 0 }">
 				 	<%
@@ -60,6 +61,8 @@
 				 		<input type="button" class="changeStartDateOfPartGroupButton" value="<spring:message code="orderextension.regimen.changeStartDateOfPartCycle"/>" id="${drugGroup.id},true,<openmrs:formatDate date="${cycleDate}"/>,${cd}">
 					</c:if>
 				</td>
+				
+				<c:if test="${completed eq 'true'}"><td></td></c:if>
 				
 				<c:if test="${model.readOnly != 'true'}">
 			<c:choose>
