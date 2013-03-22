@@ -311,28 +311,23 @@ public class OrderExtensionOrderController {
 					if (repeatCycle == null) {
 						if (getCycleDay(drugRegimen.getFirstDrugOrderStartDate(), order.getStartDate()) == cycleDay) {
 							if (order.getAutoExpireDate() != null) {
-								order.setAutoExpireDate(adjustDate(order.getAutoExpireDate(),
-									startDate, changeDate));
+								order.setAutoExpireDate(adjustDate(order.getAutoExpireDate(), startDate, changeDate));
 							}
 							
-							order.setStartDate(adjustDate(order.getStartDate(), startDate,
-							    changeDate));
+							order.setStartDate(adjustDate(order.getStartDate(), startDate, changeDate));
 							Context.getOrderService().saveOrder(order);
 						}
 					} else {
 						if (order.getAutoExpireDate() != null) {
-							order.setAutoExpireDate(adjustDate(order.getAutoExpireDate(),
-								startDate, changeDate));
+							order.setAutoExpireDate(adjustDate(order.getAutoExpireDate(), startDate, changeDate));
 						}
 						
-						order.setStartDate(adjustDate(order.getStartDate(), startDate,
-						    changeDate));
+						order.setStartDate(adjustDate(order.getStartDate(), startDate, changeDate));
 						Context.getOrderService().saveOrder(order);
 					}
 				}
 			}
 		}
-		
 		
 		for (ExtendedDrugOrder order : regimen.getMembers()) {
 			if (repeatThisCycle != null || repeatPartCycles != null) {
@@ -585,12 +580,15 @@ public class OrderExtensionOrderController {
 	}
 	
 	private Date adjustDateToEndOfDay(Date dateToAdjust) {
-		Calendar adjusted = Calendar.getInstance();
-		adjusted.setTime(dateToAdjust);
-		adjusted.set(Calendar.HOUR, 23);
-		adjusted.set(Calendar.MINUTE, 59);
-		
-		return adjusted.getTime();
+		if (dateToAdjust != null) {
+			Calendar adjusted = Calendar.getInstance();
+			adjusted.setTime(dateToAdjust);
+			adjusted.set(Calendar.HOUR, 23);
+			adjusted.set(Calendar.MINUTE, 59);
+			
+			return adjusted.getTime();
+		}
+		return dateToAdjust;
 	}
 	
 	private Integer getCycleDay(Date firstDrugStart, Date drugStart) {
@@ -606,11 +604,10 @@ public class OrderExtensionOrderController {
 		return 1;
 	}
 	
-	public Date getCycleDate(Date cycleStart, Integer day)
-	{
+	public Date getCycleDate(Date cycleStart, Integer day) {
 		Calendar cycleDate = Calendar.getInstance();
 		cycleDate.setTime(cycleStart);
-		cycleDate.add(Calendar.DAY_OF_YEAR, day-1);
+		cycleDate.add(Calendar.DAY_OF_YEAR, day - 1);
 		return cycleDate.getTime();
 	}
 }
