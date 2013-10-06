@@ -71,7 +71,7 @@ jQuery(document).ready(function() {
 					<c:if test="${loop.index > 0}">,</c:if>	
 						{
 					    title  : '<spring:message code="orderextension.regimen.currentCycleNumber" /> <c:out value="${cycle.cycleNumber}"/> <spring:message code="general.of" /> <c:out value="${cycle.orderSet.name}"/>',				
-					    start  : '<openmrs:formatDate date="${cycle.firstDrugOrderStartDate}"format="yyyy-MM-dd"/>',
+					    start  : '<openmrs:formatDate date="${cycle.firstDrugOrderStartDate}" format="yyyy-MM-dd"/>',
 					    end :'<openmrs:formatDate date="${cycle.lastDrugOrderEndDate}" format="yyyy-MM-dd"/>',
 					    color : '#1AAC9B',
 					    textColor: '#000000'
@@ -81,7 +81,7 @@ jQuery(document).ready(function() {
 					<c:if test="${loop.index > 0 || not empty model.cycles}">,</c:if>	
 						{
 					    title  : '<c:out value="${regimen.orderSet.name}"/>',				
-					    start  : '<openmrs:formatDate date="${regimen.firstDrugOrderStartDate}"format="yyyy-MM-dd"/>',
+					    start  : '<openmrs:formatDate date="${regimen.firstDrugOrderStartDate}" format="yyyy-MM-dd"/>',
 					    end :'<openmrs:formatDate date="${regimen.lastDrugOrderEndDate}" format="yyyy-MM-dd"/>',
 					    color : '#1AAC9B',
 					    textColor: '#000000'
@@ -91,7 +91,7 @@ jQuery(document).ready(function() {
 			           <c:if test="${loop.index > 0 || not empty model.cycles || not empty model.fixedLengthRegimen}">,</c:if>	
 						{
 			               title  : '<c:if test="${!empty drugRegimen.drug}"><c:out value="${drugRegimen.drug.name}"/></c:if><c:if test="${empty drugRegimen.drug}"><c:out value="${drugRegimen.concept.displayString}"/></c:if> <c:out value="${drugRegimen.dose}"/> <c:out value="${drugRegimen.units}"/> <c:if test="${!empty drugRegimen.route}"><c:out value="${drugRegimen.route.displayString}"/></c:if>',				
-			               start  : '<openmrs:formatDate date="${drugRegimen.startDate}"format="yyyy-MM-dd"/>',
+			               start  : '<openmrs:formatDate date="${drugRegimen.startDate}" format="yyyy-MM-dd"/>',
 			               color :'#99CCFF',
 			               textColor :'#000000',
 			               end : <c:choose><c:when test="${!empty drugRegimen.discontinuedDate}">'<openmrs:formatDate date="${drugRegimen.discontinuedDate}" format="yyyy-MM-dd"/>'</c:when><c:otherwise><c:if test="${!empty drugRegimen.autoExpireDate}">'<openmrs:formatDate date="${drugRegimen.autoExpireDate}" format="yyyy-MM-dd"/>'</c:if></c:otherwise></c:choose>
@@ -113,7 +113,7 @@ jQuery(document).ready(function() {
 						<c:if test="${loop.index > 0}">,</c:if>	
 							{
 						    title  : '<spring:message code="orderextension.regimen.currentCycleNumber" /> <c:out value="${cycle.cycleNumber}"/> <spring:message code="general.of" /> <c:out value="${cycle.orderSet.name}"/>',				
-						    start  : '<openmrs:formatDate date="${cycle.firstDrugOrderStartDate}"format="yyyy-MM-dd"/>',
+						    start  : '<openmrs:formatDate date="${cycle.firstDrugOrderStartDate}" format="yyyy-MM-dd"/>',
 						    end :'<openmrs:formatDate date="${cycle.lastDrugOrderEndDate}" format="yyyy-MM-dd"/>',
 						    textColor: '#666666',
 						    color: '#99CCFF'
@@ -123,7 +123,7 @@ jQuery(document).ready(function() {
 						<c:if test="${loop.index > 0 || not empty model.cycles}">,</c:if>	
 							{
 							title  : '<c:out value="${regimen.orderSet.name}"/>',		
-						    start  : '<openmrs:formatDate date="${regimen.firstDrugOrderStartDate}"format="yyyy-MM-dd"/>',
+						    start  : '<openmrs:formatDate date="${regimen.firstDrugOrderStartDate}" format="yyyy-MM-dd"/>',
 						    end :'<openmrs:formatDate date="${regimen.lastDrugOrderEndDate}" format="yyyy-MM-dd"/>',
 						    textColor: '#666666',
 						    color: '#99CCFF'
@@ -133,7 +133,7 @@ jQuery(document).ready(function() {
 				           <c:if test="${loop.index > 0 || not empty model.cycles || not empty model.fixedLengthRegimen}">,</c:if>	
 							{
 				               title  : '<c:if test="${!empty drugRegimen.drug}"><c:out value="${drugRegimen.drug.name}"/></c:if><c:if test="${empty drugRegimen.drug}"><c:out value="${drugRegimen.concept.displayString}"/></c:if> <c:out value="${drugRegimen.dose}"/> <c:out value="${drugRegimen.units}"/> <c:if test="${!empty drugRegimen.route}"><c:out value="${drugRegimen.route.displayString}"/></c:if>',				
-				               start  : '<openmrs:formatDate date="${drugRegimen.startDate}"format="yyyy-MM-dd"/>',
+				               start  : '<openmrs:formatDate date="${drugRegimen.startDate}" format="yyyy-MM-dd"/>',
 				               textColor :'#000000',
 				       		   color :'#CCCCCC',
 				               end : <c:choose><c:when test="${!empty drugRegimen.discontinuedDate}">'<openmrs:formatDate date="${drugRegimen.discontinuedDate}" format="yyyy-MM-dd"/>'</c:when><c:otherwise><c:if test="${!empty drugRegimen.autoExpireDate}">'<openmrs:formatDate date="${drugRegimen.autoExpireDate}" format="yyyy-MM-dd"/>'</c:if></c:otherwise></c:choose>
