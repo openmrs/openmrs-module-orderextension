@@ -219,6 +219,10 @@ padding: 3px;
 
 }
 
+.drugLineRed {
+background-color: #FF8080;
+}
+
 .cycleTitle {
 margin-bottom: 3px;
 color: black;

@@ -369,16 +369,20 @@ public class OrderExtensionOrderController {
 	                       @RequestParam(value = "adminInstructions", required = false) String adminInstructions,
 	                       @RequestParam(value = "repeatCycles", required = false) String repeatCycle,
 	                       @RequestParam(value = "returnPage", required = true) String returnPage,
+	                       @RequestParam(value = "drugChangeReason", required = false) Integer changeReason,
+	                       @RequestParam(value = "discontinue", required = true) String discontinue,
 	                       @RequestParam(value = "patientId", required = true) Integer patientId) {
 		
 		DrugOrder o = Context.getOrderService().getOrder(orderId, DrugOrder.class);
 		
+		DrugRegimen regimen = null;
+		
 		if (o instanceof ExtendedDrugOrder) {
 			ExtendedDrugOrder drugOrder = (ExtendedDrugOrder) o;
+				regimen = Context.getService(OrderExtensionService.class).getDrugRegimen(
+						drugOrder.getGroup().getId());
 			
 			if (repeatCycle != null) {
-				DrugRegimen regimen = Context.getService(OrderExtensionService.class).getDrugRegimen(
-				    drugOrder.getGroup().getId());
 				Patient patient = Context.getPatientService().getPatient(patientId);
 				List<ExtendedDrugOrder> futureOrders = Context.getService(OrderExtensionService.class)
 				        .getFutureDrugOrdersOfSameOrderSet(patient, regimen.getOrderSet(),
@@ -416,8 +420,31 @@ public class OrderExtensionOrderController {
 			}
 		}
 		
-		o = updateDrugOrder(o, drugId, dose, frequencyDay, frequencyWeek, startDateDrug, stopDateDrug, asNeeded,
-		    classification, indication, instructions, adminInstructions);
+		//if there is an change reason entered, then we want to discontinue the current drug order with a reason and 
+		//create a new one with the edit details.
+		if(changeReason == null)
+		{
+			o = updateDrugOrder(o, drugId, dose, frequencyDay, frequencyWeek, startDateDrug, stopDateDrug, asNeeded,
+					classification, indication, instructions, adminInstructions);
+		}
+		else
+		{
+			Concept stopConcept = Context.getConceptService().getConcept(changeReason);
+			Context.getOrderService().discontinueOrder(o, stopConcept, stopDateDrug);
+			
+			//if the user has edited and not chosen the discontinue button, then add a new order with the changes suggested
+			if(discontinue.equals("false"))
+			{
+				ExtendedDrugOrder drugOrder = (ExtendedDrugOrder) setUpDrugOrder(patientId, drugId, dose, frequencyDay,
+					    frequencyWeek, startDateDrug, stopDateDrug, asNeeded, classification, indication, instructions,
+					    adminInstructions);
+				
+				if(regimen != null)
+				{
+					regimen.addMember(drugOrder);
+				}
+			}
+		}
 		
 		Context.getOrderService().saveOrder(o);
 		

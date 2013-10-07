@@ -186,6 +186,7 @@ jQuery(document).ready(function() {
 		width: '100%',
 		zIndex: 100,
 		buttons: { '<spring:message code="general.edit"/>': function() { handleEditDrugOrder(); },
+				   '<spring:message code="orderextension.regimen.discontinue"/>': function() { handleDiscontinueDrugOrder(); },
 				   '<spring:message code="general.cancel"/>': function() { $j(this).dialog("close"); }
 		}
 	});	
@@ -654,6 +655,7 @@ function updateEditDrugDialog() {
 	var drugOrderId = jQuery("#orderId").val();
 	
 	var url = "${pageContext.request.contextPath}/module/orderextension/getDrugOrder.form?id=" + drugOrderId;
+	
 	jQuery.getJSON(url, function(result) 
 	{
 		 var comboHtml = "<select name='drugComboThree' id='drugComboThree' data-placeholder='<spring:message code='orderextension.regimen.chooseOption' />' style='width:350px;'>";
@@ -714,7 +716,7 @@ function updateEditDrugDialog() {
 		jQuery("#frequencyDayThree").val(result.freqDay);
 		
 		jQuery("#frequencyWeekThree").val(result.freqWeek);
-		
+
 		if(result.asNeeded == "true")
 		{
 			jQuery("#asNeededThree").attr('checked', 'checked');
@@ -795,6 +797,23 @@ function updateEditDrugDialog() {
 function handleEditDrugOrder()
 {	
 	var error = validAddDrugPanelThree();
+	jQuery("#discontinue").val("false");
+	
+	if(error != "")
+	{
+		jQuery('.openmrs_error').show();
+		jQuery('.openmrs_error').html(error);
+	}
+	else
+	{
+		jQuery('#editDrug').submit();
+	}
+}
+
+function handleDiscontinueDrugOrder()
+{	
+	var error = validAddDrugPanelThreeDis();
+	jQuery("#discontinue").val("true");
 	
 	if(error != "")
 	{
@@ -836,6 +855,43 @@ function validAddDrugPanelThree() {
 	
 	return error;
 }
+
+function validAddDrugPanelThreeDis() {
+	
+	var error = '';
+	
+	var selectedIndex = jQuery("#drugComboThree").attr("selectedIndex");
+	if(selectedIndex == 0)
+	{
+		error = " <spring:message code='orderextension.regimen.drugError' /> ";
+	}
+	else
+	{
+		var startDate = jQuery("#editStartDate").val();
+
+		if(startDate == "")
+		{
+			error = error + " <spring:message code='orderextension.regimen.startDateError' /> ";
+		}
+
+		var stopDate = jQuery("#editStopDate").val(); 
+		
+		if(stopDate == "")
+		{
+			error = error + " <spring:message code='orderextension.regimen.stopDateError' /> ";
+		}
+
+		var changeReason = jQuery("#drugChangeReason").val();
+		if(changeReason == "")
+		{
+			error = error + " <spring:message code='orderextension.regimen.discontinueReasonError' /> ";
+		}
+		
+	}
+	
+	return error;
+}
+
 
 function handleStopDrugOrder()
 {	
@@ -1061,6 +1117,7 @@ function handleDeleteAllDrugOrder()
 			<input type="hidden" name="orderId" id="orderId">
 			<input type="hidden" name="patientId" value="${model.patient.patientId}">
 			<input type="hidden" name="returnPage" value="${model.redirect}&patientId=${model.patient.patientId}"/>	
+			<input type="hidden" name="discontinue" id="discontinue" value="false"/>	
 			<table>
 				<tr>
 					<td class="padding"><spring:message code="orderextension.regimen.individualDrug" />*: </td>
@@ -1119,6 +1176,13 @@ function handleDeleteAllDrugOrder()
 						<td class="padding topAlignment"><spring:message code="orderextension.regimen.instructions" />: <textarea rows="2" cols="40" name="instructions" id="instructionsThree"></textarea></td>
 					</tr>							
 				</table>
+				<br/>
+				<table>
+					<tr class="drugDetails">
+						<td class="padding"><spring:message code="orderextension.regimen.changeReason"/>:<openmrs:fieldGen type="org.openmrs.DrugOrder.discontinuedReason" formFieldName="drugChangeReason" val="" parameters="optionHeader=[blank]|globalProp=concept.reasonOrderStopped" /></td>
+					</tr>	
+				</table>
+				<br/>
 				<div class="repeatCycleDiv">
 					<table>
 						<tr>
@@ -1126,6 +1190,7 @@ function handleDeleteAllDrugOrder()
 						</tr>
 					</table>
 				</div> 
+				
 		</form>
 	</div>
 </div>
