@@ -109,7 +109,15 @@
 				pageContext.setAttribute("drugOrders", drugOrders); 
 			%>
 			<c:forEach items="${drugOrders}" var="drugOrder">
-				<tr class="drugLine">
+				<c:choose>
+					<c:when test="${!empty drugOrder.discontinuedReason && completed ne 'true'}">
+						<tr class="drugLineRed">
+					</c:when>
+					<c:otherwise>
+						<tr class="drugLine">
+					</c:otherwise>
+				</c:choose>
+			
 					<td class="regimenCurrentDrugOrdered"><orderextension:format object="${drugOrder}"/></td>
 					<td class="regimenCurrentDrugDose"><orderextension:format object="${drugOrder.dose}"/> ${drugOrder.units}</td>
 					<td class="regimenCurrentDrugRoute"><orderextension:format object="${drugOrder}" format="route"/></td>
@@ -125,7 +133,7 @@
 																			<openmrs:formatDate date="${drugOrder.autoExpireDate}" type="medium" />
 																		</c:otherwise>
 																	</c:choose></td>
-					<td class="regimenCurrentDrugInstructions">${drugOrder.instructions}</td>
+					<td class="regimenCurrentDrugInstructions">${drugOrder.instructions}<c:if test="${completed ne 'true'}"> <c:if test="${!empty drugOrder.discontinuedReason}"><spring:message code="orderextension.regimen.changeReason"/> ${drugOrder.discontinuedReason.displayString}</c:if></c:if> </td>
 					<c:if test="${completed eq 'true'}"><td class="regimenDiscontinuedReason"><c:if test="${!empty drugOrder.discontinuedReason}">${drugOrder.discontinuedReason.displayString}</c:if>  </td></c:if>
 					<c:if test="${model.readOnly != 'true'}">
 					<openmrs:hasPrivilege privilege="Edit Regimen">
