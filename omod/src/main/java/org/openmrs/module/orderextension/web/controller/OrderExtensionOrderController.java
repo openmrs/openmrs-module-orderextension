@@ -496,9 +496,18 @@ public class OrderExtensionOrderController {
 	@RequestMapping(value = "/module/orderextension/deleteDrug")
 	public String deleteDrug(ModelMap model, @RequestParam(value = "orderId", required = true) Integer orderId,
 	                         @RequestParam(value = "deleteReason", required = true) String voidReason,
+	                         @RequestParam(value = "deleteReasonDescription", required = false) String voidReasonDescription,
 	                         @RequestParam(value = "repeatCycles", required = false) String repeatCycle,
 	                         @RequestParam(value = "returnPage", required = true) String returnPage,
 	                         @RequestParam(value = "patientId", required = true) Integer patientId) {
+		
+		StringBuilder voidReasonAndDescription=new StringBuilder();
+		voidReasonAndDescription.append(voidReason);
+		//if(!voidReasonDescription.equals("") || voidReasonDescription!=null || voidReasonDescription.length()>0){
+		if(voidReasonDescription.trim().length()>0){
+			voidReasonAndDescription.append(" ");
+			voidReasonAndDescription.append(voidReasonDescription);
+		}
 		
 		DrugOrder o = Context.getOrderService().getOrder(orderId, DrugOrder.class);
 		
@@ -516,18 +525,18 @@ public class OrderExtensionOrderController {
 				for (ExtendedDrugOrder order : futureOrders) {
 					if (order.getDrug() != null && drugOrder.getDrug() != null) {
 						if (order.getDrug().equals(drugOrder.getDrug())) {
-							Context.getOrderService().voidOrder(order, voidReason);
+							Context.getOrderService().voidOrder(order, voidReasonAndDescription.toString());
 						}
 					} else if (order.getConcept() != null && drugOrder.getConcept() != null) {
 						if (order.getConcept().equals(drugOrder.getConcept())) {
-							Context.getOrderService().voidOrder(order, voidReason);
+							Context.getOrderService().voidOrder(order, voidReasonAndDescription.toString());
 						}
 					}
 				}
 			}
 		}
 		
-		Context.getOrderService().voidOrder(o, voidReason);
+		Context.getOrderService().voidOrder(o, voidReasonAndDescription.toString());
 		
 		return "redirect:" + returnPage;
 	}
@@ -535,9 +544,21 @@ public class OrderExtensionOrderController {
 	@RequestMapping(value = "/module/orderextension/deleteAllDrugsInGroup")
 	public String deleteAllDrugsInGroup(ModelMap model, @RequestParam(value = "groupId", required = true) Integer groupId,
 	                                    @RequestParam(value = "deleteReason", required = true) String voidReason,
-	                                    @RequestParam(value = "repeatCycles", required = false) String repeatCycle,
+	       	                         	@RequestParam(value = "deleteAllReasonDescription", required = false) String voidReasonDescription,
+	       	                         	@RequestParam(value = "repeatCycles", required = false) String repeatCycle,
 	                                    @RequestParam(value = "returnPage", required = true) String returnPage,
 	                                    @RequestParam(value = "patientId", required = true) Integer patientId) {
+		
+		
+		StringBuilder voidReasonAndDescription=new StringBuilder();
+		voidReasonAndDescription.append(voidReason);
+		//if(!voidReasonDescription.equals("") || voidReasonDescription!=null || voidReasonDescription.length()>0){
+		if(voidReasonDescription.trim().length()>0){
+			voidReasonAndDescription.append(" ");
+			voidReasonAndDescription.append(voidReasonDescription);
+		}
+		
+		
 		
 		DrugRegimen regimen = Context.getService(OrderExtensionService.class).getDrugRegimen(groupId);
 		
@@ -547,12 +568,12 @@ public class OrderExtensionOrderController {
 			        .getFutureDrugOrdersOfSameOrderSet(patient, regimen.getOrderSet(), regimen.getLastDrugOrderEndDate());
 			
 			for (ExtendedDrugOrder order : futureOrders) {
-				Context.getOrderService().voidOrder(order, voidReason);
+				Context.getOrderService().voidOrder(order, voidReasonAndDescription.toString());
 			}
 		}
 		
 		for (ExtendedDrugOrder order : regimen.getMembers()) {
-			Context.getOrderService().voidOrder(order, voidReason);
+			Context.getOrderService().voidOrder(order, voidReasonAndDescription.toString());
 		}
 		
 		return "redirect:" + returnPage;

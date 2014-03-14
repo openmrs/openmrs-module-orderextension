@@ -64,5 +64,17 @@
 		<defaultValue>9b81d9ce-91a3-4da6-8d19-ba6ff020f64a</defaultValue>
 		<description>The concept for drug group classifications concept set</description>
 	</globalProperty>
+	
+	<globalProperty>
+		<property>orderextension.deleteDrugReasons</property>
+		<defaultValue>Allergic Reaction,Stockout,Adverse event:,Other:</defaultValue>
+		<description>Use ',' as separator of reasons. For the reason which will require a description, use ':' at the end of it.</description>
+	</globalProperty>
+	
+	<globalProperty>
+		<property>orderextension.deleteAllDrugReasons</property>
+		<defaultValue>Suspected tumor progression,Definitive tumor progression,Severe allergic reaction,Adverse event:,Other:</defaultValue>
+		<description>Use ',' as separator of reasons. For the reason which will require a description, use ':' at the end of it.</description>
+	</globalProperty>
 
 </module>

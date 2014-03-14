@@ -11,7 +11,35 @@ jQuery(document).ready(function() {
 	
 	jQuery(".content").hide();
 	jQuery(".asc").hide();
-	 
+	
+	// Manage delete Reasons with drop down 
+	jQuery("#deleteReasonDescription").hide();	 
+	jQuery("#deleteReason").change(function()
+			{
+				var elValue = jQuery("#deleteReason").val();
+				
+				if(elValue.substr(elValue.length - 1)==":"){
+					jQuery("#deleteReasonDescription").show();
+				}
+				else{
+					jQuery("#deleteReasonDescription").hide();
+				}
+			});
+	
+	// Manage delete All Reasons with drop down 
+	jQuery("#deleteAllReasonDescription").hide();	 
+	jQuery("#deleteAllReason").change(function()
+			{
+				var elValue = jQuery("#deleteAllReason").val();
+				
+				if(elValue.substr(elValue.length - 1)==":"){
+					jQuery("#deleteAllReasonDescription").show();
+				}
+				else{
+					jQuery("#deleteAllReasonDescription").hide();
+				}
+			});
+	
 	//toggle the componenet with class msg_body
 	jQuery(".cycleTitleCollapsable").click(function()
 	{
@@ -1278,7 +1306,21 @@ function handleDeleteAllDrugOrder()
 			<input type="hidden" name="returnPage" value="${model.redirect}&patientId=${model.patient.patientId}"/>
 			<table>
 				<tr>
-					<td class="padding"><spring:message code="orderextension.regimen.deleteReason"/>: <input type="text" name="deleteReason" id="deleteReason" size="100"/></td>
+					<td class="padding"><spring:message code="orderextension.regimen.deleteReason"/>: 
+						<select name="deleteReason" id="deleteReason">
+						<openmrs:globalProperty var="deleteReasonsNames" key="orderextension.deleteDrugReasons" listSeparator="," />
+						<c:if test="${empty deleteReasonsNames}">
+							<option disabled>&nbsp; </option>
+						</c:if>
+						<c:if test="${not empty deleteReasonsNames}">
+								<option value=""></option>
+							<c:forEach var="deleteReasonsName" items="${deleteReasonsNames}">
+								<option value="${deleteReasonsName}">${deleteReasonsName}</option>
+							</c:forEach>
+						</c:if>											
+					</select> <input type="text" name="deleteReasonDescription" id="deleteReasonDescription" size="100"/>						
+						
+						<!-- <input type="text" name="deleteReason" id="deleteReason" size="100"/> --></td>
 				</tr>
 				<tr class="repeatCycleDiv">
 					<td class="padding"><input type="checkbox" name="repeatCycles" id="repeatCycles" value="repeatCycles"><spring:message code='orderextension.regimen.deleteInAllFutureCycles'/></td>
@@ -1318,7 +1360,26 @@ function handleDeleteAllDrugOrder()
 			<input type="hidden" name="returnPage" value="${model.redirect}&patientId=${model.patient.patientId}"/>	
 			<table>
 				<tr>
-					<td class="padding"><spring:message code="orderextension.regimen.deleteReason"/>: <input type="text" name="deleteReason" id="deleteAllReason" size="100"/></td>
+					<td class="padding"><spring:message code="orderextension.regimen.deleteReason"/>: 
+					
+					
+					<select name="deleteReason" id="deleteAllReason">
+						<openmrs:globalProperty var="deleteAllReasonsNames" key="orderextension.deleteAllDrugReasons" listSeparator="," />
+						<c:if test="${empty deleteAllReasonsNames}">
+							<option disabled>&nbsp; </option>
+						</c:if>
+						<c:if test="${not empty deleteAllReasonsNames}">
+								<option value=""></option>
+							<c:forEach var="deleteAllReasonsName" items="${deleteAllReasonsNames}">
+								<option value="${deleteAllReasonsName}">${deleteAllReasonsName}</option>
+							</c:forEach>
+						</c:if>											
+					</select> <input type="text" name="deleteAllReasonDescription" id="deleteAllReasonDescription" size="100"/>						
+						
+					
+					
+					
+					<!-- <input type="text" name="deleteReason" id="deleteAllReason" size="100"/> --></td>
 				</tr>
 				<tr class="repeatCycleDiv">
 					<td class="padding"><input type="checkbox" name="repeatCycles" id="repeatCycles" value="repeatCycles"><spring:message code='orderextension.regimen.deleteAllFutureCycles'/></td>
