@@ -117,11 +117,7 @@
 	   	</subclass>
 
     </class>
-    
-    <joined-subclass name="ExtendedOrder" extends="org.openmrs.Order" table="orderextension_order">
-    	<key column="order_id"/>
-    	<many-to-one name="group" class="OrderGroup" column="group_id" lazy="false" insert="false" update="false"/>
-    </joined-subclass>
+
 
     <joined-subclass name="ExtendedDrugOrder" extends="org.openmrs.DrugOrder" table="orderextension_order">
     	<key column="order_id"/>
