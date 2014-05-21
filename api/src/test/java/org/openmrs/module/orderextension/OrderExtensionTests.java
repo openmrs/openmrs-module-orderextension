@@ -13,14 +13,10 @@
  */
 package org.openmrs.module.orderextension;
 
-
-import org.junit.Assert;
 import org.junit.Test;
-import org.openmrs.DrugOrder;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
-import org.openmrs.test.Verifies;
 
 import java.util.Date;
 
