@@ -10,7 +10,7 @@
 <c:set var="patient"  value="${model.patient}"/>
 <script type="text/javascript">
 jQuery(document).ready(function() {
-	 
+		
 	jQuery("#patientHeaderRegimen").hide();
 	jQuery("#patientHeaderObsRegimen").html("Regimen: ${model.regimenHeading}");
 	
@@ -523,8 +523,28 @@ function printRoadMap() {
 	    return ((d2.getFullYear() * 12 + d2.getMonth()) - (d1.getFullYear() * 12 + d1.getMonth())) + 1;
 	}
 }
-</script>
 
+</script>
+<script>
+//Start of adding DST Alert 
+$j(document).ready(function(){
+	jQuery("#patientHasForm").hide();
+	jQuery("#indication").hide();
+	jQuery("#msg").hide();    
+    jQuery("#orderSet").change(function(){
+	var patHasForm=$j("#patientHasForm").text();
+	var indic=$j("#indication").text();
+	var drugSet=$j("#orderSet option:selected").text();
+	var drugSetCat=drugSet.split("-")[0].trim();
+	if(patHasForm=="noForm" && drugSetCat==indic){
+		var message=$j("#msg").text();
+		alert(message);
+}
+});
+});
+//End of adding DST Alert
+
+</script>
 <openmrs:extensionPoint pointId="org.openmrs.module.orderextension.header">
 	<openmrs:portlet url="${extension.portletUrl}" moduleId="${extension.moduleId}" patientId="${model.patient.patientId}"/>
 </openmrs:extensionPoint>
@@ -626,7 +646,7 @@ function printRoadMap() {
 			<input type="hidden" name="returnPage" value="${model.redirect}&patientId=${model.patient.patientId}"/>
 			<table>
 				<tr>
-					<td class="padding">
+					<td class="padding"><p id="patientHasForm">${model.formAv}</p><p id="indication">${model.drugSetIndication}</p><p id="msg">${model.alertmsg}</p>
 						<div id="orderSetLabel"><spring:message code="orderextension.regimen.chooseOrderSet" />*:</div></td>
 						<td>
 						<select name="orderSet" id="orderSet" data-placeholder="<spring:message code="orderextension.regimen.chooseOption" />" style="width:450px;">

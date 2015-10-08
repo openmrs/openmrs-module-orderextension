@@ -27,6 +27,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
 import org.openmrs.DrugOrder;
+import org.openmrs.Encounter;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.orderextension.DrugOrderComparator;
@@ -171,7 +172,28 @@ public class RegimenExtensionController extends PortletController{
 		model.put("indications", drugHelper.getIndications());
 		
 		model.put("patient", Context.getPatientService().getPatient((Integer)model.get("patientId")));
-		
+		// Start of adding DST Alert
+		String[] formIdsAndDrugSetIndications=Context.getAdministrationService().getGlobalProperty("orderextension.DrugSetReminderOnForm").split("@");
+		String msg=Context.getAdministrationService().getGlobalProperty("orderextension.DrugSetReminderMsg");
+		String drugSetIndications=formIdsAndDrugSetIndications[0];
+		String[] formIds=formIdsAndDrugSetIndications[1].split(",");
+		List<Encounter> encounters=Context.getEncounterService().getEncountersByPatient(patient);
+		String checkFormBefore="noForm";
+		for (Encounter encounter : encounters) {
+			if(encounter!=null && encounter.getForm()!=null && encounter.isVoided()==false)
+				
+				for (String formId : formIds) {
+					if(encounter.getForm().getFormId().toString().equals(formId)){
+						checkFormBefore="hasForm";
+					}
+					
+				}				
+		}
+		model.put("formAv", checkFormBefore);
+		model.put("drugSetIndication", drugSetIndications);
+		model.put("alertmsg", msg);
+		// End of adding DST Alert
+				
 		String redirect = DEFAULT_REDIRECT_URL;
 		if(model.get("returnUrl") != null)
 		{

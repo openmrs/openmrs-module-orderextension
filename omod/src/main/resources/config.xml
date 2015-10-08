@@ -76,5 +76,16 @@
 		<defaultValue>Suspected tumor progression,Definitive tumor progression,Severe allergic reaction,Adverse event:,Other:</defaultValue>
 		<description>Use ',' as separator of reasons. For the reason which will require a description, use ':' at the end of it.</description>
 	</globalProperty>
+	<globalProperty>
+		<property>orderextension.DrugSetReminderOnForm</property>
+		<defaultValue>Chemotherapy@186,212,213,214,215,216,219</defaultValue>
+		<description>Indication and formId to check when alert is needed.</description>
+	</globalProperty>
+	
+	<globalProperty>
+		<property>orderextension.DrugSetReminderMsg</property>
+		<defaultValue>Please complete the DST before ordering chemotherapy.</defaultValue>
+		<description>Message to be displayed as Alert.</description>
+	</globalProperty>
 
 </module>
