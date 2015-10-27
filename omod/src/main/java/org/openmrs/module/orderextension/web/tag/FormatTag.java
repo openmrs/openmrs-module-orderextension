@@ -34,8 +34,9 @@ public class FormatTag extends TagSupport {
 		} 
 		else {
 			try {
-				if(result != null)
+				if(result != null){
 					pageContext.getOut().write(result);
+				}
 			} 
 			catch (IOException e) {
 				log.error("Failed to write to pageContext.getOut()", e);
