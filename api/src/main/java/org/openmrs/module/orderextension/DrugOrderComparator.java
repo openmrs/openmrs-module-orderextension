@@ -13,70 +13,89 @@
  */
 package org.openmrs.module.orderextension;
 
-import java.util.Comparator;
-import java.util.Set;
-
 import org.openmrs.DrugOrder;
 
+import java.util.Comparator;
+
 /**
- * Sorts Drug Orders by date and then by name
+ * Sorts Drug Orders based on order set sort weight, then by date and then by primary key id
  */
 public class DrugOrderComparator implements Comparator<DrugOrder> {
 
-	/**
-	 * @see Comparator#compare(Object, Object)
-	 */
-	@Override
-	public int compare(DrugOrder r1, DrugOrder r2) {
+    /**
+     * @see Comparator#compare(Object, Object)
+     */
+    @Override
+    public int compare(DrugOrder r1, DrugOrder r2) {
+        int ret = 0;
 
-		if (r1.getDrug() != null && r1.getDrug().equals(r2.getDrug())) {
-			if (r1.getStartDate().compareTo(r2.getStartDate()) < 0) {
-				return -1;
-			} else if (r1.getStartDate().compareTo(r2.getStartDate()) > 0) {
-				return 1;
-			}
+        // If the order is an extended drug order, attempt to compare based on the sortWeight of the order set member associated with it
+        if (r1 instanceof ExtendedDrugOrder && r2 instanceof ExtendedDrugOrder) {
+            ret = compareExtendedDrugOrders((ExtendedDrugOrder)r1, (ExtendedDrugOrder)r2);
+        }
 
-		} else {
-			if (r1.getStartDate().compareTo(r2.getStartDate()) < 0) {
-				return -10;
-			} else if (r1.getStartDate().compareTo(r2.getStartDate()) > 0) {
-				return 10;
-			} else if (r1.getDrug() != null && r2.getDrug() != null) {
+        // If this does not result in a difference, sort first by start date
+        if (ret == 0) {
+            ret = r1.getStartDate().compareTo(r2.getStartDate());
+        }
 
-				ExtendedDrugOrder r11 = (ExtendedDrugOrder) r1;
-				OrderSetMember osm1 = null;
-				if (r11.getGroup() != null) {
-					Set<OrderSetMember> orderSets1 = r11.getGroup().getOrderSet().getMembers();
-					for (OrderSetMember member : orderSets1) {
-						DrugOrderSetMember dosm = (DrugOrderSetMember) member;
-						if (dosm.getDrug().getDrugId() == r1.getDrug()
-								.getDrugId()) {
-							osm1 = member;
-						}
-					}
-				}
-				ExtendedDrugOrder r22 = (ExtendedDrugOrder) r2;
-				OrderSetMember osm2 = null;
-				if (r22.getGroup() != null) {
-					Set<OrderSetMember> orderSets2 = r22.getGroup().getOrderSet().getMembers();
-					for (OrderSetMember member2 : orderSets2) {
-						DrugOrderSetMember dosm = (DrugOrderSetMember) member2;
-						if (dosm.getDrug().getDrugId() == r2.getDrug()
-								.getDrugId()) {
-							osm2 = member2;
-						}
-					}
-				}
-				if (osm1 != null && osm2 != null && osm1.getId() < osm2.getId()) {
-					return -20;
-				} else {
-					return 20;
-				}
-				// return
-				// r1.getDrug().getName().compareTo(r2.getDrug().getName());
-			}
-		}
+        // If this still does not result in a difference, sort by primary key id
+        if (ret == 0) {
+            ret = r1.getId().compareTo(r2.getId());
+        }
+        return ret;
+     }
 
-		return 0;
-	}
+    /**
+     * @return compare results of two extended drug orders, based on the sort weight of their associated order set members in the order set
+     */
+    public int compareExtendedDrugOrders(ExtendedDrugOrder e1, ExtendedDrugOrder e2) {
+        OrderSet os1 = (e1.getGroup() != null ? e1.getGroup().getOrderSet() : null);
+        OrderSet os2 = (e2.getGroup() != null ? e2.getGroup().getOrderSet() : null);
+        if (os1 != null && os2 != null && os1.equals(os2)) {
+            int weight1 = -1;
+            int weight2 = -1;
+            for (OrderSetMember osm : os1.getMembers()) {
+                if (osm instanceof DrugOrderSetMember) {
+                    DrugOrderSetMember m = (DrugOrderSetMember) osm;
+                    if (extendedDrugOrderMatchesOrderSetMember(e1, m)) {
+                        weight1 = m.getSortWeight() == null ? -1 : m.getSortWeight();
+                    }
+                    if (extendedDrugOrderMatchesOrderSetMember(e2, m)) {
+                        weight2 = m.getSortWeight() == null ? -1 : m.getSortWeight();
+                    }
+                }
+            }
+            if (weight1 >= 0 && weight2 >= 0) {
+                return weight1 - weight2;
+            }
+            else if (weight1 >= 0) {
+                return -1;
+            }
+            else if (weight2 >= 0) {
+                return 1;
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * @return true if an extended drug order matches up with a drug order set member, based on drug and indication
+     */
+    public boolean extendedDrugOrderMatchesOrderSetMember(ExtendedDrugOrder edo, DrugOrderSetMember m) {
+        return nullSafeEquals(edo.getDrug(), m.getDrug()) && nullSafeEquals(edo.getIndication(), m.getIndication());
+    }
+
+    /**
+     * @return true if both arguments are null or are equal to each other, false otherwise
+     */
+    private boolean nullSafeEquals(Object o1, Object o2) {
+        if (o1 == null && o2 == null) {
+            return true;
+        }
+        if (o1 != null) {
+            return o1.equals(o2);
+        }
+        return false;
+    }
 }
