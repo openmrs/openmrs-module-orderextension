@@ -13,9 +13,13 @@
  */
 package org.openmrs.module.orderextension;
 
+import org.apache.commons.beanutils.BeanComparator;
 import org.openmrs.DrugOrder;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 /**
  * Sorts Drug Orders based on order set sort weight, then by date and then by primary key id
@@ -81,9 +85,49 @@ public class DrugOrderComparator implements Comparator<DrugOrder> {
 
     /**
      * @return true if an extended drug order matches up with a drug order set member, based on drug and indication
+     * If a particular drug/indication pair occur several times in an order set on different dates, account for this
      */
     public boolean extendedDrugOrderMatchesOrderSetMember(ExtendedDrugOrder edo, DrugOrderSetMember m) {
-        return nullSafeEquals(edo.getDrug(), m.getDrug()) && nullSafeEquals(edo.getIndication(), m.getIndication());
+        if (nullSafeEquals(edo.getDrug(), m.getDrug())) {
+            if (nullSafeEquals(edo.getIndication(), m.getIndication())) {
+                int memberOccuranceNum = getOccuranceNumberInSet(m);
+                int orderOccuranceNum = getOccuranceNumberInGroup(edo);
+                return memberOccuranceNum == orderOccuranceNum;
+            }
+        }
+        return false;
+    }
+
+    protected int getOccuranceNumberInSet(DrugOrderSetMember m) {
+        int num = 0;
+        List<OrderSetMember> orderSetMembers = new ArrayList<OrderSetMember>(m.getOrderSet().getMembers());
+        for (int i=0; i<orderSetMembers.size(); i++) {
+            DrugOrderSetMember memberToCheck = (DrugOrderSetMember) orderSetMembers.get(i);
+            if (nullSafeEquals(memberToCheck.getDrug(), m.getDrug()) && nullSafeEquals(memberToCheck.getIndication(), m.getIndication())) {
+                num++;
+            }
+            if (memberToCheck.equals(m)) {
+                return num;
+            }
+        }
+        throw new IllegalStateException("Member not found in set");
+    }
+
+    protected int getOccuranceNumberInGroup(ExtendedDrugOrder edo) {
+        int num=0;
+        DrugRegimen regimen = (DrugRegimen)edo.getGroup();
+        List<ExtendedDrugOrder> regimenMembers = new ArrayList<ExtendedDrugOrder>(regimen.getMembers());
+        Collections.sort(regimenMembers, new BeanComparator("startDate"));
+        for (int i=0; i<regimenMembers.size(); i++) {
+            ExtendedDrugOrder memberToCheck = regimenMembers.get(i);
+            if (nullSafeEquals(memberToCheck.getDrug(), edo.getDrug()) && nullSafeEquals(memberToCheck.getIndication(), edo.getIndication())) {
+                num++;
+            }
+            if (memberToCheck.equals(edo)) {
+                return num;
+            }
+        }
+        throw new IllegalStateException("Order not found in group");
     }
 
     /**

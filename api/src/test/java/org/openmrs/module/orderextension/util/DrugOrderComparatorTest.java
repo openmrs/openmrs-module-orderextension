@@ -44,39 +44,50 @@ public class DrugOrderComparatorTest extends BaseModuleContextSensitiveTest {
 	@Test
 	public void shouldSuccessfullySortExtendedDrugOrdersBasedOnOrderSetMembership() throws Exception {
 
-        // First create a couple of order groups based the test order set
-        Patient p = Context.getPatientService().getPatient(2);
-        OrderSet orderSet = getService().getOrderSet(21);
-        Context.getService(OrderExtensionService.class).addOrdersForPatient(p, orderSet, new Date(), 3);
+        int[] orderSetsToTest = {21, 84};
 
-        // Ensure that three order groups were in fact created
-        List<DrugRegimen> regimens = getService().getOrderGroups(p, DrugRegimen.class);
-        Assert.assertEquals(3, regimens.size());
+        for (int orderSetId : orderSetsToTest) {
 
-        // Determine the expected order of the order set members
-        Map<Integer, OrderSetMember> m = new TreeMap<Integer, OrderSetMember>();
-        for (OrderSetMember member : orderSet.getMembers()) {
-            m.put(member.getSortWeight(), member);
-        }
-        List<OrderSetMember> membersOrderedBySortWeight = new ArrayList<OrderSetMember>(m.values());
+            // First create a couple of order groups based the test order set
+            Patient p = Context.getPatientService().getPatient(2);
+            OrderSet orderSet = getService().getOrderSet(orderSetId);
+            Context.getService(OrderExtensionService.class).addOrdersForPatient(p, orderSet, new Date(), 3);
 
-        // For each of the three order groups created, run this test
-        for (DrugRegimen regimen : regimens) {
+            // Ensure that three order groups were in fact created
+            List<DrugRegimen> regimens = new ArrayList<DrugRegimen>();
+            for (DrugRegimen regimen : getService().getOrderGroups(p, DrugRegimen.class)) {
+                if (regimen.getOrderSet().equals(orderSet)) {
+                    regimens.add(regimen);
+                }
+            }
 
-            // Ensure that the right number of drug orders was created, based on the order set
-            List<DrugOrder> orderList = new ArrayList<DrugOrder>(regimen.getMembers());
-            Assert.assertEquals(membersOrderedBySortWeight.size(), orderList.size());
+            Assert.assertEquals(3, regimens.size());
 
-            // Sort the drug orders, using the DrugOrderComparator
-            Collections.sort(orderList, new DrugOrderComparator());
+            // Determine the expected order of the order set members
+            Map<Integer, OrderSetMember> m = new TreeMap<Integer, OrderSetMember>();
+            for (OrderSetMember member : orderSet.getMembers()) {
+                m.put(member.getSortWeight(), member);
+            }
+            List<OrderSetMember> membersOrderedBySortWeight = new ArrayList<OrderSetMember>(m.values());
 
-            // Test that the drug order at the given index is based on the order set member at the same index, based on drug, indication, route
-            for (int i=0; i<orderList.size(); i++) {
-                ExtendedDrugOrder order = (ExtendedDrugOrder)orderList.get(i);
-                DrugOrderSetMember member = (DrugOrderSetMember)membersOrderedBySortWeight.get(i);
-                Assert.assertEquals(member.getDrug(), order.getDrug());
-                Assert.assertEquals(member.getIndication(), order.getIndication());
-                Assert.assertEquals(member.getRoute(), order.getRoute());
+            // For each of the three order groups created, run this test
+            for (DrugRegimen regimen : regimens) {
+
+                // Ensure that the right number of drug orders was created, based on the order set
+                List<DrugOrder> orderList = new ArrayList<DrugOrder>(regimen.getMembers());
+                Assert.assertEquals(membersOrderedBySortWeight.size(), orderList.size());
+
+                // Sort the drug orders, using the DrugOrderComparator
+                Collections.sort(orderList, new DrugOrderComparator());
+
+                // Test that the drug order at the given index is based on the order set member at the same index, based on drug, indication, route
+                for (int i = 0; i < orderList.size(); i++) {
+                    ExtendedDrugOrder order = (ExtendedDrugOrder) orderList.get(i);
+                    DrugOrderSetMember member = (DrugOrderSetMember) membersOrderedBySortWeight.get(i);
+                    Assert.assertEquals("Expected drug " + member.getDrug().getName() + " but found " + order.getDrug().getName(), member.getDrug(), order.getDrug());
+                    Assert.assertEquals(member.getIndication(), order.getIndication());
+                    Assert.assertEquals(member.getRoute(), order.getRoute());
+                }
             }
         }
 	}
