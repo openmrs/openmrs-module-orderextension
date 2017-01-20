@@ -13,9 +13,6 @@
  */
 package org.openmrs.module.orderextension.api.db;
 
-import java.util.Date;
-import java.util.List;
-
 import org.openmrs.Concept;
 import org.openmrs.Patient;
 import org.openmrs.module.orderextension.DrugRegimen;
@@ -24,6 +21,9 @@ import org.openmrs.module.orderextension.OrderGroup;
 import org.openmrs.module.orderextension.OrderSet;
 import org.openmrs.module.orderextension.OrderSetMember;
 import org.openmrs.module.orderextension.api.OrderExtensionService;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  * Order Extension Data Access Interface
@@ -58,7 +58,7 @@ public interface OrderExtensionDAO {
 	public void purgeOrderSet(OrderSet orderSet);
 	
 	/**
-	 * @see OrderExtensionService#getOrderSetMember(OrderSetMember)
+	 * @see OrderExtensionService#getOrderSetMember(Integer)
 	 */
 	public OrderSetMember getOrderSetMember(Integer id);
 	
@@ -88,12 +88,12 @@ public interface OrderExtensionDAO {
     public DrugRegimen getDrugRegimen(Integer id);
 
     /**
-     * @see OrderExtensionService#getExtendedDrugOrdersForPatient(Patient patient)
+     * @see OrderExtensionService#getExtendedDrugOrders(Patient, Concept, Date, Date)
      */
     public List<ExtendedDrugOrder> getExtendedDrugOrdersForPatient(Patient patient, Concept indication, Date startDateAfter, Date startDateBefore);
 
 	/**
-     * @see OrderExtensionService#getMaxNumberOfCyclesForRegimen(DrugRegimen regimen)
+     * @see OrderExtensionService#getMaxNumberOfCyclesForRegimen(Patient, DrugRegimen regimen)
      */
     public Integer getMaxNumberOfCyclesForRegimen(Patient patient, DrugRegimen regimen);
     

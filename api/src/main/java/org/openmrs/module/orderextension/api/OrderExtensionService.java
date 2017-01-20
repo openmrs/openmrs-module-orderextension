@@ -13,9 +13,6 @@
  */
 package org.openmrs.module.orderextension.api;
 
-import java.util.Date;
-import java.util.List;
-
 import org.openmrs.Concept;
 import org.openmrs.Patient;
 import org.openmrs.annotation.Authorized;
@@ -27,6 +24,9 @@ import org.openmrs.module.orderextension.OrderSet;
 import org.openmrs.module.orderextension.OrderSetMember;
 import org.openmrs.module.orderextension.util.OrderExtensionConstants;
 import org.openmrs.util.PrivilegeConstants;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  * Interface for managing extensions to Orders
@@ -153,8 +153,8 @@ public interface OrderExtensionService extends OpenmrsService {
     public DrugRegimen getDrugRegimen(Integer id);
     
     /**
-     * @param The regimen for which the maximum number of cycles should be retrieved for 
-     * @param The patient for which the regimens belong
+     * @param regimen for which the maximum number of cycles should be retrieved for
+     * @param patient for which the regimens belong
      * @return the Integer representing the maximum number of cycles
      */
     public Integer getMaxNumberOfCyclesForRegimen(Patient patient, DrugRegimen regimen);

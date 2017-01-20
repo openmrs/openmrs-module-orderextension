@@ -25,17 +25,15 @@ public class OrderExtensionModuleActivator extends BaseModuleActivator {
 
 	private Log log = LogFactory.getLog(this.getClass());
 
-	/**
-	 * @see Activator#startup()
-	 */
-	public void startup() {
-		log.info("Starting orderextension module");
-	}
-	
-	/**
-	 *  @see Activator#shutdown()
-	 */
-	public void shutdown() {
-		log.info("Shutting down orderextension module");
-	}
+    @Override
+    public void started() {
+        super.started();
+        log.info("Order Extension Module Started");
+    }
+
+    @Override
+    public void stopped() {
+        super.stopped();
+        log.info("Order Extension Module Stopped");
+    }
 }

@@ -13,9 +13,6 @@
  */
 package org.openmrs.module.orderextension.api.db;
 
-import java.util.Date;
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
@@ -32,6 +29,9 @@ import org.openmrs.module.orderextension.ExtendedDrugOrder;
 import org.openmrs.module.orderextension.OrderGroup;
 import org.openmrs.module.orderextension.OrderSet;
 import org.openmrs.module.orderextension.OrderSetMember;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  * Hibernate implementation of the OrderExtension Data Access Interface
@@ -59,7 +59,7 @@ public class HibernateOrderExtensionDAO implements OrderExtensionDAO {
 	}
 
 	/**
-	 * @see OrderExtensionDAO#getAllOrderSets(boolean)
+	 * @see OrderExtensionDAO#getNamedOrderSets(String, Concept, boolean)
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
@@ -124,10 +124,10 @@ public class HibernateOrderExtensionDAO implements OrderExtensionDAO {
 	}
 	
 	/**
-     * @see org.openmrs.module.orderextension.api.db.OrderExtensionDAO#getExtendedDrugOrdersForPatient(Patient patient)
+     * @see org.openmrs.module.orderextension.api.db.OrderExtensionDAO#getExtendedDrugOrdersForPatient(Patient, Concept, Date, Date)
      */
     @Override
-    public List<ExtendedDrugOrder>  getExtendedDrugOrdersForPatient(Patient patient, Concept indication, Date startDateAfter, Date startDateBefore) {
+    public List<ExtendedDrugOrder> getExtendedDrugOrdersForPatient(Patient patient, Concept indication, Date startDateAfter, Date startDateBefore) {
     	Criteria criteria = getCurrentSession().createCriteria(ExtendedDrugOrder.class);
 		
     	if(patient != null)
@@ -164,7 +164,7 @@ public class HibernateOrderExtensionDAO implements OrderExtensionDAO {
 	}
 	
 	/**
-     * @see org.openmrs.module.orderextension.api.db.OrderExtensionDAO#getMaxNumberOfCyclesForRegimen(org.openmrs.module.orderextension.DrugRegimen)
+     * @see org.openmrs.module.orderextension.api.db.OrderExtensionDAO#getMaxNumberOfCyclesForRegimen(Patient, org.openmrs.module.orderextension.DrugRegimen)
      */
     @Override
     public Integer getMaxNumberOfCyclesForRegimen(Patient patient, DrugRegimen regimen) {
@@ -186,7 +186,7 @@ public class HibernateOrderExtensionDAO implements OrderExtensionDAO {
 	}
 	
 	/**
-	 * @see OrderExtensionDAO#getExtendedOrders(Patient, Class)
+	 * @see OrderExtensionDAO#getOrderGroups(Patient, Class)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
