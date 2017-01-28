@@ -13,9 +13,6 @@
  */
 package org.openmrs.module.orderextension.web.controller;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.api.context.Context;
@@ -23,13 +20,15 @@ import org.openmrs.module.orderextension.DrugOrderSetMember;
 import org.openmrs.module.orderextension.NestedOrderSetMember;
 import org.openmrs.module.orderextension.OrderSet;
 import org.openmrs.module.orderextension.OrderSetMember;
-import org.openmrs.module.orderextension.TestOrderSetMember;
 import org.openmrs.module.orderextension.api.OrderExtensionService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.request.WebRequest;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Primary Controller for administering order sets
@@ -58,7 +57,6 @@ public class OrderExtensionOrderSetListController {
 		OrderSet orderSet = Context.getService(OrderExtensionService.class).getOrderSet(id);
 		model.addAttribute("orderSet", orderSet);
 		List<Class<? extends OrderSetMember>> memberTypes = new ArrayList<Class<? extends OrderSetMember>>();
-		memberTypes.add(TestOrderSetMember.class);
 		memberTypes.add(DrugOrderSetMember.class);
 		memberTypes.add(NestedOrderSetMember.class);
 		model.addAttribute("memberTypes", memberTypes);

@@ -19,7 +19,7 @@ import org.openmrs.DrugOrder;
 /**
  * Adds the ability to Group a DrugOrder, and also adds some additional properties
  */
-public class ExtendedDrugOrder extends DrugOrder implements GroupableOrder {
+public class ExtendedDrugOrder extends DrugOrder {
 
 	private static final long serialVersionUID = 1L;
 

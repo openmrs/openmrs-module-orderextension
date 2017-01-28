@@ -15,6 +15,7 @@ package org.openmrs.module.orderextension;
 
 import org.openmrs.Concept;
 import org.openmrs.Drug;
+import org.openmrs.OrderFrequency;
 import org.openmrs.OrderType;
 import org.openmrs.api.context.Context;
 import org.openmrs.util.OpenmrsConstants;
@@ -56,7 +57,7 @@ public class DrugOrderSetMember extends SingleOrderSetMember {
 	/**
 	 * Used in conjunction with the dose property, provides the ability to specify default dose units
 	 */
-	private String units;
+	private Concept units;  // MS:  This was renamed to doseUnits in 1.10.  For now, not renaming here
 	
 	/**
 	 * Used to specify the route (eg. PO, IV, etc)
@@ -66,7 +67,7 @@ public class DrugOrderSetMember extends SingleOrderSetMember {
 	/**
 	 * Provides the ability to specify a default frequency (eg. "1/day x 7 days/week")
 	 */
-	private String frequency;
+	private OrderFrequency frequency;
 	
 	/**
 	 * Also referred to as PRN, if true indicates that the order is "as needed"
@@ -109,21 +110,16 @@ public class DrugOrderSetMember extends SingleOrderSetMember {
 		this.dose = dose;
 	}
 
-	/**
-	 * @return the units
-	 */
-	public String getUnits() {
-		return units;
-	}
 
-	/**
-	 * @param units the units to set
-	 */
-	public void setUnits(String units) {
-		this.units = units;
-	}
+    public Concept getUnits() {
+        return units;
+    }
 
-	/**
+    public void setUnits(Concept units) {
+        this.units = units;
+    }
+
+    /**
 	 * @return the route
 	 */
 	public Concept getRoute() {
@@ -137,21 +133,15 @@ public class DrugOrderSetMember extends SingleOrderSetMember {
 		this.route = route;
 	}
 
-	/**
-	 * @return the frequency
-	 */
-	public String getFrequency() {
-		return frequency;
-	}
+    public OrderFrequency getFrequency() {
+        return frequency;
+    }
 
-	/**
-	 * @param frequency the frequency to set
-	 */
-	public void setFrequency(String frequency) {
-		this.frequency = frequency;
-	}
+    public void setFrequency(OrderFrequency frequency) {
+        this.frequency = frequency;
+    }
 
-	/**
+    /**
 	 * @return the asNeeded
 	 */
 	public boolean isAsNeeded() {

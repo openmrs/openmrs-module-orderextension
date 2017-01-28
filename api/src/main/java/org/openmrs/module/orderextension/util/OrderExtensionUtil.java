@@ -13,14 +13,14 @@
  */
 package org.openmrs.module.orderextension.util;
 
-import java.text.DecimalFormat;
-import java.util.Calendar;
-import java.util.Date;
-
 import org.openmrs.Concept;
 import org.openmrs.DrugOrder;
 import org.openmrs.OpenmrsMetadata;
 import org.openmrs.module.orderextension.ExtendedDrugOrder;
+
+import java.text.DecimalFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * Defines any utility methods
@@ -50,16 +50,12 @@ public class OrderExtensionUtil  {
 				}
 				
 				if("length".equals(format)){
-					if(drugOrder.getDiscontinuedDate() != null) {
-						return calculateDaysDifference(drugOrder.getDiscontinuedDate(), drugOrder.getStartDate());
-						
-					}
-					if(drugOrder.getAutoExpireDate() != null) {
-						return calculateDaysDifference(drugOrder.getAutoExpireDate(), drugOrder.getStartDate());
-						
-					}
-					else
-					{
+				    Date sd = drugOrder.getEffectiveStartDate();
+				    Date ed = drugOrder.getEffectiveStopDate();
+				    if (sd != null && ed != null) {
+				        return calculateDaysDifference(ed, sd);
+                    }
+					else {
 						return "";
 					}
 				}

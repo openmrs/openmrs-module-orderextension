@@ -40,7 +40,7 @@ public class DrugOrderComparator implements Comparator<DrugOrder> {
 
         // If this does not result in a difference, sort first by start date
         if (ret == 0) {
-            ret = r1.getStartDate().compareTo(r2.getStartDate());
+            ret = r1.getEffectiveStartDate().compareTo(r2.getEffectiveStartDate());
         }
 
         // If this still does not result in a difference, sort by primary key id
@@ -117,7 +117,7 @@ public class DrugOrderComparator implements Comparator<DrugOrder> {
         int num=0;
         DrugRegimen regimen = (DrugRegimen)edo.getGroup();
         List<ExtendedDrugOrder> regimenMembers = new ArrayList<ExtendedDrugOrder>(regimen.getMembers());
-        Collections.sort(regimenMembers, new BeanComparator("startDate"));
+        Collections.sort(regimenMembers, new BeanComparator("effectiveStartDate"));
         for (int i=0; i<regimenMembers.size(); i++) {
             ExtendedDrugOrder memberToCheck = regimenMembers.get(i);
             if (nullSafeEquals(memberToCheck.getDrug(), edo.getDrug()) && nullSafeEquals(memberToCheck.getIndication(), edo.getIndication())) {

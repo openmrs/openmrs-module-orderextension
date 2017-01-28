@@ -13,16 +13,6 @@
  */
 package org.openmrs.module.orderextension.web.controller;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
@@ -43,6 +33,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 /**
  * The main controller.
  */
@@ -62,7 +61,7 @@ public class RegimenExtensionController extends PortletController{
 	{	
 		Patient patient = Context.getPatientService().getPatient((Integer)model.get("patientId"));
 		
-		List<DrugOrder> allDrugOrders = Context.getOrderService().getDrugOrdersByPatient(patient);
+		List<DrugOrder> allDrugOrders = getOrderExtensionService().getDrugOrdersForPatient(patient);
 		List<DrugOrder> drugOrdersNonContinuous = new ArrayList<DrugOrder>();
 		List<DrugOrder> drugOrdersContinuous = new ArrayList<DrugOrder>();
 		List<DrugRegimen> cycles = new ArrayList<DrugRegimen>();
@@ -74,7 +73,7 @@ public class RegimenExtensionController extends PortletController{
 		
 		for(DrugOrder drugOrder : allDrugOrders)
 		{
-			if(drugOrder.getDiscontinuedDate() != null || drugOrder.getAutoExpireDate() != null)
+			if(drugOrder.getEffectiveStopDate() != null)
 			{
 				//now check if they are one of the indications that we want to show in the calendar
 				if(drugOrder instanceof ExtendedDrugOrder)
@@ -85,7 +84,6 @@ public class RegimenExtensionController extends PortletController{
 						drugOrdersNonContinuous.add(drugOrder);
 					}
 				}
-				
 			}
 			else
 			{
@@ -154,7 +152,7 @@ public class RegimenExtensionController extends PortletController{
 		
 		Collections.sort(drugOrdersContinuous, new DrugOrderComparator());
 		
-		List<OrderSet> orderSets = Context.getService(OrderExtensionService.class).getNamedOrderSets(false);
+		List<OrderSet> orderSets = getOrderExtensionService().getNamedOrderSets(false);
 		Collections.sort(orderSets, new OrderSetComparator());
 		
 		DrugConceptHelper drugHelper = new DrugConceptHelper();
@@ -240,4 +238,8 @@ public class RegimenExtensionController extends PortletController{
 		
 		return inclusionConcepts;
 	}
+
+	private OrderExtensionService getOrderExtensionService() {
+	    return Context.getService(OrderExtensionService.class);
+    }
 }

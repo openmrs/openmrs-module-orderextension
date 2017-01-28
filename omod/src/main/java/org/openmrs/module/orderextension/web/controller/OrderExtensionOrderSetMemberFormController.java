@@ -13,8 +13,6 @@
  */
 package org.openmrs.module.orderextension.web.controller;
 
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.api.APIException;
@@ -36,6 +34,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.request.WebRequest;
+
+import java.util.List;
 
 /**
  * Controls adding / editing / viewing an individual OrderSetMember
@@ -71,8 +71,6 @@ public class OrderExtensionOrderSetMemberFormController {
 	
 	/**
 	 * Prepares form backing object to be used by the view
-	 * @param id (optional) if specified, indicates the OrderSet to edit
-	 * @return backing object for associated view form
 	 */
 	@SuppressWarnings("unchecked")
 	@ModelAttribute("orderSetMember")

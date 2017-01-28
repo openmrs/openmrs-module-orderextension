@@ -14,6 +14,7 @@
 package org.openmrs.module.orderextension.api;
 
 import org.openmrs.Concept;
+import org.openmrs.DrugOrder;
 import org.openmrs.Patient;
 import org.openmrs.annotation.Authorized;
 import org.openmrs.api.OpenmrsService;
@@ -175,4 +176,16 @@ public interface OrderExtensionService extends OpenmrsService {
      * @param patient the Patient for whom to retrieve the orders
      */
      public List<ExtendedDrugOrder> getExtendedDrugOrders(Patient patient, Concept indication, Date startDateAfter, Date startDateBefore);
+
+    /**
+     * @param patient
+     * @return all DrugOrders for the Patient
+     */
+     public List<DrugOrder> getDrugOrdersForPatient(Patient patient);
+
+    /**
+     * @param patient
+     * @return all DrugOrders for the Patient that are not grouped into a DrugRegimen
+     */
+     public List<DrugOrder> getNonGroupedDrugOrdersForPatient(Patient patient);
 }

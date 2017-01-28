@@ -15,6 +15,7 @@ package org.openmrs.module.orderextension;
 
 import org.junit.Test;
 import org.openmrs.Patient;
+import org.openmrs.api.OrderContext;
 import org.openmrs.api.context.Context;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 
@@ -38,8 +39,8 @@ public class OrderExtensionTests extends BaseModuleContextSensitiveTest {
 			drugOrder.setConcept(Context.getConceptService().getConcept(88));
 			drugOrder.setDrug(Context.getConceptService().getDrug(3));
 			drugOrder.setAdministrationInstructions("Take 2 and call me in the morning");
-			drugOrder.setStartDate(new Date());
-			Context.getOrderService().saveOrder(drugOrder);
+			drugOrder.setScheduledDate(new Date());
+			Context.getOrderService().saveOrder(drugOrder, new OrderContext());
 		}
 
 		Context.getPatientService().mergePatients(p1, p2);

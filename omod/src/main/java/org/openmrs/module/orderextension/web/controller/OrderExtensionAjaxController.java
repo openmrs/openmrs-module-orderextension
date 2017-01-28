@@ -13,20 +13,13 @@
  */
 package org.openmrs.module.orderextension.web.controller;
 
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.openmrs.Concept;
 import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
+import org.openmrs.OrderFrequency;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.orderextension.ExtendedDrugOrder;
 import org.openmrs.module.orderextension.util.DrugConceptHelper;
@@ -34,80 +27,17 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.servlet.http.HttpServletResponse;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-/**
- *
- */
 @Controller
 public class OrderExtensionAjaxController {
 	
 	private Log log = LogFactory.getLog(this.getClass());
-	
-	@RequestMapping("/module/orderextension/getDrugsByName")
-	public void getDrugByName(@RequestParam(value = "name", required=true) String name, HttpServletResponse response)
-	{
-		Concept concept = Context.getConceptService().getConceptByName(name);
-		List<Drug> drugs = Context.getConceptService().getDrugsByConcept(concept);
-		
-		List<Map<String, String>> drugInfo = new ArrayList<Map<String, String>>();
-		for(Drug drug: drugs)
-		{
-			Map<String, String> info = new HashMap<String, String>();
-			info.put("id", drug.getId().toString());
-			info.put("name", drug.getName());
-			
-			String doseStrength = "";
-			if(drug.getDoseStrength() != null)
-			{
-				doseStrength = drug.getDoseStrength().toString();
-			}
-			info.put("doseStrength", doseStrength);
-			
-			String doseForm = "";
-			if(drug.getDosageForm() != null)
-			{
-				doseForm = drug.getDosageForm().getDisplayString();
-			}
-			info.put("doseForm", doseForm);
-			
-			String route = "";
-			if(drug.getRoute() != null)
-			{
-				route = drug.getRoute().getDisplayString();
-			}
-			info.put("route", route);
-			
-			String units = "";
-			String doseReduction = "";
-			String protocolDose = "";
-			if(drug.getUnits() != null)
-			{
-				units = drug.getUnits();
-				if(units.contains("/"))
-				{
-					doseReduction = "true";
-					if(drug.getDoseStrength() != null)
-					{
-						protocolDose = drug.getDoseStrength().toString();
-					}
-				}
-				
-			}
-			info.put("units", units);
-			info.put("doseReduce", doseReduction);
-			info.put("protocolDose", protocolDose);
-			
-			drugInfo.add(info);
-		}
-		
-		ObjectMapper mapper = new ObjectMapper();
-		try {
-	        mapper.writeValue(response.getWriter(), drugInfo);
-        }
-        catch (Exception e) {
-        	log.error("Error occurred while writing to response: ", e);
-        }
-	}
 	
 	@RequestMapping("/module/orderextension/getDrugsByConcept")
 	public void getDrugByConcept(@RequestParam(value = "concept", required=true) Integer conceptId, HttpServletResponse response)
@@ -201,7 +131,7 @@ public class OrderExtensionAjaxController {
 	@RequestMapping("/module/orderextension/getDrugOrder")
 	public void getDrugOrder(@RequestParam(value = "id", required=true) Integer id, HttpServletResponse response)
 	{
-		DrugOrder drugOrder = Context.getOrderService().getOrder(id, DrugOrder.class);
+		DrugOrder drugOrder = (DrugOrder)Context.getOrderService().getOrder(id);
 		
 		Drug drug = drugOrder.getDrug();
 		
@@ -239,31 +169,14 @@ public class OrderExtensionAjaxController {
 		}
 		info.put("dose", dose);
 		
-		String frequency = drugOrder.getFrequency();
-		String freqDay = "";
-		String freqWeek = "";
-		if(frequency != null && frequency.length() > 0 && frequency.contains("x"))
-		{
-			String[] substrings = frequency.split("x");
-			
-			freqDay = substrings[0].trim();
-			freqWeek = substrings[1].trim();
-		}
-		else if (frequency != null && frequency.length() > 0) 
-		{
-			if(frequency.contains("week"))
-			{
-				freqWeek = frequency.trim();
-			}
-			else
-			{
-				freqDay = frequency.trim();
-			}
-		}
+		OrderFrequency frequency = drugOrder.getFrequency();
+        String freqDay = (frequency.getFrequencyPerDay() == null ? "" : frequency.getFrequencyPerDay().toString());
+        String freqWeek = ""; // TODO: Determine if there is any way to get this now.  It used to be that we could parse this out of the free-text frequency
+
 		info.put("freqDay", freqDay);
 		info.put("freqWeek", freqWeek);
 		
-		info.put("asNeeded", drugOrder.getPrn().toString());
+		info.put("asNeeded", drugOrder.getAsNeeded().toString());
 		
 		info.put("instructions", drugOrder.getInstructions());
 		
@@ -301,11 +214,11 @@ public class OrderExtensionAjaxController {
 			info.put("indication", ind);
 		}
 		
-		info.put("startDate", Context.getDateFormat().format(drugOrder.getStartDate()));
+		info.put("startDate", Context.getDateFormat().format(drugOrder.getEffectiveStartDate()));
 		
 		if(drugOrder.getAutoExpireDate() != null)
 		{
-			info.put("endDate", Context.getDateFormat().format(drugOrder.getAutoExpireDate()));
+			info.put("endDate", Context.getDateFormat().format(drugOrder.getEffectiveStopDate()));
 		}
 	
 		ObjectMapper mapper = new ObjectMapper();

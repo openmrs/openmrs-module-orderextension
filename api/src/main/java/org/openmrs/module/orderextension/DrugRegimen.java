@@ -13,10 +13,17 @@
  */
 package org.openmrs.module.orderextension;
 
-import java.io.Serializable;
-import java.util.*;
-
 import org.openmrs.Concept;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * This represents a particular type of OrderGroup which contains one or more
@@ -98,8 +105,8 @@ public class DrugRegimen extends OrderGroup implements Serializable {
 	public Date getFirstDrugOrderStartDate() {
 		Date d = null;
 		for (ExtendedDrugOrder drugOrder : getMembers()) {
-			if (d == null || d.after(drugOrder.getStartDate())) {
-				d = drugOrder.getStartDate();
+			if (d == null || d.after(drugOrder.getEffectiveStartDate())) {
+				d = drugOrder.getEffectiveStartDate();
 			}
 		}
 		return d;
@@ -111,10 +118,7 @@ public class DrugRegimen extends OrderGroup implements Serializable {
 	public Date getLastDrugOrderEndDate() {
 		Date d = null;
 		for (ExtendedDrugOrder drugOrder : getMembers()) {
-			Date endDate = drugOrder.getDiscontinuedDate();
-			if (endDate == null) {
-				endDate = drugOrder.getAutoExpireDate();
-			}
+			Date endDate = drugOrder.getEffectiveStopDate();
 			if (endDate == null) {
 				return null;
 			}
