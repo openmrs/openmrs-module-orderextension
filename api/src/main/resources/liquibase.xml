@@ -201,7 +201,7 @@
 	
 	<changeSet id="20120913-0001-orderextension" author="mseaton">
 		<preConditions onFail="MARK_RAN">
-			<not><columnExists tableName="orderextension_order" columnName="sort_weight" /></not>
+			<not><columnExists tableName="orderextension_order_set_member" columnName="sort_weight" /></not>
 		</preConditions>
 		<comment>Change name of order_index column to sort_weight</comment>
 		<renameColumn tableName="orderextension_order_set_member" oldColumnName="order_index" newColumnName="sort_weight" columnDataType="int"/>
