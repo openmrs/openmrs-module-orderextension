@@ -24,8 +24,8 @@ import org.openmrs.OrderType;
  * If either conceptSet or conceptClass are specified, these will provide the range of Concepts
  * that are allowed for this particular Order, with the concept property providing the default value
  */
-public abstract class SingleOrderSetMember extends OrderSetMember implements java.io.Serializable {
-	
+public abstract class SingleOrderSetMember extends ExtendedOrderSetMember implements java.io.Serializable {
+
 	public static final long serialVersionUID = 1L;
 	
 	/**
