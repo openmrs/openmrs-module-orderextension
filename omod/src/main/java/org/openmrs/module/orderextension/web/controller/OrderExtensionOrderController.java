@@ -25,7 +25,6 @@ import org.openmrs.DrugOrder;
 import org.openmrs.Order;
 import org.openmrs.OrderType;
 import org.openmrs.Patient;
-import org.openmrs.api.PatientService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.orderextension.DrugRegimen;
 import org.openmrs.module.orderextension.ExtendedDrugOrder;
@@ -33,7 +32,6 @@ import org.openmrs.module.orderextension.ExtendedOrderSet;
 import org.openmrs.module.orderextension.api.OrderExtensionService;
 import org.openmrs.module.orderextension.util.OrderEntryUtil;
 import org.openmrs.module.orderextension.util.OrderExtensionUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -44,25 +42,23 @@ import org.springframework.web.bind.annotation.RequestParam;
  */
 @Controller
 public class OrderExtensionOrderController {
-
-	@Autowired
-	PatientService patientService;
-
-	@Autowired
-	OrderExtensionService orderExtensionService;
 	
 	/** Logger for this class and subclasses */
 	protected final Log log = LogFactory.getLog(getClass());
+	
+	private OrderExtensionService getOrderExtensionService() {
+		return getOrderExtensionService();
+	}
 	
 	/**
 	 * Shows the page to list order sets
 	 */
 	@RequestMapping(value = "/module/orderextension/orderList")
 	public void listOrders(ModelMap model, @RequestParam(value = "patientId", required = true) Integer patientId) {
-		Patient patient = patientService.getPatient(patientId);
+		Patient patient = Context.getPatientService().getPatient(patientId);
 		model.addAttribute("patient", patient);
 
-		List<DrugRegimen> regimens = orderExtensionService.getOrderGroups(patient, DrugRegimen.class);
+		List<DrugRegimen> regimens = getOrderExtensionService().getOrderGroups(patient, DrugRegimen.class);
 		model.addAttribute("regimens", regimens);
 
 		List<DrugOrder> drugOrders = OrderEntryUtil.getDrugOrdersByPatient(patient);
@@ -71,7 +67,7 @@ public class OrderExtensionOrderController {
 		}
 		model.addAttribute("drugOrders", drugOrders);
 		
-		model.addAttribute("orderSets", orderExtensionService.getNamedOrderSets(false));
+		model.addAttribute("orderSets", getOrderExtensionService().getNamedOrderSets(false));
 	}
 	
 	/**
@@ -84,9 +80,9 @@ public class OrderExtensionOrderController {
 	                          @RequestParam(value = "numCycles", required = false) Integer numCycles,
 	                          @RequestParam(value = "returnPage", required = true) String returnPage) {
 		
-		Patient patient = patientService.getPatient(patientId);
-		ExtendedOrderSet orderSet = orderExtensionService.getOrderSet(orderSetId);
-		orderExtensionService.addOrdersForPatient(patient, orderSet, startDateSet, numCycles);
+		Patient patient = Context.getPatientService().getPatient(patientId);
+		ExtendedOrderSet orderSet = getOrderExtensionService().getOrderSet(orderSetId);
+		getOrderExtensionService().addOrdersForPatient(patient, orderSet, startDateSet, numCycles);
 		return "redirect:" + returnPage;
 	}
 	
@@ -202,12 +198,11 @@ public class OrderExtensionOrderController {
 	                                  @RequestParam(value = "repeatCycles", required = false) String repeatCycle,
 	                                  @RequestParam(value = "returnPage", required = true) String returnPage) {
 		
-		DrugRegimen regimen = Context.getService(OrderExtensionService.class).getDrugRegimen(groupId);
+		DrugRegimen regimen = getOrderExtensionService().getDrugRegimen(groupId);
 		
 		if (repeatCycle != null) {
 			Patient patient = Context.getPatientService().getPatient(patientId);
-			List<DrugRegimen> futureOrders = Context.getService(OrderExtensionService.class)
-			        .getFutureDrugRegimensOfSameOrderSet(patient, regimen, regimen.getFirstDrugOrderStartDate());
+			List<DrugRegimen> futureOrders = getOrderExtensionService().getFutureDrugRegimensOfSameOrderSet(patient, regimen, regimen.getFirstDrugOrderStartDate());
 			
 			for (DrugRegimen drugRegimen : futureOrders) {
 				Date startDate = adjustDate(drugRegimen.getFirstDrugOrderStartDate(), regimen.getFirstDrugOrderStartDate(),
@@ -224,7 +219,7 @@ public class OrderExtensionOrderController {
 				    adminInstructions);
 				drugRegimen.addMember(drugOrder);
 				
-				Context.getService(OrderExtensionService.class).saveOrderGroup(drugRegimen);
+				getOrderExtensionService().saveOrderGroup(drugRegimen);
 			}
 		}
 		
@@ -233,7 +228,7 @@ public class OrderExtensionOrderController {
 		    adminInstructions);
 		regimen.addMember(drugOrder);
 		
-		Context.getService(OrderExtensionService.class).saveOrderGroup(regimen);
+		getOrderExtensionService().saveOrderGroup(regimen);
 		
 		return "redirect:" + returnPage;
 	}
@@ -246,11 +241,11 @@ public class OrderExtensionOrderController {
 	                                     @RequestParam(value = "repeatCycles", required = false) String repeatCycle,
 	                                     @RequestParam(value = "returnPage", required = true) String returnPage) {
 		
-		DrugRegimen regimen = Context.getService(OrderExtensionService.class).getDrugRegimen(groupId);
+		DrugRegimen regimen = getOrderExtensionService().getDrugRegimen(groupId);
 		
 		if (repeatCycle != null) {
 			Patient patient = Context.getPatientService().getPatient(patientId);
-			List<DrugRegimen> futureOrders = Context.getService(OrderExtensionService.class)
+			List<DrugRegimen> futureOrders = getOrderExtensionService()
 			        .getFutureDrugRegimensOfSameOrderSet(patient, regimen, regimen.getFirstDrugOrderStartDate());
 			
 			for (DrugRegimen drugRegimen : futureOrders) {
@@ -291,7 +286,7 @@ public class OrderExtensionOrderController {
 	                                         @RequestParam(value = "repeatThisCycle", required = false) String repeatThisCycle,
 	                                         @RequestParam(value = "returnPage", required = true) String returnPage) {
 		
-		DrugRegimen regimen = Context.getService(OrderExtensionService.class).getDrugRegimen(groupId);
+		DrugRegimen regimen = getOrderExtensionService().getDrugRegimen(groupId);
 		
 		Integer cycleDay = Integer.parseInt(cycleDayString);
 		
@@ -299,7 +294,7 @@ public class OrderExtensionOrderController {
 		
 		if (repeatCycle != null || repeatPartCycles != null) {
 			Patient patient = Context.getPatientService().getPatient(patientId);
-			List<DrugRegimen> futureOrders = Context.getService(OrderExtensionService.class)
+			List<DrugRegimen> futureOrders = getOrderExtensionService()
 			        .getFutureDrugRegimensOfSameOrderSet(patient, regimen, regimen.getFirstDrugOrderStartDate());
 			
 			for (DrugRegimen drugRegimen : futureOrders) {
@@ -377,12 +372,12 @@ public class OrderExtensionOrderController {
 		
 		if (o instanceof ExtendedDrugOrder) {
 			ExtendedDrugOrder drugOrder = (ExtendedDrugOrder) o;
-				regimen = Context.getService(OrderExtensionService.class).getDrugRegimen(
+				regimen = getOrderExtensionService().getDrugRegimen(
 						drugOrder.getGroup().getId());
 			
 			if (repeatCycle != null) {
 				Patient patient = Context.getPatientService().getPatient(patientId);
-				List<ExtendedDrugOrder> futureOrders = Context.getService(OrderExtensionService.class)
+				List<ExtendedDrugOrder> futureOrders = getOrderExtensionService()
 				        .getFutureDrugOrdersOfSameOrderSet(patient, regimen.getOrderSet(),
 				            regimen.getFirstDrugOrderStartDate());
 				
@@ -465,10 +460,10 @@ public class OrderExtensionOrderController {
 			ExtendedDrugOrder drugOrder = (ExtendedDrugOrder) o;
 			
 			if (repeatCycle != null) {
-				DrugRegimen regimen = Context.getService(OrderExtensionService.class).getDrugRegimen(
+				DrugRegimen regimen = getOrderExtensionService().getDrugRegimen(
 				    drugOrder.getGroup().getId());
 				Patient patient = Context.getPatientService().getPatient(patientId);
-				List<ExtendedDrugOrder> futureOrders = Context.getService(OrderExtensionService.class)
+				List<ExtendedDrugOrder> futureOrders = getOrderExtensionService()
 				        .getFutureDrugOrdersOfSameOrderSet(patient, regimen.getOrderSet(),
 				            regimen.getFirstDrugOrderStartDate());
 				
@@ -513,10 +508,10 @@ public class OrderExtensionOrderController {
 			ExtendedDrugOrder drugOrder = (ExtendedDrugOrder) o;
 			
 			if (repeatCycle != null) {
-				DrugRegimen regimen = Context.getService(OrderExtensionService.class).getDrugRegimen(
+				DrugRegimen regimen = getOrderExtensionService().getDrugRegimen(
 				    drugOrder.getGroup().getId());
 				Patient patient = Context.getPatientService().getPatient(patientId);
-				List<ExtendedDrugOrder> futureOrders = Context.getService(OrderExtensionService.class)
+				List<ExtendedDrugOrder> futureOrders = getOrderExtensionService()
 				        .getFutureDrugOrdersOfSameOrderSet(patient, regimen.getOrderSet(),
 				            regimen.getFirstDrugOrderStartDate());
 				
@@ -558,11 +553,11 @@ public class OrderExtensionOrderController {
 		
 		
 		
-		DrugRegimen regimen = Context.getService(OrderExtensionService.class).getDrugRegimen(groupId);
+		DrugRegimen regimen = getOrderExtensionService().getDrugRegimen(groupId);
 		
 		if (repeatCycle != null) {
 			Patient patient = Context.getPatientService().getPatient(patientId);
-			List<ExtendedDrugOrder> futureOrders = Context.getService(OrderExtensionService.class)
+			List<ExtendedDrugOrder> futureOrders = getOrderExtensionService()
 			        .getFutureDrugOrdersOfSameOrderSet(patient, regimen.getOrderSet(), regimen.getLastDrugOrderEndDate());
 			
 			for (ExtendedDrugOrder order : futureOrders) {
@@ -585,13 +580,13 @@ public class OrderExtensionOrderController {
 	                                  @RequestParam(value = "returnPage", required = true) String returnPage,
 	                                  @RequestParam(value = "patientId", required = true) Integer patientId) {
 		
-		DrugRegimen regimen = Context.getService(OrderExtensionService.class).getDrugRegimen(groupId);
+		DrugRegimen regimen = getOrderExtensionService().getDrugRegimen(groupId);
 		
 		Concept stopConcept = Context.getConceptService().getConcept(stopReason);
 		
 		if (repeatCycle != null) {
 			Patient patient = Context.getPatientService().getPatient(patientId);
-			List<ExtendedDrugOrder> futureOrders = Context.getService(OrderExtensionService.class)
+			List<ExtendedDrugOrder> futureOrders = getOrderExtensionService()
 			        .getFutureDrugOrdersOfSameOrderSet(patient, regimen.getOrderSet(), regimen.getLastDrugOrderEndDate());
 			
 			for (ExtendedDrugOrder order : futureOrders) {
