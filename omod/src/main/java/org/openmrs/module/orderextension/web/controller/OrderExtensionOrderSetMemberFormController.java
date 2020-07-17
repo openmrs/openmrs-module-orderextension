@@ -71,7 +71,7 @@ public class OrderExtensionOrderSetMemberFormController {
 	
 	/**
 	 * Prepares form backing object to be used by the view
-	 * @param id (optional) if specified, indicates the ExtendedOrderSet to edit
+	 * @param memberId (optional) if specified, indicates the ExtendedOrderSet to edit
 	 * @return backing object for associated view form
 	 */
 	@SuppressWarnings("unchecked")
