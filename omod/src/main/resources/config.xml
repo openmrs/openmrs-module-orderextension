@@ -19,11 +19,11 @@
 
 	<!-- Module Activator -->
 	<activator>${project.parent.groupId}.${project.parent.artifactId}.OrderExtensionModuleActivator</activator>
-	
+
 	<extension>
-        <point>org.openmrs.admin.orders.localHeader</point>
-        <class>org.openmrs.module.orderextension.web.extension.AdminList</class>
-    </extension>
+		<point>org.openmrs.admin.list</point>
+		<class>org.openmrs.module.orderextension.web.extension.AdminList</class>
+	</extension>
 
 	<!-- Required Privileges -->
 	<privilege>
