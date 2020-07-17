@@ -37,7 +37,7 @@ public class DrugOrderSetMember extends SingleOrderSetMember {
 	 */
 	@Override
 	public OrderType getOrderType() {
-		return Context.getOrderService().getOrderType(OpenmrsConstants.ORDERTYPE_DRUG);
+		return Context.getOrderService().getOrderType(2); // TODO: This is what was hard-coded into core, definitely want to switch this out
 	}
 	
 	/**
