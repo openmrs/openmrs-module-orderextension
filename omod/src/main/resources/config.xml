@@ -24,6 +24,10 @@
 		<point>org.openmrs.admin.list</point>
 		<class>org.openmrs.module.orderextension.web.extension.AdminList</class>
 	</extension>
+	<extension>
+		<point>org.openmrs.patientDashboardTab</point>
+		<class>org.openmrs.module.orderextension.web.extension.RegimenTab</class>
+	</extension>
 
 	<!-- Required Privileges -->
 	<privilege>
