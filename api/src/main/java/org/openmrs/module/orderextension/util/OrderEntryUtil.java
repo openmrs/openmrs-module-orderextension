@@ -1,11 +1,13 @@
 package org.openmrs.module.orderextension.util;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import org.openmrs.Concept;
 import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
+import org.openmrs.Order;
 import org.openmrs.OrderType;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
@@ -26,9 +28,16 @@ public class OrderEntryUtil {
 
 	/**
 	 * Needed due to removal of Context.getOrderService().getDrugOrdersByPatient(patient); method
+	 * This may need to be improved for performance, etc. but for now should do the trick.
 	 */
 	public static List<DrugOrder> getDrugOrdersByPatient(Patient patient) {
-		return null; // TODO: Implement me
+		List<DrugOrder> l = new ArrayList<DrugOrder>();
+		for (Order o : Context.getOrderService().getAllOrdersByPatient(patient)) {
+			if (o instanceof DrugOrder) {
+				l.add((DrugOrder)o);
+			}
+		}
+		return l;
 	}
 
 	/**

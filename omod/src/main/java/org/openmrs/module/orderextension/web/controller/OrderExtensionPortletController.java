@@ -22,6 +22,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.DrugOrder;
+import org.openmrs.Patient;
 import org.openmrs.module.orderextension.DrugClassificationHelper;
 import org.openmrs.module.orderextension.DrugRegimen;
 import org.openmrs.module.orderextension.ExtendedDrugOrder;
@@ -50,7 +51,8 @@ public class OrderExtensionPortletController extends PortletController {
 	@Override
 	protected void populateModel(HttpServletRequest request, Map<String, Object> model) {
 
-		List<DrugOrder> allOrders = (List<DrugOrder>)model.get("patientDrugOrders");
+		Patient patient = (Patient) model.get("patient");
+		List<DrugOrder> allOrders = OrderEntryUtil.getDrugOrdersByPatient(patient);
 		String mode = (String) model.get("mode");
 		
 		List<DrugOrder> orders = new ArrayList<DrugOrder>();
