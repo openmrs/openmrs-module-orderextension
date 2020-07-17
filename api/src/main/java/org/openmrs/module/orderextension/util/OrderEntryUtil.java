@@ -86,4 +86,84 @@ public class OrderEntryUtil {
 	public static boolean isFuture(DrugOrder drugOrder) {
 		return drugOrder.isActive() && !drugOrder.isStarted(); // TODO: Need to review this implementation
 	}
+
+	public static String getProtocol(Drug drug) {
+		// In OrderEntryAjaxController, is drug.getDoseStrength() + " "  + drug.getUnits();.
+		// TODO: This seems to match to the intention of drug.strength - Review This
+		return drug.getStrength();
+	}
+
+	public static String getProtocolDose(Drug drug) {
+		// In OrderEntryAjaxController, is drug.getDoseStrength().toString()
+		// TODO: Review how where this is used, and if this can just use the Strength
+		return drug.getStrength();
+	}
+
+	public static String getRoute(Drug drug) {
+		// In OrderEntryAjaxController, is drug.getRoute().getDisplayString();
+		// TODO: Doesn't seem to have a supported equivalent, should work to remove need for this.
+		return "";
+	}
+
+	public static String getUnits(Drug drug) {
+		// No longer a method, not just part of drug strength, used to be drug.getUnits()
+		return "";
+	}
+
+	/**
+	 * This is based sort of on what was present in OrderExtensionAjaxController.  Needs more investigation
+	 */
+	public static String getDoseReduction(Drug drug) {
+		if (drug.getStrength() != null && drug.getStrength().contains("/")) { // TODO: I doubt this is right. Needs review
+			return "true";
+		}
+		return "";
+	}
+
+	public static String getFrequencyPerDayAsString(DrugOrder drugOrder) {
+		/*
+			TODO: Don't really know what to do here. Logic before was this:
+			if(frequency != null && frequency.length() > 0 && frequency.contains("x")) {
+				String[] substrings = frequency.split("x");
+				freqDay = substrings[0].trim();
+				freqWeek = substrings[1].trim();
+			}
+			else if (frequency != null && frequency.length() > 0) {
+				if (frequency.contains("week")) {
+					freqWeek = frequency.trim();
+				}
+				else {
+					freqDay = frequency.trim();
+				}
+			}
+		*/
+		if (drugOrder.getFrequency() != null && drugOrder.getFrequency().getFrequencyPerDay() != null) {
+			return drugOrder.getFrequency().getFrequencyPerDay().toString(); // TODO: Review if this is compatible with usage in OrderExtensionAjaxController
+		}
+		return "";
+	}
+
+	public static String getFrequencyPerWeekAsString(DrugOrder drugOrder) {
+		/*
+			TODO: Don't really know what to do here. Logic before was this:
+			if(frequency != null && frequency.length() > 0 && frequency.contains("x")) {
+				String[] substrings = frequency.split("x");
+				freqDay = substrings[0].trim();
+				freqWeek = substrings[1].trim();
+			}
+			else if (frequency != null && frequency.length() > 0) {
+				if (frequency.contains("week")) {
+					freqWeek = frequency.trim();
+				}
+				else {
+					freqDay = frequency.trim();
+				}
+			}
+		*/
+		if (drugOrder.getFrequency() != null) {
+			return "";
+
+		}
+		return "";
+	}
 }
