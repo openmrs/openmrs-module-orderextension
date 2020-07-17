@@ -10,10 +10,12 @@
 	<description>
 		${project.parent.description}
 	</description>
-	<updateURL>
-		https://dev.openmrs.org/modules/download/${project.parent.artifactId}/update.rdf
-	</updateURL>
-	<require_version>1.6.5</require_version>
+
+	<require_version>2.3.0</require_version>
+
+	<require_modules>
+		<require_module>org.openmrs.module.legacyui</require_module>
+	</require_modules>
 
 	<!-- Module Activator -->
 	<activator>${project.parent.groupId}.${project.parent.artifactId}.OrderExtensionModuleActivator</activator>
@@ -24,18 +26,6 @@
     </extension>
 
 	<!-- Required Privileges -->
-	<privilege>
-		<name>View Order Sets</name>
-		<description>Allows users to view and use existing of Order Sets</description>
-	</privilege>
-	<privilege>
-		<name>Manage Order Sets</name>
-		<description>Allows users to add new Order Sets, edit or retire existing Order Sets</description>
-	</privilege>
-	<privilege>
-		<name>Delete Order Sets</name>
-		<description>Allows users to delete existing Order Sets</description>
-	</privilege>
 	<privilege>
 		<name>View Calendar Regimen</name>
 		<description>Allows users to view regimen calendar</description>

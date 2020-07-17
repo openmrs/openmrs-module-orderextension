@@ -9,3 +9,7 @@ Also provides an alternative regimen tab for the patient dashboard that takes ad
 * All Orders must be placed in the context of an Encounter
 
 * OrderExtensionServiceImpl.addOrdersForPatient -> This needs to be fixed, lots of quick fixes made to get past validation errors, but not correct
+
+* Migration needed to change any roles with "View Order Sets" privilege to have the core "Get Order Sets" privilege.
+* Remove any assignment of "Delete Order Sets", this is not a supported privilege in core - use Manage Order Sets
+* Make sure all service methods and other privilege checks are using the Core "Get Order Sets" or "Manage Order Sets" privilege.
