@@ -78,4 +78,12 @@ public class OrderEntryUtil {
 	public static void discontinueOrder(DrugOrder drugOrder, Concept stopConcept, Date stopDateDrug) {
 		//Context.getOrderService().discontinueOrder(drugOrder, stopConcept, stopDateDrug); TODO: This is what was in place before
 	}
+
+	public static boolean isCurrent(DrugOrder drugOrder) {
+		return drugOrder.isActive() && drugOrder.isStarted();  // TODO: Need to review this implementation
+	}
+
+	public static boolean isFuture(DrugOrder drugOrder) {
+		return drugOrder.isActive() && !drugOrder.isStarted(); // TODO: Need to review this implementation
+	}
 }

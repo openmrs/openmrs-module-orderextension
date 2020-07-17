@@ -600,9 +600,9 @@ public class OrderExtensionOrderController {
 		}
 		
 		for (ExtendedDrugOrder order : regimen.getMembers()) {
-			if (order.isStarted()) {
+			if (OrderEntryUtil.isCurrent(order)) {
 				OrderEntryUtil.discontinueOrder(order, stopConcept, OrderExtensionUtil.adjustDateToEndOfDay(stopDate));
-			} else {
+			} else if (OrderEntryUtil.isFuture(order)) {
 				Context.getOrderService().voidOrder(order, stopConcept.getDisplayString());
 			}
 		}

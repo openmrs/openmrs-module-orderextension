@@ -13,13 +13,11 @@
  */
 package org.openmrs.module.orderextension.web.controller;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -28,6 +26,7 @@ import org.openmrs.module.orderextension.DrugClassificationHelper;
 import org.openmrs.module.orderextension.DrugRegimen;
 import org.openmrs.module.orderextension.ExtendedDrugOrder;
 import org.openmrs.module.orderextension.util.DrugConceptHelper;
+import org.openmrs.module.orderextension.util.OrderEntryUtil;
 import org.openmrs.web.controller.PortletController;
 import org.springframework.stereotype.Controller;
 
@@ -84,12 +83,12 @@ public class OrderExtensionPortletController extends PortletController {
 			
 			if(unsorted)
 			{
-				if (o.isCurrent()) {
+				if (OrderEntryUtil.isCurrent(o)) {
 					if (CURRENT_MODE.equals(mode)) {
 						orders.add(o);
 					}
 				}
-				else if (o.isFuture()) {
+				else if (OrderEntryUtil.isFuture(o)) {
 					if (FUTURE_MODE.equals(mode)) {
 						orders.add(o);
 					}
