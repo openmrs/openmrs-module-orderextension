@@ -34,38 +34,24 @@ public class OrderExtensionUtil  {
 		if (o != null) {
 			if (o instanceof DrugOrder) {
 				DrugOrder drugOrder = (DrugOrder)o;
-				ExtendedDrugOrder edo = null;
-				if (drugOrder instanceof ExtendedDrugOrder) {
-					edo = (ExtendedDrugOrder)drugOrder;
-				}
 				
 				if ("route".equals(format)) {
-					if (edo != null && edo.getRoute() != null) {
-						return format(edo.getRoute(), null);
-					}
-					if (drugOrder.getDrug() != null) {
-						return format(drugOrder.getDrug().getRoute(), null);
+					if (drugOrder.getRoute() != null) {
+						return format(drugOrder.getRoute(), null);
 					}
 					return "";
 				}
 				
 				if("length".equals(format)){
-					if(drugOrder.getDiscontinuedDate() != null) {
-						return calculateDaysDifference(drugOrder.getDiscontinuedDate(), drugOrder.getStartDate());
-						
+					if(drugOrder.getEffectiveStopDate() != null) {
+						return calculateDaysDifference(drugOrder.getEffectiveStopDate(), drugOrder.getEffectiveStartDate());
 					}
-					if(drugOrder.getAutoExpireDate() != null) {
-						return calculateDaysDifference(drugOrder.getAutoExpireDate(), drugOrder.getStartDate());
-						
-					}
-					else
-					{
-						return "";
-					}
+					return "";
 				}
 				
 				if ("administrationInstructions".equals(format)) {
-					if (edo != null) {
+					if (drugOrder instanceof ExtendedDrugOrder) {
+						ExtendedDrugOrder edo = (ExtendedDrugOrder) drugOrder;
 						return edo.getAdministrationInstructions();
 					}
 					return "";
