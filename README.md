@@ -7,3 +7,5 @@ Also provides an alternative regimen tab for the patient dashboard that takes ad
 # Changes required for upgrade to 2.3
 
 * All Orders must be placed in the context of an Encounter
+
+* OrderExtensionServiceImpl.addOrdersForPatient -> This needs to be fixed, lots of quick fixes made to get past validation errors, but not correct
