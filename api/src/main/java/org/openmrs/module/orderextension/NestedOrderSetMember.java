@@ -18,7 +18,7 @@ package org.openmrs.module.orderextension;
  * Provides the capability to combine Order Sets together, and to
  * re-use common order set components across multiple Order Sets
  */
-public class NestedOrderSetMember extends OrderSetMember {
+public class NestedOrderSetMember extends ExtendedOrderSetMember {
 	
 	public static final long serialVersionUID = 1L;
 	
@@ -30,19 +30,19 @@ public class NestedOrderSetMember extends OrderSetMember {
 	/**
 	 * Provides a means to re-use an Order Set within multiple Order Sets
 	 */
-	private OrderSet nestedOrderSet;
+	private ExtendedOrderSet nestedOrderSet;
 
 	/**
 	 * @return the nestedOrderSet
 	 */
-	public OrderSet getNestedOrderSet() {
+	public ExtendedOrderSet getNestedOrderSet() {
 		return nestedOrderSet;
 	}
 
 	/**
 	 * @param nestedOrderSet the nestedOrderSet to set
 	 */
-	public void setNestedOrderSet(OrderSet nestedOrderSet) {
+	public void setNestedOrderSet(ExtendedOrderSet nestedOrderSet) {
 		this.nestedOrderSet = nestedOrderSet;
 	}
 }

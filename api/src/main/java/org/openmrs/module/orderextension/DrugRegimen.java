@@ -19,10 +19,10 @@ import java.util.*;
 import org.openmrs.Concept;
 
 /**
- * This represents a particular type of OrderGroup which contains one or more
- * DrugOrders and a reference to an OrderSet to make up a DrugRegimen
+ * This represents a particular type of ExtendedOrderGroup which contains one or more
+ * DrugOrders and a reference to an ExtendedOrderSet to make up a DrugRegimen
  */
-public class DrugRegimen extends OrderGroup implements Serializable {
+public class DrugRegimen extends ExtendedOrderGroup implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -57,7 +57,7 @@ public class DrugRegimen extends OrderGroup implements Serializable {
 	}
 	
 	/**
-	 * @return whether or not this Regimen is cyclical.  Delegates to the underlying OrderSet
+	 * @return whether or not this Regimen is cyclical.  Delegates to the underlying ExtendedOrderSet
 	 */
 	public boolean isCyclical() {
 		return getOrderSet() != null && getOrderSet().isCyclical();
@@ -98,8 +98,8 @@ public class DrugRegimen extends OrderGroup implements Serializable {
 	public Date getFirstDrugOrderStartDate() {
 		Date d = null;
 		for (ExtendedDrugOrder drugOrder : getMembers()) {
-			if (d == null || d.after(drugOrder.getStartDate())) {
-				d = drugOrder.getStartDate();
+			if (d == null || d.after(drugOrder.getEffectiveStartDate())) {
+				d = drugOrder.getEffectiveStartDate();
 			}
 		}
 		return d;
@@ -111,10 +111,7 @@ public class DrugRegimen extends OrderGroup implements Serializable {
 	public Date getLastDrugOrderEndDate() {
 		Date d = null;
 		for (ExtendedDrugOrder drugOrder : getMembers()) {
-			Date endDate = drugOrder.getDiscontinuedDate();
-			if (endDate == null) {
-				endDate = drugOrder.getAutoExpireDate();
-			}
+			Date endDate = drugOrder.getEffectiveStopDate();
 			if (endDate == null) {
 				return null;
 			}

@@ -33,7 +33,7 @@ public class ExtendedDrugOrder extends DrugOrder implements GroupableOrder {
 	/**
 	 * Provides a means for Grouping the Order
 	 */
-	private OrderGroup group;
+	private ExtendedOrderGroup group;
 	
 	/**
 	 * Provides a means for recording an indication/reason for this DrugOrder
@@ -53,14 +53,14 @@ public class ExtendedDrugOrder extends DrugOrder implements GroupableOrder {
 	/**
 	 * @return the group
 	 */
-	public OrderGroup getGroup() {
+	public ExtendedOrderGroup getGroup() {
 		return group;
 	}
 
 	/**
 	 * @param group the group to set
 	 */
-	public void setGroup(OrderGroup group) {
+	public void setGroup(ExtendedOrderGroup group) {
 		this.group = group;
 	}
 
@@ -105,4 +105,6 @@ public class ExtendedDrugOrder extends DrugOrder implements GroupableOrder {
 	public void setAdministrationInstructions(String administrationInstructions) {
 		this.administrationInstructions = administrationInstructions;
 	}
+
+
 }

@@ -29,9 +29,9 @@ import org.openmrs.Concept;
 import org.openmrs.Patient;
 import org.openmrs.module.orderextension.DrugRegimen;
 import org.openmrs.module.orderextension.ExtendedDrugOrder;
-import org.openmrs.module.orderextension.OrderGroup;
-import org.openmrs.module.orderextension.OrderSet;
-import org.openmrs.module.orderextension.OrderSetMember;
+import org.openmrs.module.orderextension.ExtendedOrderSet;
+import org.openmrs.module.orderextension.ExtendedOrderGroup;
+import org.openmrs.module.orderextension.ExtendedOrderSetMember;
 
 /**
  * Hibernate implementation of the OrderExtension Data Access Interface
@@ -45,26 +45,26 @@ public class HibernateOrderExtensionDAO implements OrderExtensionDAO {
 	 * @see OrderExtensionDAO#getOrderSet(Integer)
 	 */
 	@Override
-	public OrderSet getOrderSet(Integer id) {
-		return (OrderSet) getCurrentSession().get(OrderSet.class, id);
+	public ExtendedOrderSet getOrderSet(Integer id) {
+		return (ExtendedOrderSet) getCurrentSession().get(ExtendedOrderSet.class, id);
 	}
 
 	/**
 	 * @see OrderExtensionDAO#getOrderSetByUuid(String)
 	 */
 	@Override
-	public OrderSet getOrderSetByUuid(String uuid) {
-		String query = "FROM OrderSet s WHERE s.uuid = :uuid";
-		return (OrderSet) getCurrentSession().createQuery(query).setString("uuid", uuid).uniqueResult();
+	public ExtendedOrderSet getOrderSetByUuid(String uuid) {
+		String query = "FROM ExtendedOrderSet s WHERE s.uuid = :uuid";
+		return (ExtendedOrderSet) getCurrentSession().createQuery(query).setString("uuid", uuid).uniqueResult();
 	}
 
 	/**
-	 * @see OrderExtensionDAO#getAllOrderSets(boolean)
+	 * @see OrderExtensionDAO#getNamedOrderSets(String, Concept, boolean)
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
-	public List<OrderSet> getNamedOrderSets(String partialName, Concept indication, boolean includeRetired) {
-		Criteria criteria = getCurrentSession().createCriteria(OrderSet.class);
+	public List<ExtendedOrderSet> getNamedOrderSets(String partialName, Concept indication, boolean includeRetired) {
+		Criteria criteria = getCurrentSession().createCriteria(ExtendedOrderSet.class);
 		criteria.add(Restrictions.isNotNull("name"));
 		if (!includeRetired) {
 			criteria.add(Restrictions.eq("retired", false));
@@ -80,19 +80,19 @@ public class HibernateOrderExtensionDAO implements OrderExtensionDAO {
 	}
 
 	/**
-	 * @see OrderExtensionDAO#saveOrderSet(OrderSet)
+	 * @see OrderExtensionDAO#saveOrderSet(ExtendedOrderSet)
 	 */
 	@Override
-	public OrderSet saveOrderSet(OrderSet orderSet) {
+	public ExtendedOrderSet saveOrderSet(ExtendedOrderSet orderSet) {
 		getCurrentSession().saveOrUpdate(orderSet);
 		return orderSet;
 	}
 
 	/**
-	 * @see OrderExtensionDAO#purgeOrderSet(OrderSet)
+	 * @see OrderExtensionDAO#purgeOrderSet(ExtendedOrderSet)
 	 */
 	@Override
-	public void purgeOrderSet(OrderSet orderSet) {
+	public void purgeOrderSet(ExtendedOrderSet orderSet) {
 		getCurrentSession().delete(orderSet);
 	}
 	
@@ -100,25 +100,25 @@ public class HibernateOrderExtensionDAO implements OrderExtensionDAO {
 	 * @see OrderExtensionDAO#getOrderSetMember(Integer)
 	 */
 	@Override
-	public OrderSetMember getOrderSetMember(Integer id) {
-		return (OrderSetMember) getCurrentSession().get(OrderSetMember.class, id);
+	public ExtendedOrderSetMember getOrderSetMember(Integer id) {
+		return (ExtendedOrderSetMember) getCurrentSession().get(ExtendedOrderSetMember.class, id);
 	}
 
 	/**
-	 * @see OrderExtensionDAO#getParentOrderSets(OrderSet)
+	 * @see OrderExtensionDAO#getParentOrderSets(ExtendedOrderSet)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<OrderSet> getParentOrderSets(OrderSet orderSet) {
+	public List<ExtendedOrderSet> getParentOrderSets(ExtendedOrderSet orderSet) {
 		String query = "select n.orderSet from NestedOrderSetMember n where n.nestedOrderSet = :nestedOrderSet";
 		return getCurrentSession().createQuery(query).setEntity("nestedOrderSet", orderSet).list();
 	}
 
 	/**
-	 * @see OrderExtensionDAO#saveOrderGroup(OrderGroup)
+	 * @see OrderExtensionDAO#saveOrderGroup(ExtendedOrderGroup)
 	 */
 	@Override
-	public <T extends OrderGroup> T saveOrderGroup(T orderGroup) {
+	public <T extends ExtendedOrderGroup> T saveOrderGroup(T orderGroup) {
 		getCurrentSession().saveOrUpdate(orderGroup);
 		return orderGroup;
 	}
@@ -181,8 +181,8 @@ public class HibernateOrderExtensionDAO implements OrderExtensionDAO {
 	 * @see OrderExtensionDAO#getOrderGroup(Integer)
 	 */
 	@Override
-	public OrderGroup getOrderGroup(Integer id) {
-		return (OrderGroup) getCurrentSession().get(OrderGroup.class, id);
+	public ExtendedOrderGroup getOrderGroup(Integer id) {
+		return (ExtendedOrderGroup) getCurrentSession().get(ExtendedOrderGroup.class, id);
 	}
 	
 	/**
@@ -190,9 +190,9 @@ public class HibernateOrderExtensionDAO implements OrderExtensionDAO {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T extends OrderGroup> List<T> getOrderGroups(Patient patient, Class<T> type) {
+	public <T extends ExtendedOrderGroup> List<T> getOrderGroups(Patient patient, Class<T> type) {
 		Criteria criteria = getCurrentSession().createCriteria(type);
-		// TODO: Need to actually restrict this by patient.  Might need to add Patient directly to OrderGroup
+		// TODO: Need to actually restrict this by patient.  Might need to add Patient directly to ExtendedOrderGroup
 		criteria.add(Restrictions.eq("voided", false));
 		return criteria.list();
 	}

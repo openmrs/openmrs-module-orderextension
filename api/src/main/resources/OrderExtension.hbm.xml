@@ -5,7 +5,7 @@
 
 <hibernate-mapping package="org.openmrs.module.orderextension">
 
-	<class name="OrderSet" table="orderextension_order_set">
+	<class name="org.openmrs.module.orderextension.ExtendedOrderSet" table="orderextension_order_set">
 	
         <id name="id" type="int" column="id">
             <generator class="native">
@@ -17,8 +17,9 @@
 		<property name="description" type="string" />
 
 		<property name="operator" length="50">
-			<type name="org.openmrs.util.HibernateEnumType">
-				<param name="enumClassName">org.openmrs.module.orderextension.OrderSet$Operator</param>
+			<type name="org.hibernate.type.EnumType">
+				<param name="enumClass">org.openmrs.module.orderextension.ExtendedOrderSet$Operator</param>
+				<param name="useNamed">true</param>
 			</type>
 		</property>
 
@@ -28,7 +29,7 @@
 
 		<set name="members" cascade="all-delete-orphan" lazy="false" inverse="true" sort="natural">
             <key column="order_set_id"/>
-            <one-to-many class="OrderSetMember" />
+            <one-to-many class="org.openmrs.module.orderextension.ExtendedOrderSetMember" />
 		</set>
 
 		<many-to-one name="creator" class="org.openmrs.User" not-null="true" />
@@ -42,7 +43,7 @@
 		
     </class>
 
-	<class name="OrderSetMember" table="orderextension_order_set_member">
+	<class name="org.openmrs.module.orderextension.ExtendedOrderSetMember" table="orderextension_order_set_member">
 	
         <id name="id" type="int" column="id">
             <generator class="native">
@@ -53,7 +54,7 @@
         <discriminator column="member_type" type="string" not-null="true" length="255"/>
         
         <property name="uuid" type="string" column="uuid" length="38" unique="true" not-null="true" />
-        <many-to-one name="orderSet" class="OrderSet" column="order_set_id" not-null="true"/>
+        <many-to-one name="orderSet" class="org.openmrs.module.orderextension.ExtendedOrderSet" column="order_set_id" not-null="true"/>
 		<property name="title" type="string" column="title" />
 		<property name="comment" type="string" column="comment" />
 		<property name="selected" type="java.lang.Boolean" length="1" not-null="true"/>
@@ -82,12 +83,12 @@
     	</subclass>
     	
     	<subclass name="NestedOrderSetMember">
-    		<many-to-one name="nestedOrderSet" class="OrderSet" column="nested_order_set_id"/>
+    		<many-to-one name="nestedOrderSet" class="org.openmrs.module.orderextension.ExtendedOrderSet" column="nested_order_set_id"/>
     	</subclass>
 
     </class>
     
-    <class name="OrderGroup" table="orderextension_order_group">
+    <class name="org.openmrs.module.orderextension.ExtendedOrderGroup" table="orderextension_order_group">
     
         <id name="id" type="int" column="id">
             <generator class="native">
@@ -98,7 +99,7 @@
         <discriminator column="group_type" type="string" not-null="true" length="255"/>
         
         <property name="uuid" type="string" column="uuid" length="38" unique="true" not-null="true" />
-        <many-to-one name="orderSet" class="OrderSet" column="order_set_id" />
+        <many-to-one name="orderSet" class="org.openmrs.module.orderextension.ExtendedOrderSet" column="order_set_id" />
         
         <many-to-one name="creator" class="org.openmrs.User" not-null="true" />
 		<property name="dateCreated" type="java.util.Date" column="date_created" not-null="true" length="19" />
@@ -121,7 +122,7 @@
 
     <joined-subclass name="ExtendedDrugOrder" extends="org.openmrs.DrugOrder" table="orderextension_order">
     	<key column="order_id"/>
-    	<many-to-one name="group" class="OrderGroup" column="group_id" lazy="false" insert="false" update="false"/>
+    	<many-to-one name="group" class="org.openmrs.module.orderextension.ExtendedOrderGroup" column="group_id" lazy="false" insert="false" update="false"/>
     	<many-to-one name="indication" class="org.openmrs.Concept"/>
     	<many-to-one name="route" class="org.openmrs.Concept"/>
     	<property name="administrationInstructions" type="string" column="administration_instructions"/>

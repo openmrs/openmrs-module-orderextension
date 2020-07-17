@@ -40,7 +40,7 @@ public class DrugOrderComparator implements Comparator<DrugOrder> {
 
         // If this does not result in a difference, sort first by start date
         if (ret == 0) {
-            ret = r1.getStartDate().compareTo(r2.getStartDate());
+            ret = r1.getEffectiveStartDate().compareTo(r2.getEffectiveStartDate());
         }
 
         // If this still does not result in a difference, sort by primary key id
@@ -54,12 +54,12 @@ public class DrugOrderComparator implements Comparator<DrugOrder> {
      * @return compare results of two extended drug orders, based on the sort weight of their associated order set members in the order set
      */
     public int compareExtendedDrugOrders(ExtendedDrugOrder e1, ExtendedDrugOrder e2) {
-        OrderSet os1 = (e1.getGroup() != null ? e1.getGroup().getOrderSet() : null);
-        OrderSet os2 = (e2.getGroup() != null ? e2.getGroup().getOrderSet() : null);
+        ExtendedOrderSet os1 = (e1.getGroup() != null ? e1.getGroup().getOrderSet() : null);
+        ExtendedOrderSet os2 = (e2.getGroup() != null ? e2.getGroup().getOrderSet() : null);
         if (os1 != null && os2 != null && os1.equals(os2)) {
             int weight1 = -1;
             int weight2 = -1;
-            for (OrderSetMember osm : os1.getMembers()) {
+            for (ExtendedOrderSetMember osm : os1.getMembers()) {
                 if (osm instanceof DrugOrderSetMember) {
                     DrugOrderSetMember m = (DrugOrderSetMember) osm;
                     if (extendedDrugOrderMatchesOrderSetMember(e1, m)) {
@@ -100,7 +100,7 @@ public class DrugOrderComparator implements Comparator<DrugOrder> {
 
     protected int getOccuranceNumberInSet(DrugOrderSetMember m) {
         int num = 0;
-        List<OrderSetMember> orderSetMembers = new ArrayList<OrderSetMember>(m.getOrderSet().getMembers());
+        List<ExtendedOrderSetMember> orderSetMembers = new ArrayList<ExtendedOrderSetMember>(m.getOrderSet().getMembers());
         for (int i=0; i<orderSetMembers.size(); i++) {
             DrugOrderSetMember memberToCheck = (DrugOrderSetMember) orderSetMembers.get(i);
             if (nullSafeEquals(memberToCheck.getDrug(), m.getDrug()) && nullSafeEquals(memberToCheck.getIndication(), m.getIndication())) {
@@ -117,7 +117,7 @@ public class DrugOrderComparator implements Comparator<DrugOrder> {
         int num=0;
         DrugRegimen regimen = (DrugRegimen)edo.getGroup();
         List<ExtendedDrugOrder> regimenMembers = new ArrayList<ExtendedDrugOrder>(regimen.getMembers());
-        Collections.sort(regimenMembers, new BeanComparator("startDate"));
+        Collections.sort(regimenMembers, new BeanComparator("effectiveStartDate"));
         for (int i=0; i<regimenMembers.size(); i++) {
             ExtendedDrugOrder memberToCheck = regimenMembers.get(i);
             if (nullSafeEquals(memberToCheck.getDrug(), edo.getDrug()) && nullSafeEquals(memberToCheck.getIndication(), edo.getIndication())) {

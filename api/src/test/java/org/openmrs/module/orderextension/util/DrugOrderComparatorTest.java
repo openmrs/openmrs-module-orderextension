@@ -19,8 +19,8 @@ import org.openmrs.module.orderextension.DrugOrderComparator;
 import org.openmrs.module.orderextension.DrugOrderSetMember;
 import org.openmrs.module.orderextension.DrugRegimen;
 import org.openmrs.module.orderextension.ExtendedDrugOrder;
-import org.openmrs.module.orderextension.OrderSet;
-import org.openmrs.module.orderextension.OrderSetMember;
+import org.openmrs.module.orderextension.ExtendedOrderSet;
+import org.openmrs.module.orderextension.ExtendedOrderSetMember;
 import org.openmrs.module.orderextension.api.OrderExtensionService;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 
@@ -50,7 +50,7 @@ public class DrugOrderComparatorTest extends BaseModuleContextSensitiveTest {
 
             // First create a couple of order groups based the test order set
             Patient p = Context.getPatientService().getPatient(2);
-            OrderSet orderSet = getService().getOrderSet(orderSetId);
+            ExtendedOrderSet orderSet = getService().getOrderSet(orderSetId);
             Context.getService(OrderExtensionService.class).addOrdersForPatient(p, orderSet, new Date(), 3);
 
             // Ensure that three order groups were in fact created
@@ -64,11 +64,11 @@ public class DrugOrderComparatorTest extends BaseModuleContextSensitiveTest {
             Assert.assertEquals(3, regimens.size());
 
             // Determine the expected order of the order set members
-            Map<Integer, OrderSetMember> m = new TreeMap<Integer, OrderSetMember>();
-            for (OrderSetMember member : orderSet.getMembers()) {
+            Map<Integer, ExtendedOrderSetMember> m = new TreeMap<Integer, ExtendedOrderSetMember>();
+            for (ExtendedOrderSetMember member : orderSet.getMembers()) {
                 m.put(member.getSortWeight(), member);
             }
-            List<OrderSetMember> membersOrderedBySortWeight = new ArrayList<OrderSetMember>(m.values());
+            List<ExtendedOrderSetMember> membersOrderedBySortWeight = new ArrayList<ExtendedOrderSetMember>(m.values());
 
             // For each of the three order groups created, run this test
             for (DrugRegimen regimen : regimens) {

@@ -20,9 +20,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.orderextension.DrugOrderSetMember;
+import org.openmrs.module.orderextension.ExtendedOrderSet;
+import org.openmrs.module.orderextension.ExtendedOrderSetMember;
 import org.openmrs.module.orderextension.NestedOrderSetMember;
-import org.openmrs.module.orderextension.OrderSet;
-import org.openmrs.module.orderextension.OrderSetMember;
 import org.openmrs.module.orderextension.TestOrderSetMember;
 import org.openmrs.module.orderextension.api.OrderExtensionService;
 import org.springframework.stereotype.Controller;
@@ -45,7 +45,7 @@ public class OrderExtensionOrderSetListController {
 	 */
 	@RequestMapping(value = "/module/orderextension/orderSetList")
 	public void listOrderSets(ModelMap model, @RequestParam(value="includeRetired", required=false) boolean includeRetired) {
-		List<OrderSet> ordersets = Context.getService(OrderExtensionService.class).getNamedOrderSets(includeRetired);
+		List<ExtendedOrderSet> ordersets = Context.getService(OrderExtensionService.class).getNamedOrderSets(includeRetired);
 		model.addAttribute("orderSets", ordersets);
 	}
 	
@@ -55,14 +55,14 @@ public class OrderExtensionOrderSetListController {
 	@RequestMapping(value = "/module/orderextension/orderSet")
 	public void viewOrderSet(ModelMap model, 
 							 @RequestParam(value="id", required=true) Integer id) {
-		OrderSet orderSet = Context.getService(OrderExtensionService.class).getOrderSet(id);
+		ExtendedOrderSet orderSet = Context.getService(OrderExtensionService.class).getOrderSet(id);
 		model.addAttribute("orderSet", orderSet);
-		List<Class<? extends OrderSetMember>> memberTypes = new ArrayList<Class<? extends OrderSetMember>>();
+		List<Class<? extends ExtendedOrderSetMember>> memberTypes = new ArrayList<Class<? extends ExtendedOrderSetMember>>();
 		memberTypes.add(TestOrderSetMember.class);
 		memberTypes.add(DrugOrderSetMember.class);
 		memberTypes.add(NestedOrderSetMember.class);
 		model.addAttribute("memberTypes", memberTypes);
-		List<OrderSet> parentOrderSets = Context.getService(OrderExtensionService.class).getParentOrderSets(orderSet);
+		List<ExtendedOrderSet> parentOrderSets = Context.getService(OrderExtensionService.class).getParentOrderSets(orderSet);
 		model.addAttribute("parentOrderSets", parentOrderSets);
 	}
 	
@@ -71,7 +71,7 @@ public class OrderExtensionOrderSetListController {
 	 */
 	@RequestMapping(value = "/module/orderextension/deleteOrderSet")
 	public String deleteOrderSet(ModelMap model, @RequestParam(value="id", required=true) Integer id) {
-		OrderSet orderSet = Context.getService(OrderExtensionService.class).getOrderSet(id);
+		ExtendedOrderSet orderSet = Context.getService(OrderExtensionService.class).getOrderSet(id);
 		Context.getService(OrderExtensionService.class).purgeOrderSet(orderSet);
 		return "redirect:orderSetList.list";
 	}
@@ -82,8 +82,8 @@ public class OrderExtensionOrderSetListController {
 	@RequestMapping(value = "/module/orderextension/deleteOrderSetMember")
 	public String deleteOrderSetMember(ModelMap model, WebRequest request,
 									@RequestParam(value="id", required=true) Integer id) {
-		OrderSetMember orderSetMember = Context.getService(OrderExtensionService.class).getOrderSetMember(id);
-		OrderSet orderSet = orderSetMember.getOrderSet();
+		ExtendedOrderSetMember orderSetMember = Context.getService(OrderExtensionService.class).getOrderSetMember(id);
+		ExtendedOrderSet orderSet = orderSetMember.getOrderSet();
 		orderSet.removeMember(orderSetMember);
 		Context.getService(OrderExtensionService.class).saveOrderSet(orderSet);
 		return "redirect:orderSet.list?id="+orderSet.getId();

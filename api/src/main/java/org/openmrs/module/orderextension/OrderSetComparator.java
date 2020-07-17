@@ -20,14 +20,14 @@ import org.openmrs.api.context.Context;
 /**
  * Sorts Drug Orders by date and then by name
  */
-public class OrderSetComparator implements Comparator<OrderSet> {
+public class OrderSetComparator implements Comparator<ExtendedOrderSet> {
 	
 	private String undefined = Context.getAdministrationService().getGlobalProperty("orderextension.regimen.unclassified");
 	/**
 	 * @see Comparator#compare(Object, Object)
 	 */
 	@Override
-	public int compare(OrderSet r1, OrderSet r2) {
+	public int compare(ExtendedOrderSet r1, ExtendedOrderSet r2) {
         
         String r1Name = "";
         String r2Name = "";

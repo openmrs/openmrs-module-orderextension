@@ -1,7 +1,7 @@
 <%@ include file="/WEB-INF/view/module/orderextension/include/include.jsp"%>
 
-<%@ attribute name="orderSet" required="true" type="org.openmrs.module.orderextension.OrderSet" %>
-<%@ attribute name="member" required="true" type="org.openmrs.module.orderextension.OrderSetMember" %>
+<%@ attribute name="orderSet" required="true" type="org.openmrs.module.orderextension.ExtendedOrderSet" %>
+<%@ attribute name="member" required="true" type="org.openmrs.module.orderextension.ExtendedOrderSetMember" %>
 <%@ attribute name="nested" required="false" type="java.lang.Boolean" %>
 
 <c:if test="${!empty member.title || !empty member.comment}">

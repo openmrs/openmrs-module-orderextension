@@ -25,7 +25,7 @@ public class ExtendedOrder extends Order implements GroupableOrder {
 	/**
 	 * Provides a means for Grouping the Order
 	 */
-	private OrderGroup group;
+	private ExtendedOrderGroup group;
 
 	/**
 	 * Default Constructor
@@ -37,14 +37,14 @@ public class ExtendedOrder extends Order implements GroupableOrder {
 	/**
 	 * @return the group
 	 */
-	public OrderGroup getGroup() {
+	public ExtendedOrderGroup getGroup() {
 		return group;
 	}
 
 	/**
 	 * @param group the group to set
 	 */
-	public void setGroup(OrderGroup group) {
+	public void setGroup(ExtendedOrderGroup group) {
 		this.group = group;
 	}
 }

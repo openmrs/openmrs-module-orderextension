@@ -20,9 +20,9 @@ import org.openmrs.Concept;
 import org.openmrs.Patient;
 import org.openmrs.module.orderextension.DrugRegimen;
 import org.openmrs.module.orderextension.ExtendedDrugOrder;
-import org.openmrs.module.orderextension.OrderGroup;
-import org.openmrs.module.orderextension.OrderSet;
-import org.openmrs.module.orderextension.OrderSetMember;
+import org.openmrs.module.orderextension.ExtendedOrderGroup;
+import org.openmrs.module.orderextension.ExtendedOrderSet;
+import org.openmrs.module.orderextension.ExtendedOrderSetMember;
 import org.openmrs.module.orderextension.api.OrderExtensionService;
 
 /**
@@ -33,54 +33,54 @@ public interface OrderExtensionDAO {
 	/**
 	 * @see OrderExtensionService#getOrderSet(Integer)
 	 */
-	public OrderSet getOrderSet(Integer id);
+	public ExtendedOrderSet getOrderSet(Integer id);
 	
 	/**
 	 * @see OrderExtensionService#getOrderSetByUuid(String)
 	 */
-	public OrderSet getOrderSetByUuid(String uuid);
+	public ExtendedOrderSet getOrderSetByUuid(String uuid);
 	
 	/**
 	 * Return all OrderSets that have a non-null name property, 
 	 * whose name matches the partialName if specified, whose indication matches the indication if specified,
 	 * and which are not retired, if specified
 	 */
-	public List<OrderSet> getNamedOrderSets(String partialName, Concept indication, boolean includeRetired);
+	public List<ExtendedOrderSet> getNamedOrderSets(String partialName, Concept indication, boolean includeRetired);
 	
 	/**
-	 * @see OrderExtensionService#saveOrderSet(OrderSet)
+	 * @see OrderExtensionService#saveOrderSet(ExtendedOrderSet)
 	 */
-	public OrderSet saveOrderSet(OrderSet orderSet);
+	public ExtendedOrderSet saveOrderSet(ExtendedOrderSet orderSet);
 	
 	/**
-	 * @see OrderExtensionService#purgeOrderSet(OrderSet)
+	 * @see OrderExtensionService#purgeOrderSet(ExtendedOrderSet)
 	 */
-	public void purgeOrderSet(OrderSet orderSet);
+	public void purgeOrderSet(ExtendedOrderSet orderSet);
 	
 	/**
-	 * @see OrderExtensionService#getOrderSetMember(OrderSetMember)
+	 * @see OrderExtensionService#getOrderSetMember(ExtendedOrderSetMember)
 	 */
-	public OrderSetMember getOrderSetMember(Integer id);
+	public ExtendedOrderSetMember getOrderSetMember(Integer id);
 	
 	/**
-	 * @see OrderExtensionService#getParentOrderSets(OrderSet)
+	 * @see OrderExtensionService#getParentOrderSets(ExtendedOrderSet)
 	 */
-	public List<OrderSet> getParentOrderSets(OrderSet orderSet);
+	public List<ExtendedOrderSet> getParentOrderSets(ExtendedOrderSet orderSet);
 	
 	/**
-	 * Persists the passed OrderGroup to the database
+	 * Persists the passed ExtendedOrderGroup to the database
 	 */
-	public <T extends OrderGroup> T saveOrderGroup(T orderGroup);
+	public <T extends ExtendedOrderGroup> T saveOrderGroup(T orderGroup);
 	
 	/**
 	 * @see OrderExtensionService#getOrderGroups(Patient, Class)
 	 */
-	public <T extends OrderGroup> List<T> getOrderGroups(Patient patient, Class<T> type);
+	public <T extends ExtendedOrderGroup> List<T> getOrderGroups(Patient patient, Class<T> type);
 	
 	/**
 	 * @see OrderExtensionService#getOrderGroup(Integer id)
 	 */
-	public OrderGroup getOrderGroup(Integer id);
+	public ExtendedOrderGroup getOrderGroup(Integer id);
 
     /**
      * @see OrderExtensionService#getDrugRegimen(Integer id)

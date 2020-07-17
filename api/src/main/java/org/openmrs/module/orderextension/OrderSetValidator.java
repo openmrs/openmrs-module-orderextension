@@ -18,7 +18,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
 /**
- * Validator for {@link OrderSet}
+ * Validator for {@link ExtendedOrderSet}
  */
 @Handler(supports = { OrderSetValidator.class }, order = 50)
 public class OrderSetValidator implements Validator {
@@ -28,7 +28,7 @@ public class OrderSetValidator implements Validator {
 	 */
 	@SuppressWarnings("rawtypes")
     public boolean supports(Class c) {
-		return OrderSet.class.isAssignableFrom(c);
+		return ExtendedOrderSet.class.isAssignableFrom(c);
 	}
 	
 	/**

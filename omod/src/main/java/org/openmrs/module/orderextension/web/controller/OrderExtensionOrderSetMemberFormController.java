@@ -19,9 +19,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.api.APIException;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.orderextension.ExtendedOrderSet;
+import org.openmrs.module.orderextension.ExtendedOrderSetMember;
 import org.openmrs.module.orderextension.NestedOrderSetMember;
-import org.openmrs.module.orderextension.OrderSet;
-import org.openmrs.module.orderextension.OrderSetMember;
 import org.openmrs.module.orderextension.OrderSetMemberValidator;
 import org.openmrs.module.orderextension.api.OrderExtensionService;
 import org.openmrs.module.orderextension.util.OrderSetEditor;
@@ -38,7 +38,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.request.WebRequest;
 
 /**
- * Controls adding / editing / viewing an individual OrderSetMember
+ * Controls adding / editing / viewing an individual ExtendedOrderSetMember
  */
 @Controller
 public class OrderExtensionOrderSetMemberFormController {
@@ -66,30 +66,30 @@ public class OrderExtensionOrderSetMemberFormController {
 	 */
 	@InitBinder
 	public void initBinder(WebDataBinder binder)    {
-		binder.registerCustomEditor(OrderSet.class, new OrderSetEditor());
+		binder.registerCustomEditor(ExtendedOrderSet.class, new OrderSetEditor());
 	}
 	
 	/**
 	 * Prepares form backing object to be used by the view
-	 * @param id (optional) if specified, indicates the OrderSet to edit
+	 * @param id (optional) if specified, indicates the ExtendedOrderSet to edit
 	 * @return backing object for associated view form
 	 */
 	@SuppressWarnings("unchecked")
 	@ModelAttribute("orderSetMember")
-	public OrderSetMember formBackingObject(@RequestParam(value = "memberId", required=false) Integer memberId,
+	public ExtendedOrderSetMember formBackingObject(@RequestParam(value = "memberId", required=false) Integer memberId,
 									  		@RequestParam(value = "memberType", required=false) String memberType) {
 		
-		OrderSetMember ret = null;
+		ExtendedOrderSetMember ret = null;
 		if (memberId != null) {
 			ret = getOrderExtensionService().getOrderSetMember(memberId);
 		}
 		else {
 			try {
-				Class<? extends OrderSetMember> memberClazz = (Class<? extends OrderSetMember>)Context.loadClass(memberType);
+				Class<? extends ExtendedOrderSetMember> memberClazz = (Class<? extends ExtendedOrderSetMember>)Context.loadClass(memberType);
 				ret = memberClazz.newInstance();
 			}
 			catch (Exception e) {
-				throw new APIException("Unable to instantiate OrderSetMember of type " + memberType + " because of error:", e);
+				throw new APIException("Unable to instantiate ExtendedOrderSetMember of type " + memberType + " because of error:", e);
 			}
 		}
 		return ret;
@@ -100,11 +100,11 @@ public class OrderExtensionOrderSetMemberFormController {
 	@RequestMapping(value = "/module/orderextension/orderSetMemberForm.form", method = RequestMethod.GET)
 	public void showOrderSetMemberForm(ModelMap model, 
 									   @RequestParam(value = "orderSetId", required=true) Integer orderSetId) {
-		OrderSet orderSet = getOrderExtensionService().getOrderSet(orderSetId);
+		ExtendedOrderSet orderSet = getOrderExtensionService().getOrderSet(orderSetId);
 		model.addAttribute("orderSet", orderSet);
 		model.addAttribute("drugList", Context.getConceptService().getAllDrugs());
-		List<OrderSet> existingOrderSets = getOrderExtensionService().getNamedOrderSets(false);
-		for (OrderSetMember member : orderSet.getMembers()) {
+		List<ExtendedOrderSet> existingOrderSets = getOrderExtensionService().getNamedOrderSets(false);
+		for (ExtendedOrderSetMember member : orderSet.getMembers()) {
 			if (member instanceof NestedOrderSetMember) {
 				existingOrderSets.add(((NestedOrderSetMember)member).getNestedOrderSet());
 			}
@@ -119,7 +119,7 @@ public class OrderExtensionOrderSetMemberFormController {
 	 * edit page.
 	 */
 	@RequestMapping(value = "/module/orderextension/orderSetMemberForm.form", method = RequestMethod.POST)
-	public String saveOrderSetMember(@ModelAttribute("orderSetMember") OrderSetMember orderSetMember, BindingResult result, 
+	public String saveOrderSetMember(@ModelAttribute("orderSetMember") ExtendedOrderSetMember orderSetMember, BindingResult result,
 									 @RequestParam(value="orderSetId", required=true) Integer orderSetId, WebRequest request) {
 		
 		Integer nestedOrderSetId = null;
@@ -127,7 +127,7 @@ public class OrderExtensionOrderSetMemberFormController {
 		if (orderSetMember instanceof NestedOrderSetMember) {
 			NestedOrderSetMember nestedMember = (NestedOrderSetMember) orderSetMember;
 			if (nestedMember.getNestedOrderSet() == null) {
-				OrderSet newNestedOrderSet = new OrderSet();
+				ExtendedOrderSet newNestedOrderSet = new ExtendedOrderSet();
 				newNestedOrderSet = getOrderExtensionService().saveOrderSet(newNestedOrderSet);
 				nestedMember.setNestedOrderSet(newNestedOrderSet);
 				nestedOrderSetId = newNestedOrderSet.getId();
@@ -140,7 +140,7 @@ public class OrderExtensionOrderSetMemberFormController {
 			return null;
 		}
 		
-		OrderSet orderSet = getOrderExtensionService().getOrderSet(orderSetId);
+		ExtendedOrderSet orderSet = getOrderExtensionService().getOrderSet(orderSetId);
 		if (!orderSet.getMembers().contains(orderSetMember)) {
 			orderSet.addMember(orderSetMember);
 		}

@@ -18,12 +18,12 @@ import java.beans.PropertyEditorSupport;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.orderextension.OrderSet;
+import org.openmrs.module.orderextension.ExtendedOrderSet;
 import org.openmrs.module.orderextension.api.OrderExtensionService;
 import org.springframework.util.StringUtils;
 
 /**
- * Supports conversion between an OrderSet and a String representation
+ * Supports conversion between an ExtendedOrderSet and a String representation
  */
 public class OrderSetEditor extends PropertyEditorSupport {
 	
@@ -60,7 +60,7 @@ public class OrderSetEditor extends PropertyEditorSupport {
 	 * @see PropertyEditorSupport#getAsText()
 	 */
 	public String getAsText() {
-		OrderSet orderSet = (OrderSet) getValue();
+		ExtendedOrderSet orderSet = (ExtendedOrderSet) getValue();
 		if (orderSet == null) {
 			return "";
 		} 
