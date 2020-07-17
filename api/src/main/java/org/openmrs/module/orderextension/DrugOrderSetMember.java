@@ -16,8 +16,7 @@ package org.openmrs.module.orderextension;
 import org.openmrs.Concept;
 import org.openmrs.Drug;
 import org.openmrs.OrderType;
-import org.openmrs.api.context.Context;
-import org.openmrs.util.OpenmrsConstants;
+import org.openmrs.module.orderextension.util.OrderEntryUtil;
 
 /**
  * This extends the capabilities of the SingleOrderSetMember to provide additional means 
@@ -37,7 +36,7 @@ public class DrugOrderSetMember extends SingleOrderSetMember {
 	 */
 	@Override
 	public OrderType getOrderType() {
-		return Context.getOrderService().getOrderType(2); // TODO: This is what was hard-coded into core, definitely want to switch this out
+		return OrderEntryUtil.getDrugOrderType();
 	}
 	
 	/**

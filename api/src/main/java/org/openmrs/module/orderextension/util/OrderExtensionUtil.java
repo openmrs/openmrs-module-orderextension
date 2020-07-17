@@ -101,6 +101,17 @@ public class OrderExtensionUtil  {
 		c.set(Calendar.MINUTE, 59);
 		return c.getTime();
 	}
+
+	public static Date adjustDateToEndOfDay(Date dateToAdjust) {
+		if (dateToAdjust != null) {
+			Calendar adjusted = Calendar.getInstance();
+			adjusted.setTime(dateToAdjust);
+			adjusted.set(Calendar.HOUR, 23);
+			adjusted.set(Calendar.MINUTE, 59);
+			return adjusted.getTime();
+		}
+		return dateToAdjust;
+	}
 	
 	private static String calculateDaysDifference(Date observation, Date startingDate)
 	{
