@@ -29,7 +29,7 @@ import org.openmrs.api.PatientService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.orderextension.DrugRegimen;
 import org.openmrs.module.orderextension.ExtendedDrugOrder;
-import org.openmrs.module.orderextension.OrderSet;
+import org.openmrs.module.orderextension.ExtendedOrderSet;
 import org.openmrs.module.orderextension.api.OrderExtensionService;
 import org.openmrs.module.orderextension.util.OrderEntryUtil;
 import org.openmrs.module.orderextension.util.OrderExtensionUtil;
@@ -64,8 +64,8 @@ public class OrderExtensionOrderController {
 
 		List<DrugRegimen> regimens = orderExtensionService.getOrderGroups(patient, DrugRegimen.class);
 		model.addAttribute("regimens", regimens);
-		
-		List<DrugOrder> drugOrders = Context.getOrderService().getDrugOrdersByPatient(patient);
+
+		List<DrugOrder> drugOrders = OrderEntryUtil.getDrugOrdersByPatient(patient);
 		for (DrugRegimen r : regimens) {
 			drugOrders.removeAll(r.getMembers());
 		}
@@ -260,9 +260,9 @@ public class OrderExtensionOrderController {
 						order.setAutoExpireDate(adjustDate(order.getAutoExpireDate(), regimen.getFirstDrugOrderStartDate(),
 						    changeDate));
 					}
-					
-					order.setStartDate(adjustDate(order.getStartDate(), regimen.getFirstDrugOrderStartDate(), changeDate));
-					Context.getOrderService().saveOrder(order);
+
+					OrderEntryUtil.setStartDate(order, adjustDate(order.getEffectiveStartDate(), regimen.getFirstDrugOrderStartDate(), changeDate));
+					OrderEntryUtil.saveDrugOrder(order);
 				}
 			}
 		}
@@ -272,9 +272,9 @@ public class OrderExtensionOrderController {
 			if (order.getAutoExpireDate() != null) {
 				order.setAutoExpireDate(adjustDate(order.getAutoExpireDate(), sDate, changeDate));
 			}
-			
-			order.setStartDate(adjustDate(order.getStartDate(), sDate, changeDate));
-			Context.getOrderService().saveOrder(order);
+
+			OrderEntryUtil.setStartDate(order, adjustDate(order.getEffectiveStartDate(), sDate, changeDate));
+			OrderEntryUtil.saveDrugOrder(order);
 		}
 		
 		return "redirect:" + returnPage;
