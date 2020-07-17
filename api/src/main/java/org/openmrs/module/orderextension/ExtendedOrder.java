@@ -18,7 +18,7 @@ import org.openmrs.Order;
 /**
  * Adds the ability to Group an Order
  */
-public class ExtendedOrder extends Order implements GroupableOrder {
+public class ExtendedOrder extends Order {
 
 	private static final long serialVersionUID = 1L;
 	
