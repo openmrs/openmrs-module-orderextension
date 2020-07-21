@@ -71,28 +71,16 @@ public class OrderExtensionOrderSetMemberFormController {
 	
 	/**
 	 * Prepares form backing object to be used by the view
-	 * @param memberId (optional) if specified, indicates the ExtendedOrderSet to edit
 	 * @return backing object for associated view form
 	 */
 	@SuppressWarnings("unchecked")
 	@ModelAttribute("orderSetMember")
-	public ExtendedOrderSetMember formBackingObject(@RequestParam(value = "memberId", required=false) Integer memberId,
-									  		@RequestParam(value = "memberType", required=false) String memberType) {
-		
-		ExtendedOrderSetMember ret = null;
-		if (memberId != null) {
-			ret = getOrderExtensionService().getOrderSetMember(memberId);
+	public ExtendedOrderSetMember formBackingObject(@RequestParam(value = "uuid", required=false) String uuid) {
+		OrderSetMember member = new OrderSetMember();
+		if (uuid != null) {
+			member = Context.getOrderSetService().getOrderSetMemberByUuid(uuid);
 		}
-		else {
-			try {
-				Class<? extends ExtendedOrderSetMember> memberClazz = (Class<? extends ExtendedOrderSetMember>)Context.loadClass(memberType);
-				ret = memberClazz.newInstance();
-			}
-			catch (Exception e) {
-				throw new APIException("Unable to instantiate ExtendedOrderSetMember of type " + memberType + " because of error:", e);
-			}
-		}
-		return ret;
+		return new ExtendedOrderSetMember(member);
 	}
 	
 	/**
@@ -117,8 +105,6 @@ public class OrderExtensionOrderSetMemberFormController {
 	public String saveOrderSetMember(@ModelAttribute("orderSetMember") OrderSetMember orderSetMember, BindingResult result,
 									 @RequestParam(value="orderSetId", required=true) Integer orderSetId, WebRequest request) {
 		
-		Integer nestedOrderSetId = null;
-		
 		// Validate
 		validator.validate(orderSetMember, result);
 		if (result.hasErrors()) {
@@ -137,13 +123,8 @@ public class OrderExtensionOrderSetMemberFormController {
 		}
 		 */
 		orderSet = getOrderExtensionService().saveOrderSet(orderSet);
-		
-		String redirect = "redirect:orderSet.list?id="+orderSet.getId();
-		if (nestedOrderSetId != null) {
-			redirect = "redirect:orderSetForm.form?id=" + nestedOrderSetId;
-		}
-		
-		return redirect;
+
+		return "redirect:orderSet.list?id="+orderSet.getId();
 	}
 	
 	private OrderExtensionService getOrderExtensionService() {

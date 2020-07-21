@@ -10,10 +10,10 @@
 <h2>
 	${orderSet.name}: 
 	<c:choose>
-		<c:when test="${empty orderSetMember.id}"><spring:message code="general.add"/></c:when>
+		<c:when test="${empty orderSetMember.member}"><spring:message code="general.add"/></c:when>
 		<c:otherwise><spring:message code="general.edit"/></c:otherwise>
 	</c:choose>
-	<spring:message code="orderextension.orderset.${orderSetMember['class'].simpleName}"/>
+	<spring:message code="orderextension.orderset.DrugOrderSetMember"/>
 </h2>
 <br/>
 
@@ -50,13 +50,6 @@
 								<form:errors path="title" cssClass="error"/>
 							</td>
 						</tr>
-						<tr>
-							<th><spring:message code="orderextension.orderset.field.comment"/></th>
-							<td>
-								<form:textarea path="comment" cols="50" rows="2"/>
-								<form:errors path="comment" cssClass="error"/>
-							</td>
-						</tr>
 					</table>
 				</fieldSet>
 			</td>
@@ -64,13 +57,6 @@
 				<fieldSet style="height:100px;">
 					<legend><spring:message code="orderextension.orderset.memberLengthSection"/></legend>
 					<table style="padding:5px; width:100%;">
-						<tr>
-							<th><spring:message code="orderextension.orderset.field.selected"/></th>
-							<td>
-								<form:checkbox path="selected"/>
-								<form:errors path="comment" cssClass="error"/>
-							</td>
-						</tr>
 						<tr>
 							<th><spring:message code="orderextension.orderset.field.relativeStartDay"/></th>
 							<td>
@@ -178,7 +164,7 @@
 	</table>
 	<input type="submit" value="<spring:message code='general.save'/>" />
 	&nbsp;&nbsp;
-	<input type="button" value="<spring:message code='general.cancel'/>" onclick="document.location.href='orderSet.list?id=${orderSet.id};'" />
+	<input type="button" value="<spring:message code='general.cancel'/>" onclick="document.location.href='orderSet.list?id=${orderSet.orderSetId};'" />
 </form:form>
 	
 </div>

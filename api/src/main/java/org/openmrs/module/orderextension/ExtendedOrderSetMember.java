@@ -40,6 +40,14 @@ public class ExtendedOrderSetMember {
 		this.member = member;
 	}
 
+	public OrderSetMember getMember() {
+		return member;
+	}
+
+	public String getUuid() {
+		return member.getUuid();
+	}
+
 	public ExtendedOrderSet getOrderSet() {
 		return (ExtendedOrderSet) member.getOrderSet();
 	}

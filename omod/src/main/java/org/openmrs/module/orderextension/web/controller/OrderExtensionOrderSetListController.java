@@ -57,9 +57,11 @@ public class OrderExtensionOrderSetListController {
 							 @RequestParam(value="id", required=true) Integer id) {
 		ExtendedOrderSet orderSet = Context.getService(OrderExtensionService.class).getOrderSet(id);
 		model.addAttribute("orderSet", orderSet);
-		List<Class<? extends ExtendedOrderSetMember>> memberTypes = new ArrayList<Class<? extends ExtendedOrderSetMember>>();
-		memberTypes.add(ExtendedOrderSetMember.class);
-		model.addAttribute("memberTypes", memberTypes);
+		List<ExtendedOrderSetMember> members = new ArrayList<ExtendedOrderSetMember>();
+		for (OrderSetMember member : orderSet.getOrderSetMembers()) {
+			members.add(new ExtendedOrderSetMember(member));
+		}
+		model.addAttribute("members", members);
 	}
 	
 	/**

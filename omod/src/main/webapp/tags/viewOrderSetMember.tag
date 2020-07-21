@@ -2,27 +2,19 @@
 
 <%@ attribute name="orderSet" required="true" type="org.openmrs.module.orderextension.ExtendedOrderSet" %>
 <%@ attribute name="member" required="true" type="org.openmrs.module.orderextension.ExtendedOrderSetMember" %>
-<%@ attribute name="nested" required="false" type="java.lang.Boolean" %>
 
-<c:if test="${!empty member.title || !empty member.comment}">
+<c:if test="${!empty member.title}">
 	<tr>
 		<td colspan="2" style="font-weight:bold; border-bottom:1px solid black;">
 			${member.title}
-			<c:if test="${!empty member.comment}">
-				(${member.comment})
-			</c:if>
 		</td>
 	</tr>
 </c:if>
 <tr>
 	<td style="white-space:nowrap; vertical-align:top;">
-		<c:if test="${nested == null || !nested}">
-			&nbsp;
-			<a href="orderSetMemberForm.form?orderSetId=${orderSet.id}&memberId=${member.id}"><img src='<c:url value="/images/edit.gif"/>' border="0"/></a>
-			&nbsp;
-			<a href="deleteOrderSetMember.form?uuid=${member.uuid}"><img src='<c:url value="/images/trash.gif"/>' border="0"/></a>
-			&nbsp;
-		</c:if>
+		<a href="orderSetMemberForm.form?orderSetId=${orderSet.orderSetId}&uuid=${member.uuid}"><img src='<c:url value="/images/edit.gif"/>' border="0"/></a>
+		&nbsp;
+		<a href="deleteOrderSetMember.form?uuid=${member.uuid}"><img src='<c:url value="/images/trash.gif"/>' border="0"/></a>
 	</td>
 	<td style="width:100%; text-align:left; vertical-align:top; padding:5px;">
 		<c:choose>

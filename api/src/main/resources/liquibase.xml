@@ -207,4 +207,56 @@
 		<renameColumn tableName="orderextension_order_set_member" oldColumnName="order_index" newColumnName="sort_weight" columnDataType="int"/>
 	</changeSet>
 
+	<changeSet id="orderextension-migrate-order-sets-to-core" author="mseaton">
+		<preConditions>
+			<sqlCheck expectedResult="0">select count(*) from order_set where order_set_id in (select id from orderextension_order_set)</sqlCheck>
+		</preConditions>
+		<comment>
+			This will migrate order set data into the core table.  If order sets already exist there, this will fail
+			and the migration will need to be undertaken manually
+		</comment>
+		<sql>
+			insert into order_set (
+						order_set_id, uuid, name, description, operator, category,
+						creator, date_created, changed_by, date_changed,
+						retired, retired_by, date_retired, retire_reason
+			)
+			select 		id, uuid, name, description, operator, indication,
+						creator, date_created, changed_by, date_changed,
+						retired, retired_by, date_retired, retire_reason
+			from    	orderextension_order_set
+			;
+
+			select order_type_id into @drug_order_type from order_type where name = 'Drug Order';
+
+			insert into order_set_member (
+						order_set_member_id, uuid, order_set_id, sequence_number,
+						order_type, concept_id, order_template_type, order_template,
+						creator, date_created, changed_by, date_changed,
+						retired, retired_by, date_retired, retire_reason
+			)
+			select  	m.id, m.uuid, m.order_set_id, m.sort_weight,
+						@drug_order_type, m.concept_id, 'org.openmrs.module.orderextension',
+						concat('{',
+						'"title": "', ifnull(m.title, ''), '", ',
+						'"indication": ', ifnull(m.indication, 'null'), ', ',
+						'"drug": ', ifnull(m.drug_id, 'null'), ', ',
+						'"dose": ', ifnull(m.dose, 'null'), ', ',
+						'"units": "', ifnull(m.units, ''), '", ',
+						'"route": ', ifnull(m.route, 'null'), ', ',
+						'"frequency": "', ifnull(m.frequency, ''), '", ',
+						'"relativeStartDay": ', ifnull(m.relative_start_day, 'null'), ', ',
+						'"lengthInDays": ', ifnull(m.length_days, 'null'), ', ',
+						'"instructions": "', ifnull(m.instructions, ''), '", ',
+						'"administrationInstructions": "', ifnull(m.administration_instructions, ''), '"',
+						'}') as template,
+						s.creator, s.date_created, s.changed_by, s.date_changed,
+						s.retired, s.retired_by, s.date_retired, s.retire_reason
+			from    	orderextension_order_set_member m
+			inner join 	orderextension_order_set s on s.id = m.order_set_id
+			;
+
+		</sql>
+	</changeSet>
+
 </databaseChangeLog>

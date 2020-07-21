@@ -130,7 +130,7 @@
 					<select name="orderSet">
 						<option value="">Choose a pre-defined Order Set...</option>
 						<c:forEach items="${orderSets}" var="orderSet">
-							<option value="${orderSet.id}">${orderSet.name}</option>
+							<option value="${orderSet.orderSetId}">${orderSet.name}</option>
 						</c:forEach>
 					</select>
 				</td>

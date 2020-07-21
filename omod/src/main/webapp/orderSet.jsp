@@ -12,7 +12,7 @@
 
 <b class="boxHeader" style="font-weight:bold; text-align:right;">
 	<span style="float:left;"><spring:message code="orderextension.orderset.details"/></span>
-	<a style="color:lightyellow;" href="orderSetForm.form?id=${orderSet.id}"><spring:message code="general.edit"/></a>
+	<a style="color:lightyellow;" href="orderSetForm.form?id=${orderSet.orderSetId}"><spring:message code="general.edit"/></a>
 </b>
 <div class="box">
 	<table>
@@ -46,13 +46,10 @@
 <br/>
 <b class="boxHeader" style="font-weight:bold; text-align:right;">
 	<span style="float:left;"><spring:message code="orderextension.orderset.members"/></span>
-	<spring:message code="orderextension.general.add"/>:
-	<c:forEach items="${memberTypes}" var="memberType">
-		<span style="padding-left:5px; padding-right:5px;">|</span>
-		<a class="memberLink" href="orderSetMemberForm.form?orderSetId=${orderSet.id}&memberType=${memberType.name}">
-			<spring:message code="orderextension.orderset.${memberType.simpleName}"/>
-		</a>
-	</c:forEach>
+	<span style="padding-left:5px; padding-right:5px;">|</span>
+	<a class="memberLink" href="orderSetMemberForm.form?orderSetId=${orderSet.orderSetId}">
+		<spring:message code="orderextension.orderset.addMember"/>
+	</a>
 </b>
 <div class="box" style="padding-top:10px;padding-bottom:10px;">
 
@@ -61,11 +58,11 @@
 	</style>
 
 	<table class="memberTable">
-		<c:forEach items="${orderSet.members}" var="member">
+		<c:forEach items="${members}" var="member">
 			<orderextensionTag:viewOrderSetMember orderSet="${orderSet}" member="${member}"/>
 		</c:forEach>
 	</table>
-	<c:if test="${empty orderSet.members}">
+	<c:if test="${empty members}">
 		<span><spring:message code="general.none"/></span>
 	</c:if>
 </div>
