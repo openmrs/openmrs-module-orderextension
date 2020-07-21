@@ -256,6 +256,8 @@
 			inner join 	orderextension_order_set s on s.id = m.order_set_id
 			;
 
+			update order_set_member set order_template = replace(order_template, '\r\n', '\\r\\n');
+
 		</sql>
 	</changeSet>
 
