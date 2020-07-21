@@ -15,10 +15,10 @@ package org.openmrs.module.orderextension.web.controller;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openmrs.OrderSet;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.orderextension.ExtendedOrderSet;
 import org.openmrs.module.orderextension.OrderSetValidator;
-import org.openmrs.module.orderextension.ExtendedOrderSet.Operator;
 import org.openmrs.module.orderextension.api.OrderExtensionService;
 import org.openmrs.web.WebConstants;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,7 +74,7 @@ public class OrderExtensionOrderSetFormController {
 	 */
 	@RequestMapping(value = "/module/orderextension/orderSetForm.form", method = RequestMethod.GET)
 	public void showOrderSetForm(ModelMap model) {
-		model.addAttribute("operators", Operator.values());
+		model.addAttribute("operators", OrderSet.Operator.values());
 	}
 	
 	/**

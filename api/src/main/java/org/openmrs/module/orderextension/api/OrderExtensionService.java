@@ -105,14 +105,6 @@ public interface OrderExtensionService extends OpenmrsService {
 	public ExtendedOrderSetMember getOrderSetMember(Integer id);
 	
 	/**
-	 * @param orderSet the ExtendedOrderSet to check
-	 * @return all OrderSets that contain the passed ExtendedOrderSet as a nested member
-	 * @should return all OrderSets that contain the passed ExtendedOrderSet as a nested member
-	 */
-	@Authorized(OrderExtensionConstants.PRIV_VIEW_ORDER_SETS)
-	public List<ExtendedOrderSet> getParentOrderSets(ExtendedOrderSet orderSet);
-	
-	/**
 	 * @param orderGroup the ExtendedOrderGroup to save
 	 * @return the saved ExtendedOrderGroup
 	 * @should save a new ExtendedOrderGroup

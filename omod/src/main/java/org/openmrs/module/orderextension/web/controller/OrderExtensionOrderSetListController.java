@@ -18,12 +18,12 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openmrs.OrderSet;
+import org.openmrs.OrderSetMember;
+import org.openmrs.api.OrderSetService;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.orderextension.DrugOrderSetMember;
 import org.openmrs.module.orderextension.ExtendedOrderSet;
 import org.openmrs.module.orderextension.ExtendedOrderSetMember;
-import org.openmrs.module.orderextension.NestedOrderSetMember;
-import org.openmrs.module.orderextension.TestOrderSetMember;
 import org.openmrs.module.orderextension.api.OrderExtensionService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -58,12 +58,8 @@ public class OrderExtensionOrderSetListController {
 		ExtendedOrderSet orderSet = Context.getService(OrderExtensionService.class).getOrderSet(id);
 		model.addAttribute("orderSet", orderSet);
 		List<Class<? extends ExtendedOrderSetMember>> memberTypes = new ArrayList<Class<? extends ExtendedOrderSetMember>>();
-		memberTypes.add(TestOrderSetMember.class);
-		memberTypes.add(DrugOrderSetMember.class);
-		memberTypes.add(NestedOrderSetMember.class);
+		memberTypes.add(ExtendedOrderSetMember.class);
 		model.addAttribute("memberTypes", memberTypes);
-		List<ExtendedOrderSet> parentOrderSets = Context.getService(OrderExtensionService.class).getParentOrderSets(orderSet);
-		model.addAttribute("parentOrderSets", parentOrderSets);
 	}
 	
 	/**
@@ -81,11 +77,11 @@ public class OrderExtensionOrderSetListController {
 	 */
 	@RequestMapping(value = "/module/orderextension/deleteOrderSetMember")
 	public String deleteOrderSetMember(ModelMap model, WebRequest request,
-									@RequestParam(value="id", required=true) Integer id) {
-		ExtendedOrderSetMember orderSetMember = Context.getService(OrderExtensionService.class).getOrderSetMember(id);
-		ExtendedOrderSet orderSet = orderSetMember.getOrderSet();
-		orderSet.removeMember(orderSetMember);
-		Context.getService(OrderExtensionService.class).saveOrderSet(orderSet);
+									@RequestParam(value="uuid", required=true) String uuid) {
+		OrderSetMember orderSetMember = Context.getOrderSetService().getOrderSetMemberByUuid(uuid);
+		OrderSet orderSet = orderSetMember.getOrderSet();
+		orderSet.removeOrderSetMember(orderSetMember);
+		Context.getService(OrderSetService.class).saveOrderSet(orderSet);
 		return "redirect:orderSet.list?id="+orderSet.getId();
 	}
 }

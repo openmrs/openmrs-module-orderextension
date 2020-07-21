@@ -63,11 +63,6 @@ public interface OrderExtensionDAO {
 	public ExtendedOrderSetMember getOrderSetMember(Integer id);
 	
 	/**
-	 * @see OrderExtensionService#getParentOrderSets(ExtendedOrderSet)
-	 */
-	public List<ExtendedOrderSet> getParentOrderSets(ExtendedOrderSet orderSet);
-	
-	/**
 	 * Persists the passed ExtendedOrderGroup to the database
 	 */
 	public <T extends ExtendedOrderGroup> T saveOrderGroup(T orderGroup);

@@ -105,16 +105,6 @@ public class HibernateOrderExtensionDAO implements OrderExtensionDAO {
 	}
 
 	/**
-	 * @see OrderExtensionDAO#getParentOrderSets(ExtendedOrderSet)
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<ExtendedOrderSet> getParentOrderSets(ExtendedOrderSet orderSet) {
-		String query = "select n.orderSet from NestedOrderSetMember n where n.nestedOrderSet = :nestedOrderSet";
-		return getCurrentSession().createQuery(query).setEntity("nestedOrderSet", orderSet).list();
-	}
-
-	/**
 	 * @see OrderExtensionDAO#saveOrderGroup(ExtendedOrderGroup)
 	 */
 	@Override

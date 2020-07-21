@@ -22,19 +22,18 @@ import java.util.UUID;
 import org.openmrs.Concept;
 import org.openmrs.Encounter;
 import org.openmrs.Order;
+import org.openmrs.OrderSetMember;
 import org.openmrs.Patient;
 import org.openmrs.Person;
 import org.openmrs.Provider;
 import org.openmrs.api.APIException;
 import org.openmrs.api.context.Context;
 import org.openmrs.api.impl.BaseOpenmrsService;
-import org.openmrs.module.orderextension.DrugOrderSetMember;
 import org.openmrs.module.orderextension.DrugRegimen;
 import org.openmrs.module.orderextension.ExtendedDrugOrder;
 import org.openmrs.module.orderextension.ExtendedOrderGroup;
 import org.openmrs.module.orderextension.ExtendedOrderSet;
 import org.openmrs.module.orderextension.ExtendedOrderSetMember;
-import org.openmrs.module.orderextension.NestedOrderSetMember;
 import org.openmrs.module.orderextension.api.db.OrderExtensionDAO;
 import org.openmrs.module.orderextension.util.OrderExtensionUtil;
 import org.springframework.transaction.annotation.Transactional;
@@ -108,15 +107,6 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 	@Transactional(readOnly=true)
 	public ExtendedOrderSetMember getOrderSetMember(Integer id) {
 		return dao.getOrderSetMember(id);
-	}
-
-	/**
-	 * @see OrderExtensionService#getParentOrderSets(ExtendedOrderSet)
-	 */
-	@Override
-	@Transactional(readOnly=true)
-	public List<ExtendedOrderSet> getParentOrderSets(ExtendedOrderSet orderSet) {
-		return dao.getParentOrderSets(orderSet);
 	}
 
 	/**
@@ -248,58 +238,49 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 			if (orderSet.getCycleLengthInDays() != null) {
 				cycleStart = OrderExtensionUtil.incrementDate(cycleStart, orderSet.getCycleLengthInDays() * i);
 			}
-			for (ExtendedOrderSetMember member : orderSet.getMembers()) {
-				
+			for (OrderSetMember member : orderSet.getOrderSetMembers()) {
+
+				ExtendedOrderSetMember drugMember = new ExtendedOrderSetMember(member);
 				Date memberStartDate = cycleStart;
 				Date memberEndDate = null;
-				if (member.getRelativeStartDay() != null) {
-					memberStartDate = OrderExtensionUtil.incrementDate(memberStartDate, member.getRelativeStartDay() - 1);
+				if (drugMember.getRelativeStartDay() != null) {
+					memberStartDate = OrderExtensionUtil.incrementDate(memberStartDate, drugMember.getRelativeStartDay() - 1);
 				}
-				if (member.getLengthInDays() != null) {
-					memberEndDate = OrderExtensionUtil.incrementDateEndOfDay(memberStartDate, member.getLengthInDays() - 1);
+				if (drugMember.getLengthInDays() != null) {
+					memberEndDate = OrderExtensionUtil.incrementDateEndOfDay(memberStartDate, drugMember.getLengthInDays() - 1);
 				}
-				
-				if (member instanceof NestedOrderSetMember) {
-					NestedOrderSetMember nestedMember = (NestedOrderSetMember)member;
-					addOrdersForPatient(patient, nestedMember.getNestedOrderSet(), memberStartDate, null);
-				}
-				else if (member instanceof DrugOrderSetMember) {
-					DrugOrderSetMember drugMember = (DrugOrderSetMember)member;
-					ExtendedDrugOrder drugOrder = new ExtendedDrugOrder();
-					drugOrder.setConcept(drugMember.getConcept());
-					drugOrder.setDrug(drugMember.getDrug());
-					drugOrder.setDose(drugMember.getDose());
-					// drugOrder.setUnits(drugMember.getUnits()); TODO: Need to fix with migration
-					drugOrder.setRoute(drugMember.getRoute());
-					drugOrder.setAdministrationInstructions(drugMember.getAdministrationInstructions());
-					// drugOrder.setFrequency(drugMember.getFrequency()); TODO: Need to fix with migration
-					drugOrder.setAsNeeded(drugMember.isAsNeeded());
-					drugOrder.setInstructions(drugMember.getInstructions());
-					Concept indication = drugMember.getIndication();
-					if (indication == null) {
-						indication = orderSet.getIndication();
-					}
-					drugOrder.setIndication(indication);
-					drugOrder.setDateActivated(memberStartDate); // TODO: Confirm that setting Date Activated is right
-					drugOrder.setAutoExpireDate(memberEndDate);
-					drugOrder.setGroup(orderGroup);
-					drugOrder.setPatient(patient);
-					drugOrder.setEncounter(encounter);
 
-					// TODO: This is not null safe, and not reliable - replace with proper method during migraiton
-					Person p = Context.getAuthenticatedUser().getPerson();
-					Provider orderer = Context.getProviderService().getProvidersByPerson(p).iterator().next();
-					drugOrder.setOrderer(orderer);
-
-					drugOrder.setOrderType(Context.getOrderService().getOrderTypeByName("Drug order")); // TODO: Replace this with proper method
-					drugOrder.setCareSetting(Context.getOrderService().getCareSettingByName("INPATIENT")); // TODO: Do this properly during 2.3 upgrade
-					setProperty(drugOrder, "orderNumber", UUID.randomUUID().toString()); // TODO: Remove this, added for 2.3 upgrade temporarily
-
-					orderGroup.addMember(drugOrder);
+				ExtendedDrugOrder drugOrder = new ExtendedDrugOrder();
+				drugOrder.setConcept(drugMember.getConcept());
+				drugOrder.setDrug(drugMember.getDrug());
+				drugOrder.setDose(drugMember.getDose());
+				// drugOrder.setUnits(drugMember.getUnits()); TODO: Need to fix with migration
+				drugOrder.setRoute(drugMember.getRoute());
+				drugOrder.setAdministrationInstructions(drugMember.getAdministrationInstructions());
+				// drugOrder.setFrequency(drugMember.getFrequency()); TODO: Need to fix with migration
+				drugOrder.setAsNeeded(drugMember.isAsNeeded());
+				drugOrder.setInstructions(drugMember.getInstructions());
+				Concept indication = drugMember.getIndication();
+				if (indication == null) {
+					indication = orderSet.getIndication();
 				}
-				else {
-					throw new APIException("We do not yet handle TestOrders");
-				}
+				drugOrder.setIndication(indication);
+				drugOrder.setDateActivated(memberStartDate); // TODO: Confirm that setting Date Activated is right
+				drugOrder.setAutoExpireDate(memberEndDate);
+				drugOrder.setGroup(orderGroup);
+				drugOrder.setPatient(patient);
+				drugOrder.setEncounter(encounter);
+
+				// TODO: This is not null safe, and not reliable - replace with proper method during migraiton
+				Person p = Context.getAuthenticatedUser().getPerson();
+				Provider orderer = Context.getProviderService().getProvidersByPerson(p).iterator().next();
+				drugOrder.setOrderer(orderer);
+
+				drugOrder.setOrderType(Context.getOrderService().getOrderTypeByName("Drug order")); // TODO: Replace this with proper method
+				drugOrder.setCareSetting(Context.getOrderService().getCareSettingByName("INPATIENT")); // TODO: Do this properly during 2.3 upgrade
+				setProperty(drugOrder, "orderNumber", UUID.randomUUID().toString()); // TODO: Remove this, added for 2.3 upgrade temporarily
+
+				orderGroup.addMember(drugOrder);
 			}
 			
 			orderExtSvc.saveOrderGroup(orderGroup);

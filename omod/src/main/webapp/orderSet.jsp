@@ -70,23 +70,4 @@
 	</c:if>
 </div>
 
-<c:if test="${!empty parentOrderSets}">
-	<br/>
-	<b class="boxHeader">
-		<span><spring:message code="orderextension.orderset.parents"/></span>
-	</b>
-	<div class="box">
-		<c:forEach items="${parentOrderSets}" var="parentOrderSet" varStatus="parentStatus">
-			<button onclick="document.location.href='orderSet.form?id=${parentOrderSet.id}';">
-				<img src='<c:url value="/images/leftArrow.gif"/>' border="0"/>
-				<c:choose>
-					<c:when test="${!empty parentOrderSet.name}">${parentOrderSet.name}</c:when>
-					<c:otherwise><spring:message code="orderextension.orderset.unnamedOrderSet"/></c:otherwise>
-				</c:choose>
-			</button>
-			<c:if test="${!parentStatus.last}"><br/></c:if>
-		</c:forEach>
-	</div>
-</c:if>
-
 <%@ include file="/WEB-INF/template/footer.jsp"%>

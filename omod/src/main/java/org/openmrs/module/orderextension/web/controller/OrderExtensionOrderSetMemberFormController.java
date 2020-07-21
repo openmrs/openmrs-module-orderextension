@@ -17,11 +17,11 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openmrs.OrderSetMember;
 import org.openmrs.api.APIException;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.orderextension.ExtendedOrderSet;
 import org.openmrs.module.orderextension.ExtendedOrderSetMember;
-import org.openmrs.module.orderextension.NestedOrderSetMember;
 import org.openmrs.module.orderextension.OrderSetMemberValidator;
 import org.openmrs.module.orderextension.api.OrderExtensionService;
 import org.openmrs.module.orderextension.util.OrderSetEditor;
@@ -104,11 +104,6 @@ public class OrderExtensionOrderSetMemberFormController {
 		model.addAttribute("orderSet", orderSet);
 		model.addAttribute("drugList", Context.getConceptService().getAllDrugs());
 		List<ExtendedOrderSet> existingOrderSets = getOrderExtensionService().getNamedOrderSets(false);
-		for (ExtendedOrderSetMember member : orderSet.getMembers()) {
-			if (member instanceof NestedOrderSetMember) {
-				existingOrderSets.add(((NestedOrderSetMember)member).getNestedOrderSet());
-			}
-		}
 		existingOrderSets.remove(orderSet);
 		model.addAttribute("existingOrderSets", existingOrderSets);
 	}
@@ -119,20 +114,10 @@ public class OrderExtensionOrderSetMemberFormController {
 	 * edit page.
 	 */
 	@RequestMapping(value = "/module/orderextension/orderSetMemberForm.form", method = RequestMethod.POST)
-	public String saveOrderSetMember(@ModelAttribute("orderSetMember") ExtendedOrderSetMember orderSetMember, BindingResult result,
+	public String saveOrderSetMember(@ModelAttribute("orderSetMember") OrderSetMember orderSetMember, BindingResult result,
 									 @RequestParam(value="orderSetId", required=true) Integer orderSetId, WebRequest request) {
 		
 		Integer nestedOrderSetId = null;
-		
-		if (orderSetMember instanceof NestedOrderSetMember) {
-			NestedOrderSetMember nestedMember = (NestedOrderSetMember) orderSetMember;
-			if (nestedMember.getNestedOrderSet() == null) {
-				ExtendedOrderSet newNestedOrderSet = new ExtendedOrderSet();
-				newNestedOrderSet = getOrderExtensionService().saveOrderSet(newNestedOrderSet);
-				nestedMember.setNestedOrderSet(newNestedOrderSet);
-				nestedOrderSetId = newNestedOrderSet.getId();
-			}
-		}
 		
 		// Validate
 		validator.validate(orderSetMember, result);
@@ -141,14 +126,16 @@ public class OrderExtensionOrderSetMemberFormController {
 		}
 		
 		ExtendedOrderSet orderSet = getOrderExtensionService().getOrderSet(orderSetId);
-		if (!orderSet.getMembers().contains(orderSetMember)) {
-			orderSet.addMember(orderSetMember);
+		if (!orderSet.getOrderSetMembers().contains(orderSetMember)) {
+			orderSet.addOrderSetMember(orderSetMember);
 		}
-		
+
+		/*
+		TODO: Will need to find a different approach using a sort weight parameter most likely
 		if (orderSetMember.getSortWeight() == null) {
 			orderSetMember.setSortWeight(orderSet.getMembers().size()-1);
 		}
-		
+		 */
 		orderSet = getOrderExtensionService().saveOrderSet(orderSet);
 		
 		String redirect = "redirect:orderSet.list?id="+orderSet.getId();
