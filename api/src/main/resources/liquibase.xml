@@ -258,6 +258,25 @@
 
 			update order_set_member set order_template = replace(order_template, '\r\n', '\\r\\n');
 
+			alter table orderextension_order_set drop uuid;
+			alter table orderextension_order_set drop name;
+			alter table orderextension_order_set drop description;
+			alter table orderextension_order_set drop operator;
+			alter table orderextension_order_set drop foreign key orderextension_order_set_indication_fk;
+			alter table orderextension_order_set drop indication;
+			alter table orderextension_order_set drop foreign key orderextension_order_set_creator_fk;
+			alter table orderextension_order_set drop creator;
+			alter table orderextension_order_set drop date_created;
+			alter table orderextension_order_set drop foreign key orderextension_order_set_changed_by_fk;
+			alter table orderextension_order_set drop changed_by;
+			alter table orderextension_order_set drop date_changed;
+			alter table orderextension_order_set drop retired;
+			alter table orderextension_order_set drop foreign key orderextension_order_set_retired_by_fk;
+			alter table orderextension_order_set drop retired_by;
+			alter table orderextension_order_set drop date_retired;
+			alter table orderextension_order_set drop retire_reason;
+
+			drop table orderextension_order_set_member;
 		</sql>
 	</changeSet>
 
