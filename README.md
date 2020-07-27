@@ -13,10 +13,12 @@ Also provides an alternative regimen tab for the patient dashboard that takes ad
 * Migration needed to change any roles with "View Order Sets" privilege to have the core "Get Order Sets" privilege.
 * Remove any assignment of "Delete Order Sets", this is not a supported privilege in core - use Manage Order Sets
 * Make sure all service methods and other privilege checks are using the Core "Get Order Sets" or "Manage Order Sets" privilege.
+* View Orders -> Get Orders as well
 
-* OrderEntryUtil needs to be fully implemented and fixed
+* OrderEntryUtil.* needs to be fully implemented and fixed
 * Changes to Ajax representations - see comments in OrderExtensionAjaxController
 
+* Handle / support discontinue orders
 
 
 Further Info:
@@ -28,10 +30,13 @@ Further Info:
 situations like combination drugs and other more general cases that the more strict doseStrength doesn't allow for.
   - See Burke and Darius comments here:  https://talk.openmrs.org/t/capturing-drug-strength-in-a-structured-way-in-database/1820/2
 
+* Need unit tests across the board
 
 Testing cases:
 
-- Order set creation
+- Order set creation, add/remove/re-order members, edit members, edit order set, etc. (with extended data)
+- "" for order groups
+- Drug Order Comparator test fix
 - Drug order: including special fields
 - Order HIV orders
 - Order cyclical order set
