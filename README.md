@@ -27,3 +27,31 @@ Further Info:
 * Drug doseStrength (Double) + units (String) removed in favor of a single "strength" String, as this allows for
 situations like combination drugs and other more general cases that the more strict doseStrength doesn't allow for.
   - See Burke and Darius comments here:  https://talk.openmrs.org/t/capturing-drug-strength-in-a-structured-way-in-database/1820/2
+
+
+Testing cases:
+
+- Order set creation
+- Drug order: including special fields
+- Order HIV orders
+- Order cyclical order set
+- Order non-cyclical order set
+- Delay order group
+- Print chemo
+
+
+Future design considerations from OpenMRS and FHIR:
+
+https://talk.openmrs.org/t/chemotherapy-ordering-data-design/19133/6?u=mseaton
+https://github.com/openmrs/openmrs-module-oncology/blob/master/docs/Mockups.md
+https://github.com/dearmasm/openmrs-module-oncology/blob/master/regimens/CHOP.yaml
+https://github.com/dearmasm/openmrs-module-oncology/blob/master/utils/YAAR_DOCS.md
+
+https://www.hl7.org/fhir/requestgroup.html
+https://www.hl7.org/fhir/plandefinition.html
+https://www.hl7.org/fhir/datatypes.html#Timing
+http://hl7.org/fhir/medicationrequest-definitions.html#MedicationRequest.groupIdentifier
+https://www.hl7.org/fhir/plandefinition-example-kdn5-simplified.json.html
+https://www.hl7.org/fhir/requestgroup-kdn5-example.json.html
+
+
