@@ -18,7 +18,6 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.OrderSetMember;
-import org.openmrs.api.APIException;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.orderextension.ExtendedOrderSet;
 import org.openmrs.module.orderextension.ExtendedOrderSetMember;
@@ -102,7 +101,7 @@ public class OrderExtensionOrderSetMemberFormController {
 	 * edit page.
 	 */
 	@RequestMapping(value = "/module/orderextension/orderSetMemberForm.form", method = RequestMethod.POST)
-	public String saveOrderSetMember(@ModelAttribute("orderSetMember") OrderSetMember orderSetMember, BindingResult result,
+	public String saveOrderSetMember(@ModelAttribute("orderSetMember") ExtendedOrderSetMember orderSetMember, BindingResult result,
 									 @RequestParam(value="orderSetId", required=true) Integer orderSetId, WebRequest request) {
 		
 		// Validate
@@ -112,16 +111,11 @@ public class OrderExtensionOrderSetMemberFormController {
 		}
 		
 		ExtendedOrderSet orderSet = getOrderExtensionService().getOrderSet(orderSetId);
-		if (!orderSet.getOrderSetMembers().contains(orderSetMember)) {
-			orderSet.addOrderSetMember(orderSetMember);
+		OrderSetMember member = orderSetMember.getMember();
+		if (member.getOrderSet() == null) {
+			member.setOrderSet(orderSet);
+			orderSet.addOrderSetMember(member);
 		}
-
-		/*
-		TODO: Will need to find a different approach using a sort weight parameter most likely
-		if (orderSetMember.getSortWeight() == null) {
-			orderSetMember.setSortWeight(orderSet.getMembers().size()-1);
-		}
-		 */
 		orderSet = getOrderExtensionService().saveOrderSet(orderSet);
 
 		return "redirect:orderSet.list?id="+orderSet.getId();

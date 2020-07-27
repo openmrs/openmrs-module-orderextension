@@ -23,6 +23,7 @@ import org.openmrs.Drug;
 import org.openmrs.OpenmrsObject;
 import org.openmrs.OrderSetMember;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.orderextension.util.OrderEntryUtil;
 
 /**
  * This represents a single member within an CyclicalOrderSet
@@ -32,12 +33,19 @@ public class ExtendedOrderSetMember {
 	public static final long serialVersionUID = 1L;
 
 	private OrderSetMember member;
+
+	public ExtendedOrderSetMember() {
+		this(new OrderSetMember());
+	}
 	
 	/**
 	 * Default Constructor
 	 */
 	public ExtendedOrderSetMember(OrderSetMember member) {
 		this.member = member;
+		if (member.getOrderType() == null) {
+			member.setOrderType(OrderEntryUtil.getDrugOrderType());
+		}
 	}
 
 	public OrderSetMember getMember() {
@@ -52,14 +60,25 @@ public class ExtendedOrderSetMember {
 		return (ExtendedOrderSet) member.getOrderSet();
 	}
 
+	public void setOrderSet(ExtendedOrderSet orderSet) {
+		member.setOrderSet(orderSet);
+	}
+
 	public Concept getConcept() {
 		return member.getConcept();
 	}
 
+	public void setConcept(Concept concept) {
+		member.setConcept(concept);
+	}
+
 	@Override
 	public boolean equals(Object o) {
-		ExtendedOrderSetMember that = (ExtendedOrderSetMember)o;
-		return this.member.equals(that.member);
+		if (o != null && o instanceof ExtendedOrderSetMember) {
+			ExtendedOrderSetMember that = (ExtendedOrderSetMember) o;
+			return this.member.equals(that.member);
+		}
+		return false;
 	}
 
 	protected <T> T getTemplateProperty(String propertyName, Class<T> type) {
@@ -111,7 +130,7 @@ public class ExtendedOrderSetMember {
 				map = mapper.readValue(member.getOrderTemplate(), Map.class);
 			}
 			if (propertyValue instanceof OpenmrsObject) {
-				propertyValue = ((Concept)propertyValue).getUuid();
+				propertyValue = ((OpenmrsObject)propertyValue).getUuid();
 			}
 			map.put(propertyName, propertyValue);
 			member.setOrderTemplate(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(map));
@@ -282,7 +301,7 @@ public class ExtendedOrderSetMember {
 	 * @return the asNeeded
 	 */
 	public boolean isAsNeeded() {
-		return "true".equals(getTemplateProperty("administrationInstructions", String.class));
+		return "true".equals(getTemplateProperty("asNeeded", String.class));
 	}
 
 	/**

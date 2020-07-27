@@ -8,7 +8,7 @@
 </script>
 
 <h2>
-	${orderSet.name}: 
+	${orderSet.name}:
 	<c:choose>
 		<c:when test="${empty orderSetMember.member}"><spring:message code="general.add"/></c:when>
 		<c:otherwise><spring:message code="general.edit"/></c:otherwise>
@@ -166,7 +166,7 @@
 	&nbsp;&nbsp;
 	<input type="button" value="<spring:message code='general.cancel'/>" onclick="document.location.href='orderSet.list?id=${orderSet.orderSetId};'" />
 </form:form>
-	
+
 </div>
 
 <%@ include file="/WEB-INF/template/footer.jsp"%>

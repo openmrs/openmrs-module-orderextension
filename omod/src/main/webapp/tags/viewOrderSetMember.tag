@@ -14,6 +14,10 @@
 	<td style="white-space:nowrap; vertical-align:top;">
 		<a href="orderSetMemberForm.form?orderSetId=${orderSet.orderSetId}&uuid=${member.uuid}"><img src='<c:url value="/images/edit.gif"/>' border="0"/></a>
 		&nbsp;
+		<a href="orderSetMemberSortForm.form?uuid=${member.uuid}&&num=-1"><span style="font-weight:bold;">&uarr;</span></a>
+		&nbsp;
+		<a href="orderSetMemberSortForm.form?uuid=${member.uuid}&&num=1"><span style="font-weight:bold;">&darr;</span></a>
+		&nbsp;
 		<a href="deleteOrderSetMember.form?uuid=${member.uuid}"><img src='<c:url value="/images/trash.gif"/>' border="0"/></a>
 	</td>
 	<td style="width:100%; text-align:left; vertical-align:top; padding:5px;">
