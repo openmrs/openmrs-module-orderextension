@@ -114,6 +114,7 @@ public class OrderExtensionOrderSetMemberFormController {
 		OrderSetMember member = orderSetMember.getMember();
 		if (member.getOrderSet() == null) {
 			member.setOrderSet(orderSet);
+			member.setOrderTemplateType("orderextension");
 			orderSet.addOrderSetMember(member);
 		}
 		orderSet = getOrderExtensionService().saveOrderSet(orderSet);
