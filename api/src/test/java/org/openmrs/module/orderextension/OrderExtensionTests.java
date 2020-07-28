@@ -16,6 +16,7 @@ package org.openmrs.module.orderextension;
 import java.util.Date;
 
 import org.junit.Test;
+import org.openmrs.DrugOrder;
 import org.openmrs.Encounter;
 import org.openmrs.Patient;
 import org.openmrs.api.OrderContext;
@@ -41,7 +42,7 @@ public class OrderExtensionTests extends BaseModuleContextSensitiveTest {
 			encounter.setLocation(Context.getLocationService().getLocation(1));
 			Context.getEncounterService().saveEncounter(encounter);
 
-			ExtendedDrugOrder drugOrder = new ExtendedDrugOrder();
+			DrugOrder drugOrder = new DrugOrder();
 			drugOrder.setOrderType(Context.getOrderService().getOrderType(1));
 			drugOrder.setPatient(p1);
 			drugOrder.setEncounter(encounter);
@@ -53,7 +54,7 @@ public class OrderExtensionTests extends BaseModuleContextSensitiveTest {
 			drugOrder.setDoseUnits(Context.getConceptService().getConcept(50));
 			drugOrder.setRoute(Context.getOrderService().getDrugRoutes().get(0));
 			drugOrder.setFrequency(Context.getOrderService().getOrderFrequency(1));
-			drugOrder.setAdministrationInstructions("Take 2 and call me in the morning");
+			drugOrder.setDosingInstructions("Take 2 and call me in the morning");
 			drugOrder.setDateActivated(new Date());
 			Context.getOrderService().saveOrder(drugOrder, new OrderContext());
 		}

@@ -22,9 +22,7 @@ import java.util.Map;
 
 import org.openmrs.Concept;
 import org.openmrs.DrugOrder;
-import org.openmrs.Obs;
 import org.openmrs.api.context.Context;
-import org.openmrs.util.OpenmrsUtil;
 
 /**
  * Helper class for classifying Drug Orders
@@ -55,13 +53,8 @@ public class DrugClassificationHelper {
 		
 		for (DrugOrder o : drugOrders) {
 			
-			Concept indication = null;
-			
-			if (o instanceof ExtendedDrugOrder) {
-				ExtendedDrugOrder edo = (ExtendedDrugOrder)o;
-				indication = edo.getIndication();
-			}
-			
+			Concept indication = o.getOrderReason();
+
 			boolean found = false;
 			if (indication != null) {
 				for (Map.Entry<Concept, List<Concept>> entry: indications.entrySet()) {

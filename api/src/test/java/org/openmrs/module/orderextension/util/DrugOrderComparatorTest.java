@@ -21,12 +21,12 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.openmrs.DrugOrder;
+import org.openmrs.Order;
 import org.openmrs.OrderSetMember;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.orderextension.DrugOrderComparator;
 import org.openmrs.module.orderextension.DrugRegimen;
-import org.openmrs.module.orderextension.ExtendedDrugOrder;
 import org.openmrs.module.orderextension.ExtendedOrderSet;
 import org.openmrs.module.orderextension.ExtendedOrderSetMember;
 import org.openmrs.module.orderextension.api.OrderExtensionService;
@@ -57,7 +57,7 @@ public class DrugOrderComparatorTest extends BaseModuleContextSensitiveTest {
 
             // Ensure that three order groups were in fact created
             List<DrugRegimen> regimens = new ArrayList<DrugRegimen>();
-            for (DrugRegimen regimen : getService().getOrderGroups(p, DrugRegimen.class)) {
+            for (DrugRegimen regimen : getService().getDrugRegimens(p)) {
                 if (regimen.getOrderSet().equals(orderSet)) {
                     regimens.add(regimen);
                 }
@@ -77,7 +77,10 @@ public class DrugOrderComparatorTest extends BaseModuleContextSensitiveTest {
             for (DrugRegimen regimen : regimens) {
 
                 // Ensure that the right number of drug orders was created, based on the order set
-                List<DrugOrder> orderList = new ArrayList<DrugOrder>(regimen.getMembers());
+                List<DrugOrder> orderList = new ArrayList<DrugOrder>();
+                for (Order o : regimen.getOrders()) {
+                    orderList.add((DrugOrder)o);
+                }
                 Assert.assertEquals(membersOrderedBySortWeight.size(), orderList.size());
 
                 // Sort the drug orders, using the DrugOrderComparator
@@ -85,10 +88,10 @@ public class DrugOrderComparatorTest extends BaseModuleContextSensitiveTest {
 
                 // Test that the drug order at the given index is based on the order set member at the same index, based on drug, indication, route
                 for (int i = 0; i < orderList.size(); i++) {
-                    ExtendedDrugOrder order = (ExtendedDrugOrder) orderList.get(i);
+                    DrugOrder order = orderList.get(i);
                     ExtendedOrderSetMember member = membersOrderedBySortWeight.get(i);
                     Assert.assertEquals("Expected drug " + member.getDrug().getName() + " but found " + order.getDrug().getName(), member.getDrug(), order.getDrug());
-                    Assert.assertEquals(member.getIndication(), order.getIndication());
+                    Assert.assertEquals(member.getIndication(), order.getOrderReason());
                     Assert.assertEquals(member.getRoute(), order.getRoute());
                 }
             }

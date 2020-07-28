@@ -27,7 +27,6 @@ import org.openmrs.Concept;
 import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.orderextension.ExtendedDrugOrder;
 import org.openmrs.module.orderextension.util.DrugConceptHelper;
 import org.openmrs.module.orderextension.util.OrderEntryUtil;
 import org.springframework.stereotype.Controller;
@@ -151,39 +150,36 @@ public class OrderExtensionAjaxController {
 
 		info.put("instructions", drugOrder.getInstructions());
 
-		if(drugOrder instanceof ExtendedDrugOrder)
+
+		info.put("adminInstructions", drugOrder.getDosingInstructions());
+
+		String ind = "";
+		String classification = "";
+
+		Concept indication = drugOrder.getOrderReason();
+		if(indication != null)
 		{
-			ExtendedDrugOrder eDrugOrder = (ExtendedDrugOrder)drugOrder;
-			info.put("adminInstructions", eDrugOrder.getAdministrationInstructions());
+			DrugConceptHelper drugHelper = new DrugConceptHelper();
+			List<Concept> classifications = drugHelper.getIndications();
 
-			String ind = "";
-			String classification = "";
-
-			Concept indication = eDrugOrder.getIndication();
-			if(indication != null)
+			for(Concept concept: classifications)
 			{
-				DrugConceptHelper drugHelper = new DrugConceptHelper();
-				List<Concept> classifications = drugHelper.getIndications();
-
-				for(Concept concept: classifications)
+				List<Concept> setMembers = concept.getSetMembers();
+				if(setMembers.contains(indication))
 				{
-					List<Concept> setMembers = concept.getSetMembers();
-					if(setMembers.contains(indication))
-					{
-						ind = concept.getId().toString();
-						classification =  indication.getId().toString();
-					}
-					else if(indication.equals(concept))
-					{
-						ind =  indication.getId().toString();
-						break;
-					}
+					ind = concept.getId().toString();
+					classification =  indication.getId().toString();
+				}
+				else if(indication.equals(concept))
+				{
+					ind =  indication.getId().toString();
+					break;
 				}
 			}
-
-			info.put("classification", classification);
-			info.put("indication", ind);
 		}
+
+		info.put("classification", classification);
+		info.put("indication", ind);
 
 		info.put("startDate", Context.getDateFormat().format(drugOrder.getEffectiveStartDate()));
 

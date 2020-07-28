@@ -15,41 +15,20 @@ package org.openmrs.module.orderextension;
 
 import java.util.Comparator;
 
-import org.openmrs.api.context.Context;
+import org.openmrs.OrderSet;
 
 /**
- * Sorts Drug Orders by date and then by name
+ * Compares two Order Sets based on indication, then name
  */
-public class OrderSetComparator implements Comparator<ExtendedOrderSet> {
-	
-	private String undefined = Context.getAdministrationService().getGlobalProperty("orderextension.regimen.unclassified");
+public class OrderSetComparator implements Comparator<OrderSet> {
+
 	/**
 	 * @see Comparator#compare(Object, Object)
 	 */
 	@Override
-	public int compare(ExtendedOrderSet r1, ExtendedOrderSet r2) {
-        
-        String r1Name = "";
-        String r2Name = "";
-        
-        if(r1.getIndication() != null)
-        {
-        	r1Name = r1.getIndication().getDisplayString() + " - " + r1.getName();
-        }
-        else
-        {
-        	r1Name = undefined + " - " + r1.getName();
-        }
-        
-        if(r2.getIndication() != null)
-        {
-        	r2Name = r2.getIndication().getDisplayString() + " - " + r2.getName();
-        }
-        else
-        {
-        	r2Name = undefined + " - " + r2.getName();
-        }
-        
-        return r1Name.compareTo(r2Name);
+	public int compare(OrderSet r1, OrderSet r2) {
+        String s1 = (r1.getCategory() == null ? "ZZZZZZ" : r1.getCategory().getDisplayString()) + " - " + r1.getName();
+		String s2 = (r2.getCategory() == null ? "ZZZZZZ" : r2.getCategory().getDisplayString()) + " - " + r2.getName();
+		return s1.compareTo(s2);
      }
 }

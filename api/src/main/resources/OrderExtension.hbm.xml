@@ -11,44 +11,9 @@
 		<property name="cycleLengthInDays" type="int" column="cycle_length"/>
 	</joined-subclass>
     
-    <class name="ExtendedOrderGroup" table="orderextension_order_group">
-    
-        <id name="id" type="int" column="id">
-            <generator class="native">
-                <param name="sequence">orderextension_order_group_id_seq</param>
-            </generator>
-        </id>
-        
-        <discriminator column="group_type" type="string" not-null="true" length="255"/>
-        
-        <property name="uuid" type="string" column="uuid" length="38" unique="true" not-null="true" />
-        <many-to-one name="orderSet" class="org.openmrs.module.orderextension.ExtendedOrderSet" column="order_set_id" />
-        
-        <many-to-one name="creator" class="org.openmrs.User" not-null="true" />
-		<property name="dateCreated" type="java.util.Date" column="date_created" not-null="true" length="19" />
-		<property name="voided" type="java.lang.Boolean" length="1" not-null="true" />
-		<many-to-one name="voidedBy" class="org.openmrs.User" column="voided_by" />
-		<property name="dateVoided" type="java.util.Date" column="date_voided" length="19" />
-		<property name="voidReason" type="java.lang.String" column="void_reason" length="255" />
-
-        <subclass name="DrugRegimen">
-        	<property name="cycleNumber" type="int" column="cycle_number"/>
-	        
-	        <set name="members" cascade="all-delete-orphan" lazy="false" inverse="false" batch-size="1000">
-	            <key column="group_id" not-null="false"/>
-	            <one-to-many class="ExtendedDrugOrder" />
-	        </set>
-	   	</subclass>
-
-    </class>
-
-
-    <joined-subclass name="ExtendedDrugOrder" extends="org.openmrs.DrugOrder" table="orderextension_order">
-    	<key column="order_id"/>
-    	<many-to-one name="group" class="ExtendedOrderGroup" column="group_id" lazy="false" insert="false" update="false"/>
-    	<many-to-one name="indication" class="org.openmrs.Concept"/>
-    	<many-to-one name="route" class="org.openmrs.Concept"/>
-    	<property name="administrationInstructions" type="string" column="administration_instructions"/>
+    <joined-subclass name="DrugRegimen" extends="org.openmrs.OrderGroup" table="orderextension_order_group">
+		<key column="id"/>
+		<property name="cycleNumber" type="int" column="cycle_number"/>
     </joined-subclass>
 
 </hibernate-mapping>

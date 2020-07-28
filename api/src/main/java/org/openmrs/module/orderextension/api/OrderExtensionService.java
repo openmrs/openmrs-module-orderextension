@@ -17,13 +17,13 @@ import java.util.Date;
 import java.util.List;
 
 import org.openmrs.Concept;
+import org.openmrs.DrugOrder;
+import org.openmrs.OrderSet;
 import org.openmrs.Patient;
 import org.openmrs.annotation.Authorized;
 import org.openmrs.api.OpenmrsService;
 import org.openmrs.module.orderextension.DrugRegimen;
-import org.openmrs.module.orderextension.ExtendedDrugOrder;
 import org.openmrs.module.orderextension.ExtendedOrderSet;
-import org.openmrs.module.orderextension.ExtendedOrderGroup;
 import org.openmrs.module.orderextension.ExtendedOrderSetMember;
 import org.openmrs.module.orderextension.util.OrderExtensionConstants;
 import org.openmrs.util.PrivilegeConstants;
@@ -111,16 +111,15 @@ public interface OrderExtensionService extends OpenmrsService {
 	 * @should save changes to an existing ExtendedOrderGroup
 	 */
 	@Authorized(PrivilegeConstants.ADD_ORDERS)
-	public <T extends ExtendedOrderGroup> T saveOrderGroup(T orderGroup);
+	public DrugRegimen saveDrugRegimen(DrugRegimen orderGroup);
 	
 	/**
 	 * @param patient the Patient for whom to retrieve the Orders
-	 * @param type the type of ExtendedOrderGroup to retrieve
 	 * @return a List of all OrderGroups
 	 * @should return all OrderGroups for the passed patient for the passed type
 	 */
 	@Authorized(PrivilegeConstants.GET_ORDERS)
-	public <T extends ExtendedOrderGroup> List<T> getOrderGroups(Patient patient, Class<T> type);
+	public List<DrugRegimen> getDrugRegimens(Patient patient);
 	
 	/**
 	 * @param patient the Patient for whom to add the Orders
@@ -131,12 +130,6 @@ public interface OrderExtensionService extends OpenmrsService {
 	 */
 	@Authorized(PrivilegeConstants.ADD_ORDERS)
 	public void addOrdersForPatient(Patient patient, ExtendedOrderSet orderSet, Date startDate, Integer numCycles);
-
-	/**
-     * @param id the id of the orderGroup to be returned
-     * @return the requested orderGroup
-     */
-    public ExtendedOrderGroup getOrderGroup(Integer id);
     
     /**
      * @param id the id of the drugRegimen to be returned
@@ -146,16 +139,15 @@ public interface OrderExtensionService extends OpenmrsService {
     
     /**
      * @param regimen for which the maximum number of cycles should be retrieved for
-     * @param patient for which the regimens belong
      * @return the Integer representing the maximum number of cycles
      */
-    public Integer getMaxNumberOfCyclesForRegimen(Patient patient, DrugRegimen regimen);
+    public Integer getMaxNumberOfCyclesForRegimen(DrugRegimen regimen);
 
 	/**
      * @param patient the Patient for whom to retrieve orders
      * @param orderSet the id of the order set to which the drug orders should belong
      */
-    public List<ExtendedDrugOrder> getFutureDrugOrdersOfSameOrderSet(Patient patient, ExtendedOrderSet orderSet, Date startDate);
+    public List<DrugOrder> getFutureDrugOrdersOfSameOrderSet(Patient patient, OrderSet orderSet, Date startDate);
 
     /**
      * @param patient the Patient for whom to retrieve orders
@@ -166,5 +158,5 @@ public interface OrderExtensionService extends OpenmrsService {
 	/**
      * @param patient the Patient for whom to retrieve the orders
      */
-     public List<ExtendedDrugOrder> getExtendedDrugOrders(Patient patient, Concept indication, Date startDateAfter, Date startDateBefore);
+     public List<DrugOrder> getDrugOrders(Patient patient, Concept indication, Date startDateAfter, Date startDateBefore);
 }

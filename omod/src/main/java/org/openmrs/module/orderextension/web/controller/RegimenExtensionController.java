@@ -31,7 +31,6 @@ import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.orderextension.DrugOrderComparator;
 import org.openmrs.module.orderextension.DrugRegimen;
-import org.openmrs.module.orderextension.ExtendedDrugOrder;
 import org.openmrs.module.orderextension.ExtendedOrderSet;
 import org.openmrs.module.orderextension.OrderSetComparator;
 import org.openmrs.module.orderextension.api.OrderExtensionService;
@@ -72,79 +71,46 @@ public class RegimenExtensionController extends PortletController{
 		
 		StringBuilder regimenHeading = new StringBuilder();
 		
-		for(DrugOrder drugOrder : allDrugOrders)
-		{
-			if(drugOrder.getEffectiveStopDate() != null)
-			{
+		for (DrugOrder drugOrder : allDrugOrders) {
+			if (drugOrder.getEffectiveStopDate() != null) {
 				//now check if they are one of the indications that we want to show in the calendar
-				if(drugOrder instanceof ExtendedDrugOrder)
-				{
-					ExtendedDrugOrder edo = (ExtendedDrugOrder)drugOrder;
-					if(edo.getIndication() != null && inclusionConcepts.contains(edo.getIndication()))
-					{
-						drugOrdersNonContinuous.add(drugOrder);
-					}
+				if(drugOrder.getOrderReason() != null && inclusionConcepts.contains(drugOrder.getOrderReason())) {
+					drugOrdersNonContinuous.add(drugOrder);
 				}
-				
 			}
-			else
-			{
+			else {
 				drugOrdersContinuous.add(drugOrder);
 			}
-			
-			if (drugOrder instanceof ExtendedDrugOrder) {
-				ExtendedDrugOrder edo = (ExtendedDrugOrder)drugOrder;
-				if(edo.getGroup() != null && edo.getGroup() instanceof DrugRegimen) {
-					DrugRegimen regimen = (DrugRegimen)edo.getGroup();
-					if (regimen.isCyclical())
-					{
-						if(!cycles.contains(regimen))
-						{
-							cycles.add(regimen);
-							if((OrderEntryUtil.isCurrent(drugOrder) || OrderEntryUtil.isFuture(drugOrder)) && !regimenHeading.toString().contains(regimen.getName()))
-							{
-								if(regimenHeading.length() > 0)
-								{
-									regimenHeading.append(", ");
-								}
-								regimenHeading.append(regimen.getName());
-							}
-						}
-					}
-					else{
-						if(OrderEntryUtil.isCurrent(drugOrder)  && !regimenHeading.toString().contains(regimen.getName()))
-						{
-							if(regimenHeading.length() > 0)
-							{
+
+			if (drugOrder.getOrderGroup() != null && drugOrder.getOrderGroup() instanceof DrugRegimen) {
+				DrugRegimen regimen = (DrugRegimen) drugOrder.getOrderGroup();
+				if (regimen.isCyclical()) {
+					if(!cycles.contains(regimen)) {
+						cycles.add(regimen);
+						if ((OrderEntryUtil.isCurrent(drugOrder) || OrderEntryUtil.isFuture(drugOrder)) && !regimenHeading.toString().contains(regimen.getName())) {
+							if(regimenHeading.length() > 0) {
 								regimenHeading.append(", ");
 							}
 							regimenHeading.append(regimen.getName());
 						}
-						
-						if(regimen.getLastDrugOrderEndDate() != null && !fixedLengthRegimens.contains(regimen))
-						{
-							fixedLengthRegimens.add(regimen);
-						}
 					}
 				}
-				else
-				{
-					if(OrderEntryUtil.isCurrent(drugOrder) && !OrderEntryUtil.isFuture(drugOrder))
-					{
-						if(regimenHeading.length() > 0)
-						{
+				else{
+					if(OrderEntryUtil.isCurrent(drugOrder)  && !regimenHeading.toString().contains(regimen.getName())) {
+						if(regimenHeading.length() > 0) {
 							regimenHeading.append(", ");
 						}
-						regimenHeading.append(drugOrder.getDrug().getName());
+						regimenHeading.append(regimen.getName());
+					}
+
+					if(regimen.getLastDrugOrderEndDate() != null && !fixedLengthRegimens.contains(regimen)) {
+						fixedLengthRegimens.add(regimen);
 					}
 				}
 			}
-			else
-			{
-				if(OrderEntryUtil.isCurrent(drugOrder) && !OrderEntryUtil.isFuture(drugOrder))
-				{
-					if(regimenHeading.length() > 0)
-					{
+			else {
+				if(OrderEntryUtil.isCurrent(drugOrder) && !OrderEntryUtil.isFuture(drugOrder)) {
+					if(regimenHeading.length() > 0) {
 						regimenHeading.append(", ");
 					}
 					regimenHeading.append(drugOrder.getDrug().getName());

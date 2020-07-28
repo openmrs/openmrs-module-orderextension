@@ -14,15 +14,20 @@
 package org.openmrs.module.orderextension;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
-import org.openmrs.Concept;
+import org.apache.commons.lang.StringUtils;
+import org.openmrs.DrugOrder;
+import org.openmrs.Order;
+import org.openmrs.OrderGroup;
 
 /**
- * This represents a particular type of ExtendedOrderGroup which contains one or more
+ * This represents a particular type of OrderGroup which contains one or more
  * DrugOrders and a reference to an ExtendedOrderSet to make up a DrugRegimen
  */
-public class DrugRegimen extends ExtendedOrderGroup implements Serializable {
+public class DrugRegimen extends OrderGroup implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -32,11 +37,6 @@ public class DrugRegimen extends ExtendedOrderGroup implements Serializable {
 	public DrugRegimen() {
 		super();
 	}
-	
-	/**
-	 * Contains the individual DrugOrders within this Regimen
-	 */
-	private Set<ExtendedDrugOrder> members;
 
 	/**
 	 * If this regimen is one of many in a cycle, this provides
@@ -60,36 +60,28 @@ public class DrugRegimen extends ExtendedOrderGroup implements Serializable {
 	 * @return whether or not this Regimen is cyclical.  Delegates to the underlying ExtendedOrderSet
 	 */
 	public boolean isCyclical() {
-		return getOrderSet() != null && getOrderSet().isCyclical();
+		if (getOrderSet() instanceof ExtendedOrderSet) {
+			return ((ExtendedOrderSet) getOrderSet()).isCyclical();
+		}
+		return false;
+	}
+
+	public List<DrugOrder> getMembers() {
+		List<DrugOrder> ret = new ArrayList<DrugOrder>();
+		for (Order o : getOrders()) {
+			ret.add((DrugOrder)o);
+		}
+		return ret;
 	}
 	
 	/**
 	 * @return the length in days between the start of one cycle and the start of the next cycle, if applicable
 	 */
 	public Integer getCycleLengthInDays() {
-		if (getOrderSet() != null) {
-			return getOrderSet().getCycleLengthInDays();
+		if (getOrderSet() instanceof ExtendedOrderSet) {
+			return ((ExtendedOrderSet) getOrderSet()).getCycleLengthInDays();
 		}
 		return null;
-	}
-	
-	/**
-	 * @return a Map from indication Concept to Set<ExtendedDrugOrder> for the drug orders with this indication
-	 * these are returned in order of startDate ascending
-	 */
-	public Map<Concept, List<ExtendedDrugOrder>> getOrdersByIndication() {
-		Map<Concept, List<ExtendedDrugOrder>> m = new HashMap<Concept, List<ExtendedDrugOrder>>();
-		List<ExtendedDrugOrder> allOrders = new ArrayList<ExtendedDrugOrder>(getMembers());
-		Collections.sort(allOrders, new DrugOrderComparator());
-		for (ExtendedDrugOrder d : allOrders) {
-			List<ExtendedDrugOrder> l = m.get(d.getIndication());
-			if (l == null) {
-				l = new ArrayList<ExtendedDrugOrder>();
-				m.put(d.getIndication(), l);
-			}
-			l.add(d);
-		}
-		return m;
 	}
 	
 	/**
@@ -97,9 +89,9 @@ public class DrugRegimen extends ExtendedOrderGroup implements Serializable {
 	 */
 	public Date getFirstDrugOrderStartDate() {
 		Date d = null;
-		for (ExtendedDrugOrder drugOrder : getMembers()) {
-			if (d == null || d.after(drugOrder.getEffectiveStartDate())) {
-				d = drugOrder.getEffectiveStartDate();
+		for (Order o : getOrders()) {
+			if (d == null || d.after(o.getEffectiveStartDate())) {
+				d = o.getEffectiveStartDate();
 			}
 		}
 		return d;
@@ -110,8 +102,8 @@ public class DrugRegimen extends ExtendedOrderGroup implements Serializable {
 	 */
 	public Date getLastDrugOrderEndDate() {
 		Date d = null;
-		for (ExtendedDrugOrder drugOrder : getMembers()) {
-			Date endDate = drugOrder.getEffectiveStopDate();
+		for (Order o : getOrders()) {
+			Date endDate = o.getEffectiveStopDate();
 			if (endDate == null) {
 				return null;
 			}
@@ -127,34 +119,14 @@ public class DrugRegimen extends ExtendedOrderGroup implements Serializable {
 	 */
 	@Override
 	public String toString() {
-		return getName();
-	}
-	
-	//********** PROPERTY ACCESS ***************
-
-	/**
-	 * @return the members
-	 */
-	public Set<ExtendedDrugOrder> getMembers() {
-		if (members == null) {
-			members = new HashSet<ExtendedDrugOrder>();
+		String s = getName();
+		if (StringUtils.isNotBlank(s)) {
+			return s;
 		}
-		return members;
+		return super.toString();
 	}
 
-	/**
-	 * @param members the members to set
-	 */
-	public void setMembers(Set<ExtendedDrugOrder> members) {
-		this.members = members;
-	}
-	
-	/**
-	 * @param member the member to add
-	 */
-	public void addMember(ExtendedDrugOrder member) {
-		getMembers().add(member);
-	}
+	//********** PROPERTY ACCESS ***************
 
 	/**
 	 * @return the cycleNumber

@@ -25,7 +25,6 @@ import org.openmrs.DrugOrder;
 import org.openmrs.Patient;
 import org.openmrs.module.orderextension.DrugClassificationHelper;
 import org.openmrs.module.orderextension.DrugRegimen;
-import org.openmrs.module.orderextension.ExtendedDrugOrder;
 import org.openmrs.module.orderextension.util.DrugConceptHelper;
 import org.openmrs.module.orderextension.util.OrderEntryUtil;
 import org.openmrs.web.controller.PortletController;
@@ -58,33 +57,22 @@ public class OrderExtensionPortletController extends PortletController {
 		List<DrugOrder> orders = new ArrayList<DrugOrder>();
 		
 		for (DrugOrder o : allOrders) {
-			
 			boolean unsorted = true;
-			if(o instanceof ExtendedDrugOrder)
-			{
-				ExtendedDrugOrder edo = (ExtendedDrugOrder)o;
-				if(edo.getGroup() != null)
-				{
-					if(edo.getGroup() instanceof DrugRegimen)
-					{
-						DrugRegimen dr = (DrugRegimen)edo.getGroup();
-						if(dr.getFirstDrugOrderStartDate().before(new Date()))
-						{
-							if(dr.getLastDrugOrderEndDate() == null || dr.getLastDrugOrderEndDate().after(new Date()))
-							{
-								if(CURRENT_MODE.equals(mode))
-								{
-									orders.add(o);
-								}
-									unsorted = false;
+			if(o.getOrderGroup() != null) {
+				if (o.getOrderGroup() instanceof DrugRegimen) {
+					DrugRegimen dr = (DrugRegimen) o.getOrderGroup();
+					if (dr.getFirstDrugOrderStartDate().before(new Date())) {
+						if (dr.getLastDrugOrderEndDate() == null || dr.getLastDrugOrderEndDate().after(new Date())) {
+							if (CURRENT_MODE.equals(mode)) {
+								orders.add(o);
 							}
+							unsorted = false;
 						}
 					}
 				}
 			}
 			
-			if(unsorted)
-			{
+			if(unsorted) {
 				if (OrderEntryUtil.isCurrent(o)) {
 					if (CURRENT_MODE.equals(mode)) {
 						orders.add(o);
@@ -111,8 +99,7 @@ public class OrderExtensionPortletController extends PortletController {
 //							orders.add(o);
 //						}
 //					}
-					if(COMPLETED_MODE.equals(mode))
-					{
+					if(COMPLETED_MODE.equals(mode)) {
 						orders.add(o);
 					}
 				}

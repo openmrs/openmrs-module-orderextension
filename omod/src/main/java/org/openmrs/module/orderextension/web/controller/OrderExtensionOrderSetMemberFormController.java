@@ -15,16 +15,12 @@ package org.openmrs.module.orderextension.web.controller;
 
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openmrs.OrderSetMember;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.orderextension.ExtendedOrderSet;
 import org.openmrs.module.orderextension.ExtendedOrderSetMember;
-import org.openmrs.module.orderextension.OrderSetMemberValidator;
 import org.openmrs.module.orderextension.api.OrderExtensionService;
 import org.openmrs.module.orderextension.util.OrderSetEditor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -41,24 +37,6 @@ import org.springframework.web.context.request.WebRequest;
  */
 @Controller
 public class OrderExtensionOrderSetMemberFormController {
-	
-	/** Logger for this class and subclasses */
-	protected final Log log = LogFactory.getLog(getClass());
-	
-	private OrderSetMemberValidator validator;
-	
-	/**
-	 * Default constructor
-	 */
-	public OrderExtensionOrderSetMemberFormController() { }
-	
-	/**
-	 * Constructor that takes in a validator
-	 */
-	@Autowired
-	public OrderExtensionOrderSetMemberFormController(OrderSetMemberValidator validator) {
-		this.validator = validator;
-	}
 	
 	/**
 	 * Registers any needed property editors
@@ -103,12 +81,6 @@ public class OrderExtensionOrderSetMemberFormController {
 	@RequestMapping(value = "/module/orderextension/orderSetMemberForm.form", method = RequestMethod.POST)
 	public String saveOrderSetMember(@ModelAttribute("orderSetMember") ExtendedOrderSetMember orderSetMember, BindingResult result,
 									 @RequestParam(value="orderSetId", required=true) Integer orderSetId, WebRequest request) {
-		
-		// Validate
-		validator.validate(orderSetMember, result);
-		if (result.hasErrors()) {
-			return null;
-		}
 		
 		ExtendedOrderSet orderSet = getOrderExtensionService().getOrderSet(orderSetId);
 		OrderSetMember member = orderSetMember.getMember();

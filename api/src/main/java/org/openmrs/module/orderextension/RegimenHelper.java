@@ -24,6 +24,7 @@ import java.util.Map;
 
 import org.openmrs.Concept;
 import org.openmrs.DrugOrder;
+import org.openmrs.Order;
 
 /**
  * Helper class for classifying Regimens
@@ -44,14 +45,9 @@ public class RegimenHelper {
 		{
 			DrugRegimen group = null;
 			boolean isCyclical = false;
-			
-			if (o instanceof ExtendedDrugOrder) {
-				ExtendedDrugOrder edo = (ExtendedDrugOrder)o;
-				ExtendedOrderGroup og = edo.getGroup();
-				if (og instanceof DrugRegimen) {
-					group = (DrugRegimen)og;
-					isCyclical = group.isCyclical();
-				}
+			if (o.getOrderGroup() != null && o.getOrderGroup() instanceof DrugRegimen) {
+				DrugRegimen r = (DrugRegimen)o.getOrderGroup();
+				isCyclical = r.isCyclical();
 			}
 			
 			if (group != null) {
@@ -118,12 +114,11 @@ public class RegimenHelper {
 		for(DrugOrder o : ordersInDrugGroups.get(drugGroup))
 		{		
 			Concept classification = null;
-			if (o instanceof ExtendedDrugOrder) {
-				if(drugGroup == null || getCycleDay(drugGroup.getFirstDrugOrderStartDate(), o.getEffectiveStartDate()).equals(day))
-				{
-					classification = ((ExtendedDrugOrder)o).getIndication();
-				}
+			if( drugGroup == null ||
+				getCycleDay(drugGroup.getFirstDrugOrderStartDate(), o.getEffectiveStartDate()).equals(day) ) {
+				classification = o.getOrderReason();
 			}
+
 			if (!classifications.contains(classification)) {
 				classifications.add(classification);
 			}
@@ -154,7 +149,7 @@ public class RegimenHelper {
 		{
 			Date startDate = drugGroup.getFirstDrugOrderStartDate();
 			
-			for(DrugOrder od: drugGroup.getMembers())
+			for(Order od: drugGroup.getOrders())
 			{
 				if(od.getEffectiveStartDate() != null && startDate != null)
 				{
@@ -189,10 +184,7 @@ public class RegimenHelper {
 		{
 			if(cycle == null || (cycle != null && getCycleDay(cycle.getFirstDrugOrderStartDate(), o.getEffectiveStartDate()).equals(day)))
 			{
-				Concept orderIndication = null;
-				if (o instanceof ExtendedDrugOrder) {
-					orderIndication = ((ExtendedDrugOrder)o).getIndication();
-				}
+				Concept orderIndication = o.getOrderReason();
 				if(classification == null && orderIndication == null)
 				{
 					ret.add(o);

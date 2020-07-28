@@ -20,7 +20,6 @@ import java.util.Date;
 import org.openmrs.Concept;
 import org.openmrs.DrugOrder;
 import org.openmrs.OpenmrsMetadata;
-import org.openmrs.module.orderextension.ExtendedDrugOrder;
 
 /**
  * Defines any utility methods
@@ -50,11 +49,7 @@ public class OrderExtensionUtil  {
 				}
 				
 				if ("administrationInstructions".equals(format)) {
-					if (drugOrder instanceof ExtendedDrugOrder) {
-						ExtendedDrugOrder edo = (ExtendedDrugOrder) drugOrder;
-						return edo.getAdministrationInstructions();
-					}
-					return "";
+					return drugOrder.getDosingInstructions();
 				}
 				
 				if (drugOrder.getDrug() != null) {

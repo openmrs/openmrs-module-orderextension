@@ -18,10 +18,8 @@ import org.apache.commons.logging.LogFactory;
 import org.openmrs.OrderSet;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.orderextension.ExtendedOrderSet;
-import org.openmrs.module.orderextension.OrderSetValidator;
 import org.openmrs.module.orderextension.api.OrderExtensionService;
 import org.openmrs.web.WebConstants;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -39,21 +37,6 @@ public class OrderExtensionOrderSetFormController {
 	
 	/** Logger for this class and subclasses */
 	protected final Log log = LogFactory.getLog(getClass());
-	
-	private OrderSetValidator validator;
-	
-	/**
-	 * Default constructor
-	 */
-	public OrderExtensionOrderSetFormController() { }
-	
-	/**
-	 * Constructor that takes in a validator
-	 */
-	@Autowired
-	public OrderExtensionOrderSetFormController(OrderSetValidator validator) {
-		this.validator = validator;
-	}
 	
 	/**
 	 * Prepares form backing object to be used by the view
@@ -84,12 +67,6 @@ public class OrderExtensionOrderSetFormController {
 	 */
 	@RequestMapping(value = "/module/orderextension/orderSetForm.form", method = RequestMethod.POST)
 	public String saveOrderSet(@ModelAttribute("orderSet") ExtendedOrderSet orderSet, BindingResult result, WebRequest request) {
-		
-		// Validate
-		validator.validate(orderSet, result);
-		if (result.hasErrors()) {
-			return null;
-		}
 
 		try {
 			orderSet = getOrderExtensionService().saveOrderSet(orderSet);

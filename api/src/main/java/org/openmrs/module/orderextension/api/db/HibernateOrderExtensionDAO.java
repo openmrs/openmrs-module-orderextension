@@ -19,17 +19,15 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
-import org.hibernate.SQLQuery;
 import org.hibernate.criterion.MatchMode;
-import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.openmrs.Concept;
+import org.openmrs.DrugOrder;
+import org.openmrs.Order;
 import org.openmrs.Patient;
 import org.openmrs.api.db.hibernate.DbSession;
 import org.openmrs.api.db.hibernate.DbSessionFactory;
 import org.openmrs.module.orderextension.DrugRegimen;
-import org.openmrs.module.orderextension.ExtendedDrugOrder;
-import org.openmrs.module.orderextension.ExtendedOrderGroup;
 import org.openmrs.module.orderextension.ExtendedOrderSet;
 import org.openmrs.module.orderextension.ExtendedOrderSetMember;
 
@@ -75,7 +73,7 @@ public class HibernateOrderExtensionDAO implements OrderExtensionDAO {
 		if (indication != null) {
 			criteria.add(Restrictions.eq("indication", indication));
 		}
-		criteria.addOrder(Order.asc("name"));
+		criteria.addOrder(org.hibernate.criterion.Order.asc("name"));
 		return criteria.list();
 	}
 
@@ -105,84 +103,62 @@ public class HibernateOrderExtensionDAO implements OrderExtensionDAO {
 	}
 
 	/**
-	 * @see OrderExtensionDAO#saveOrderGroup(ExtendedOrderGroup)
-	 */
-	@Override
-	public <T extends ExtendedOrderGroup> T saveOrderGroup(T orderGroup) {
-		getCurrentSession().saveOrUpdate(orderGroup);
-		return orderGroup;
-	}
-	
-	/**
-     * @see org.openmrs.module.orderextension.api.db.OrderExtensionDAO#getExtendedDrugOrdersForPatient(Patient patient, Concept, Date, Date)
+     * @see OrderExtensionDAO#getDrugOrdersForPatient(Patient, Concept)
      */
     @Override
-    public List<ExtendedDrugOrder>  getExtendedDrugOrdersForPatient(Patient patient, Concept indication, Date startDateAfter, Date startDateBefore) {
-    	Criteria criteria = getCurrentSession().createCriteria(ExtendedDrugOrder.class);
-		
-    	if(patient != null)
-    	{
+    public List<DrugOrder> getDrugOrdersForPatient(Patient patient, Concept indication) {
+    	Criteria criteria = getCurrentSession().createCriteria(DrugOrder.class);
+    	if(patient != null) {
     		criteria.add(Restrictions.eq("patient", patient));
     	}
-    	
-    	if(indication != null)
-    	{	
-    		criteria.add(Restrictions.eq("indication", indication));
-    	}
-    	if(startDateAfter != null && startDateBefore != null) 
-    	{
-    		criteria.add(Restrictions.between("startDate", startDateAfter, startDateBefore));
-    	}
-    	else if(startDateAfter != null)
-    	{
-    		criteria.add(Restrictions.ge("startDate", startDateAfter));
-    	}
-    	else if(startDateBefore != null)
-    	{
-    		criteria.add(Restrictions.lt("startDate", startDateBefore));
+    	if(indication != null) {
+    		criteria.add(Restrictions.eq("orderReason", indication));
     	}
 		criteria.add(Restrictions.eq("voided", false));
-		return criteria.list();
+    	return criteria.list();
     }
 	
 	/**
-	 * @see OrderExtensionDAO#getDrugRegimen(Integer)
-	 */
-	@Override
-	public DrugRegimen getDrugRegimen(Integer id) {
-		return (DrugRegimen) getCurrentSession().get(DrugRegimen.class, id);
-	}
-	
-	/**
-     * @see org.openmrs.module.orderextension.api.db.OrderExtensionDAO#getMaxNumberOfCyclesForRegimen(Patient, DrugRegimen)
+     * @see org.openmrs.module.orderextension.api.db.OrderExtensionDAO#getMaxNumberOfCyclesForRegimen(DrugRegimen)
      */
     @Override
-    public Integer getMaxNumberOfCyclesForRegimen(Patient patient, DrugRegimen regimen) {
-  
-    	SQLQuery query = sessionFactory.getCurrentSession().createSQLQuery("select MAX(og.cycle_number) from orderextension_order_group og, orderextension_order er, orders o where og.id = er.group_id and er.order_id = o.order_id and o.voided = 0 and og.voided = 0 and og.order_set_id = :orderSetId and o.patient_id = :patientId and o.start_date >= :startDate");
-		query.setInteger("patientId", patient.getId());
-		query.setInteger("orderSetId", regimen.getOrderSet().getId());
-		query.setDate("startDate", regimen.getFirstDrugOrderStartDate());
-		
-		return (Integer)query.uniqueResult();
-    }
+    public Integer getMaxNumberOfCyclesForRegimen(DrugRegimen regimen) {
 
-	/**
-	 * @see OrderExtensionDAO#getOrderGroup(Integer)
-	 */
-	@Override
-	public ExtendedOrderGroup getOrderGroup(Integer id) {
-		return (ExtendedOrderGroup) getCurrentSession().get(ExtendedOrderGroup.class, id);
-	}
+	    Date startDate = regimen.getFirstDrugOrderStartDate();
+
+		// First get all of the Regimens related to this regimen (based on patient and orderset)
+	    Criteria criteria = getCurrentSession().createCriteria(DrugRegimen.class);
+	    criteria.add(Restrictions.eq("patient", regimen.getPatient()));
+	    criteria.add(Restrictions.eq("orderSet", regimen.getOrderSet()));
+	    criteria.add(Restrictions.eq("voided", false));
+	    List<DrugRegimen> drugRegimens = criteria.list();
+
+	    // Then, iterate across these, and for any with orders after the start date of this regimen, look at cycle number
+	    Integer maxCycleNumber = null;
+	    for (DrugRegimen r : drugRegimens) {
+	    	for (Order o : r.getOrders()) {
+	    		if (o.getVoided() == null || !o.getVoided()) {
+	    			if (o.getEffectiveStartDate().compareTo(startDate) >= 0) {
+	    				Integer cycleNumber = r.getCycleNumber();
+	    				if (maxCycleNumber == null || cycleNumber > maxCycleNumber) {
+	    					maxCycleNumber = cycleNumber;
+					    }
+				    }
+			    }
+		    }
+	    }
+
+	    return maxCycleNumber;
+    }
 	
 	/**
-	 * @see OrderExtensionDAO#getOrderGroups(Patient, Class)
+	 * @see OrderExtensionDAO#getDrugRegimens(Patient)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T extends ExtendedOrderGroup> List<T> getOrderGroups(Patient patient, Class<T> type) {
-		Criteria criteria = getCurrentSession().createCriteria(type);
-		// TODO: Need to actually restrict this by patient.  Might need to add Patient directly to ExtendedOrderGroup
+	public List<DrugRegimen> getDrugRegimens(Patient patient) {
+		Criteria criteria = getCurrentSession().createCriteria(DrugRegimen.class);
+		criteria.add(Restrictions.eq("patient", patient));
 		criteria.add(Restrictions.eq("voided", false));
 		return criteria.list();
 	}

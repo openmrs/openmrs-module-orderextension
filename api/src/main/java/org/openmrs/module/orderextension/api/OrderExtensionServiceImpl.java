@@ -16,12 +16,16 @@ package org.openmrs.module.orderextension.api;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
 import org.openmrs.Concept;
+import org.openmrs.DrugOrder;
 import org.openmrs.Encounter;
 import org.openmrs.Order;
+import org.openmrs.OrderGroup;
+import org.openmrs.OrderSet;
 import org.openmrs.OrderSetMember;
 import org.openmrs.Patient;
 import org.openmrs.Person;
@@ -30,8 +34,6 @@ import org.openmrs.api.APIException;
 import org.openmrs.api.context.Context;
 import org.openmrs.api.impl.BaseOpenmrsService;
 import org.openmrs.module.orderextension.DrugRegimen;
-import org.openmrs.module.orderextension.ExtendedDrugOrder;
-import org.openmrs.module.orderextension.ExtendedOrderGroup;
 import org.openmrs.module.orderextension.ExtendedOrderSet;
 import org.openmrs.module.orderextension.ExtendedOrderSetMember;
 import org.openmrs.module.orderextension.api.db.OrderExtensionDAO;
@@ -110,30 +112,21 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 	}
 
 	/**
-	 * @see OrderExtensionService#saveOrderGroup(ExtendedOrderGroup)
+	 * @see OrderExtensionService#saveDrugRegimen(DrugRegimen)
 	 */
 	@Override
 	@Transactional
-	public <T extends ExtendedOrderGroup> T saveOrderGroup(T orderGroup) {
-		return dao.saveOrderGroup(orderGroup);
+	public DrugRegimen saveDrugRegimen(DrugRegimen orderGroup) {
+		return (DrugRegimen)Context.getOrderService().saveOrderGroup(orderGroup);
 	}
 
 	/**
-	 * @see OrderExtensionService#getOrderGroups(Patient, Class)
+	 * @see OrderExtensionService#getDrugRegimens(Patient)
 	 */
 	@Override
 	@Transactional(readOnly=true)
-	public <T extends ExtendedOrderGroup> List<T> getOrderGroups(Patient patient, Class<T> type) {
-		return dao.getOrderGroups(patient, type);
-	}
-	
-	/**
-	 * @see OrderExtensionService#getOrderGroup(Integer orderGroup)
-	 */
-	@Override
-	@Transactional(readOnly=true)
-	public ExtendedOrderGroup getOrderGroup(Integer id) {
-		return dao.getOrderGroup(id);
+	public List<DrugRegimen> getDrugRegimens(Patient patient) {
+		return dao.getDrugRegimens(patient);
 	}
 	
 	/**
@@ -141,43 +134,50 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 	 */
 	@Override
 	@Transactional(readOnly=true)
-	public DrugRegimen  getDrugRegimen(Integer id) {
-		
-		return dao.getDrugRegimen(id);
+	public DrugRegimen getDrugRegimen(Integer id) {
+		return (DrugRegimen) Context.getOrderService().getOrderGroup(id);
 	}
 	
 	/**
-     * @see org.openmrs.module.orderextension.api.OrderExtensionService#getMaxNumberOfCyclesForRegimen(Patient, org.openmrs.module.orderextension.DrugRegimen)
+     * @see OrderExtensionService#getMaxNumberOfCyclesForRegimen(DrugRegimen)
      */
     @Override
-    public Integer getMaxNumberOfCyclesForRegimen(Patient patient, DrugRegimen regimen) {
-	    if(regimen.isCyclical() && regimen.getCycleNumber() != null)
-	    {
-	    	return dao.getMaxNumberOfCyclesForRegimen(patient, regimen);
+    public Integer getMaxNumberOfCyclesForRegimen(DrugRegimen regimen) {
+	    if (regimen.isCyclical() && regimen.getCycleNumber() != null) {
+	    	return dao.getMaxNumberOfCyclesForRegimen(regimen);
 	    }
 	    return 1;
     }
 	
 	/**
-     * @see org.openmrs.module.orderextension.api.OrderExtensionService#getExtendedDrugOrders(Patient patient, Concept, Date, Date)
+     * @see OrderExtensionService#getDrugOrders(Patient, Concept, Date, Date)
      */
     @Override
-    public List<ExtendedDrugOrder> getExtendedDrugOrders(Patient patient, Concept indication, Date startDateAfter, Date startDateBefore) {
-	    return dao.getExtendedDrugOrdersForPatient(patient, indication, startDateAfter, startDateBefore);    
+    public List<DrugOrder> getDrugOrders(Patient patient, Concept indication, Date startDateAfter, Date startDateBefore) {
+	    List<DrugOrder> l = dao.getDrugOrdersForPatient(patient, indication);
+	    if (startDateAfter != null || startDateBefore != null) {
+		    for (Iterator<DrugOrder> i = l.iterator(); i.hasNext();) {
+			    Date startDate = i.next().getEffectiveStartDate();
+			    if (startDateAfter != null && startDate.before(startDateAfter)) {
+				    i.remove();
+			    }
+			    else if (startDateBefore != null && startDate.after(startDateBefore)) {
+				    i.remove();
+			    }
+		    }
+	    }
+	    return l;
     }
     
     /**
-     * @see org.openmrs.module.orderextension.api.OrderExtensionService#getFutureDrugOrdersOfSameOrderSet(Patient patient, ExtendedOrderSet orderSet, Date startDate)
+     * @see OrderExtensionService#getFutureDrugOrdersOfSameOrderSet(Patient patient, ExtendedOrderSet orderSet, Date startDate)
      */
     @Override
-    public List<ExtendedDrugOrder> getFutureDrugOrdersOfSameOrderSet(Patient patient, ExtendedOrderSet orderSet, Date startDate) {
-    	List<ExtendedDrugOrder> allOrders = getExtendedDrugOrders(patient, null, startDate, null);
-	    
-    	List<ExtendedDrugOrder> futureOrders = new ArrayList<ExtendedDrugOrder>();
-    	for(ExtendedDrugOrder order: allOrders)
-    	{
-    		if(order.getGroup() != null && order.getGroup().getOrderSet() != null && order.getGroup().getOrderSet().equals(orderSet) && order.getEffectiveStartDate().after(startDate))
-    		{
+    public List<DrugOrder> getFutureDrugOrdersOfSameOrderSet(Patient patient, OrderSet orderSet, Date startDate) {
+    	List<DrugOrder> futureOrders = new ArrayList<DrugOrder>();
+    	for(DrugOrder order: getDrugOrders(patient, null, startDate, null)) {
+		    OrderGroup g = order.getOrderGroup();
+    		if (g != null && g.getOrderSet() != null && g.getOrderSet().equals(orderSet) && order.getEffectiveStartDate().after(startDate)) {
     			futureOrders.add(order);
     		}
     	}
@@ -185,21 +185,19 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
     }
     
     /**
-     * @see org.openmrs.module.orderextension.api.OrderExtensionService#getFutureDrugRegimensOfSameOrderSet(Patient patient, DrugRegimen drugRegimen, Date startDate)
+     * @see OrderExtensionService#getFutureDrugRegimensOfSameOrderSet(Patient patient, DrugRegimen drugRegimen, Date startDate)
      */
     @Override
     public List<DrugRegimen> getFutureDrugRegimensOfSameOrderSet(Patient patient, DrugRegimen drugRegimen, Date startDate) {
-    	List<ExtendedDrugOrder> allOrders = getExtendedDrugOrders(patient, null, startDate, null);
-	    
     	List<DrugRegimen> futureRegimens = new ArrayList<DrugRegimen>();
-    	for(ExtendedDrugOrder order: allOrders)
-    	{
-    		DrugRegimen regimen = Context.getService(OrderExtensionService.class).getDrugRegimen(order.getGroup().getId());
-    		
-    		if(regimen.getFirstDrugOrderStartDate().after(drugRegimen.getLastDrugOrderEndDate()) && !futureRegimens.contains(regimen))
-    		{
-    			futureRegimens.add(regimen);
-    		}
+    	for (DrugOrder order: getDrugOrders(patient, null, startDate, null)) {
+		    OrderGroup g = order.getOrderGroup();
+		    if (g != null) {
+			    DrugRegimen regimen = Context.getService(OrderExtensionService.class).getDrugRegimen(g.getId());
+			    if (regimen.getFirstDrugOrderStartDate().after(drugRegimen.getLastDrugOrderEndDate()) && !futureRegimens.contains(regimen)) {
+				    futureRegimens.add(regimen);
+			    }
+		    }
     	}
     	return futureRegimens;
     }
@@ -250,13 +248,13 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 					memberEndDate = OrderExtensionUtil.incrementDateEndOfDay(memberStartDate, drugMember.getLengthInDays() - 1);
 				}
 
-				ExtendedDrugOrder drugOrder = new ExtendedDrugOrder();
+				DrugOrder drugOrder = new DrugOrder();
 				drugOrder.setConcept(drugMember.getConcept());
 				drugOrder.setDrug(drugMember.getDrug());
 				drugOrder.setDose(drugMember.getDose());
 				// drugOrder.setUnits(drugMember.getUnits()); TODO: Need to fix with migration
 				drugOrder.setRoute(drugMember.getRoute());
-				drugOrder.setAdministrationInstructions(drugMember.getAdministrationInstructions());
+				drugOrder.setDosingInstructions(drugMember.getAdministrationInstructions());
 				// drugOrder.setFrequency(drugMember.getFrequency()); TODO: Need to fix with migration
 				drugOrder.setAsNeeded(drugMember.isAsNeeded());
 				drugOrder.setInstructions(drugMember.getInstructions());
@@ -264,10 +262,10 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 				if (indication == null) {
 					indication = orderSet.getIndication();
 				}
-				drugOrder.setIndication(indication);
+				drugOrder.setOrderReason(indication);
 				drugOrder.setDateActivated(memberStartDate); // TODO: Confirm that setting Date Activated is right
 				drugOrder.setAutoExpireDate(memberEndDate);
-				drugOrder.setGroup(orderGroup);
+				drugOrder.setOrderGroup(orderGroup);
 				drugOrder.setPatient(patient);
 				drugOrder.setEncounter(encounter);
 
@@ -280,10 +278,10 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 				drugOrder.setCareSetting(Context.getOrderService().getCareSettingByName("INPATIENT")); // TODO: Do this properly during 2.3 upgrade
 				setProperty(drugOrder, "orderNumber", UUID.randomUUID().toString()); // TODO: Remove this, added for 2.3 upgrade temporarily
 
-				orderGroup.addMember(drugOrder);
+				orderGroup.addOrder(drugOrder);
 			}
 			
-			orderExtSvc.saveOrderGroup(orderGroup);
+			orderExtSvc.saveDrugRegimen(orderGroup);
 		}
 	}
 

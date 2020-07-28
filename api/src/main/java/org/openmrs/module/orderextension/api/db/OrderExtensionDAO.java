@@ -17,10 +17,9 @@ import java.util.Date;
 import java.util.List;
 
 import org.openmrs.Concept;
+import org.openmrs.DrugOrder;
 import org.openmrs.Patient;
 import org.openmrs.module.orderextension.DrugRegimen;
-import org.openmrs.module.orderextension.ExtendedDrugOrder;
-import org.openmrs.module.orderextension.ExtendedOrderGroup;
 import org.openmrs.module.orderextension.ExtendedOrderSet;
 import org.openmrs.module.orderextension.ExtendedOrderSetMember;
 import org.openmrs.module.orderextension.api.OrderExtensionService;
@@ -58,39 +57,24 @@ public interface OrderExtensionDAO {
 	public void purgeOrderSet(ExtendedOrderSet orderSet);
 	
 	/**
-	 * @see OrderExtensionService#getOrderSetMember(ExtendedOrderSetMember)
+	 * @see OrderExtensionService#getOrderSetMember(Integer)
 	 */
 	public ExtendedOrderSetMember getOrderSetMember(Integer id);
 	
 	/**
-	 * Persists the passed ExtendedOrderGroup to the database
+	 * @see OrderExtensionService#getDrugRegimens(Patient)
 	 */
-	public <T extends ExtendedOrderGroup> T saveOrderGroup(T orderGroup);
-	
-	/**
-	 * @see OrderExtensionService#getOrderGroups(Patient, Class)
-	 */
-	public <T extends ExtendedOrderGroup> List<T> getOrderGroups(Patient patient, Class<T> type);
-	
-	/**
-	 * @see OrderExtensionService#getOrderGroup(Integer id)
-	 */
-	public ExtendedOrderGroup getOrderGroup(Integer id);
+	public List<DrugRegimen> getDrugRegimens(Patient patient);
 
     /**
-     * @see OrderExtensionService#getDrugRegimen(Integer id)
+     * Retrieves the Drug Orders for a patient
      */
-    public DrugRegimen getDrugRegimen(Integer id);
-
-    /**
-     * @see OrderExtensionService#getExtendedDrugOrdersForPatient(Patient patient)
-     */
-    public List<ExtendedDrugOrder> getExtendedDrugOrdersForPatient(Patient patient, Concept indication, Date startDateAfter, Date startDateBefore);
+    public List<DrugOrder> getDrugOrdersForPatient(Patient patient, Concept indication);
 
 	/**
-     * @see OrderExtensionService#getMaxNumberOfCyclesForRegimen(DrugRegimen regimen)
+     * @see OrderExtensionService#getMaxNumberOfCyclesForRegimen(DrugRegimen)
      */
-    public Integer getMaxNumberOfCyclesForRegimen(Patient patient, DrugRegimen regimen);
+    public Integer getMaxNumberOfCyclesForRegimen(DrugRegimen regimen);
     
 }
 
