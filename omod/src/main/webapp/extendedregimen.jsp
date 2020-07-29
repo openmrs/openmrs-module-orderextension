@@ -641,7 +641,7 @@ $j(document).ready(function(){
 	
 	<div class="box">
 		<div id="openmrs_error" class="openmrs_error"></div>
-		<form id="addOrderSet" name="addMedication" method="post" action="${pageContext.request.contextPath}/module/orderextension/addOrderSet.form">
+		<form id="addOrderSet" name="addMedication" method="post" action="${pageContext.request.contextPath}/module/orderextension/addOrdersFromSet.form">
 			<input type="hidden" name="patientId" value="${model.patient.patientId}">
 			<input type="hidden" name="returnPage" value="${model.redirect}&patientId=${model.patient.patientId}"/>
 			<table>

@@ -72,7 +72,7 @@ public class OrderExtensionOrderController {
 	/**
 	 * adds a new orderSet
 	 */
-	@RequestMapping(value = "/module/orderextension/addOrderSet")
+	@RequestMapping(value = "/module/orderextension/addOrdersFromSet")
 	public String addOrderSet(ModelMap model, @RequestParam(value = "patientId", required = true) Integer patientId,
 	                          @RequestParam(value = "orderSet", required = true) Integer orderSetId,
 	                          @RequestParam(value = "startDateSet", required = true) Date startDateSet,

@@ -99,7 +99,8 @@
 </b>
 <div class="box">
 	<form action="addOrdersFromSet.form">
-		<input type="hidden" name="patientId" value="${model.patient.patientId}"
+		<input type="hidden" name="patientId" value="${patient.patientId}"/>
+		<input type="hidden" name="returnPage" value="/module/orderextension/orderList.list?patientId=${patient.patientId}"/>
 		<table>
 			<tr>
 				<td>
@@ -111,7 +112,7 @@
 					</select>
 				</td>
 				<td>
-					Start Date:  <openmrs_tag:dateField formFieldName="startDate" startValue=""/>
+					Start Date:  <openmrs_tag:dateField formFieldName="startDateSet" startValue=""/>
 				</td>
 				<td>
 					Number of Cycles:  <input type="text" name="numCycles" size="10"/>
