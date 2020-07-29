@@ -37,20 +37,14 @@
 				<c:forEach items="${regimen.members}" var="eo">
 					<tr>
 						<td><openmrs:format concept="${eo.concept}"/></td>
-						<td><openmrs:formatDate date="${eo.startDate}"/></td>
-						<td>
-							<c:choose>
-								<c:when test="${!empty eo.discontinuedDate}"><openmrs:formatDate date="${eo.discontinuedDate}"/></c:when>
-								<c:when test="${!empty eo.autoExpireDate}"><openmrs:formatDate date="${eo.autoExpireDate}"/></c:when>
-								<c:otherwise></c:otherwise>
-							</c:choose>
-						</td>
-						<td><openmrs:format concept="${eo.indication}"/></td>
+						<td><openmrs:formatDate date="${eo.effectiveStartDate}"/></td>
+						<td><c:if test="${!empty eo.effectiveStopDate}"><openmrs:formatDate date="${eo.effectiveStopDate}"/></c:if></td>
+						<td><openmrs:format concept="${eo.orderReason}"/></td>
 						<td>${eo.drug.name}</td>
 						<td>${eo.dose}</td>
-						<td>${eo.units}</td>
+						<td>${eo.doseUnits}</td>
 						<td><openmrs:format concept="${eo.route}"/></td>
-						<td>${eo.administrationInstructions}</td>
+						<td>${eo.dosingInstructions}</td>
 						<td>${eo.frequency}</td>
 					</tr>			
 				</c:forEach>
@@ -85,32 +79,14 @@
 			<c:forEach items="${drugOrders}" var="eo">
 				<tr>
 					<td><openmrs:format concept="${eo.concept}"/></td>
-					<td><openmrs:formatDate date="${eo.startDate}"/></td>
-					<td>
-						<c:choose>
-							<c:when test="${!empty eo.discontinuedDate}"><openmrs:formatDate date="${eo.discontinuedDate}"/></c:when>
-							<c:when test="${!empty eo.autoExpireDate}"><openmrs:formatDate date="${eo.autoExpireDate}"/></c:when>
-							<c:otherwise></c:otherwise>
-						</c:choose>
-					</td>
-					<td>
-						<c:if test="${eo['class'].simpleName == 'ExtendedDrugOrder'}">
-							<openmrs:format concept="${eo.indication}"/>
-						</c:if>
-					</td>
+					<td><openmrs:formatDate date="${eo.effectiveStartDate}"/></td>
+					<td><c:if test="${!empty eo.effectiveStopDate}"><openmrs:formatDate date="${eo.effectiveStopDate}"/></c:if></td>
+					<td><openmrs:format concept="${eo.orderReason}"/></td>
 					<td>${eo.drug.name}</td>
 					<td>${eo.dose}</td>
-					<td>${eo.units}</td>
-					<td>
-						<c:if test="${eo['class'].simpleName == 'ExtendedDrugOrder'}">
-							<openmrs:format concept="${eo.route}"/>
-						</c:if>
-					</td>
-					<td>
-						<c:if test="${eo['class'].simpleName == 'ExtendedDrugOrder'}">
-							${eo.administrationInstructions}
-						</c:if>
-					</td>
+					<td>${eo.doseUnits}</td>
+					<td><openmrs:format concept="${eo.route}"/></td>
+					<td>${eo.dosingInstructions}</td>
 					<td>${eo.frequency}</td>
 				</tr>			
 			</c:forEach>
