@@ -44,9 +44,9 @@ public class OrderExtensionOrderController {
 	
 	/** Logger for this class and subclasses */
 	protected final Log log = LogFactory.getLog(getClass());
-	
+
 	private OrderExtensionService getOrderExtensionService() {
-		return getOrderExtensionService();
+		return Context.getService(OrderExtensionService.class);
 	}
 	
 	/**
