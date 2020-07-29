@@ -59,7 +59,7 @@ public class RegimenExtensionController extends PortletController{
 	@RequestMapping(method=RequestMethod.GET)
 	protected void populateModel(HttpServletRequest request, Map<String, Object> model)
 	{	
-		Patient patient = Context.getPatientService().getPatient((Integer)model.get("patientId"));
+		Patient patient = (Patient)model.get("patient");
 		
 		List<DrugOrder> allDrugOrders = OrderEntryUtil.getDrugOrdersByPatient(patient);
 		List<DrugOrder> drugOrdersNonContinuous = new ArrayList<DrugOrder>();
