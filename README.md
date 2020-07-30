@@ -20,6 +20,7 @@ Also provides an alternative regimen tab for the patient dashboard that takes ad
 
 * Handle / support discontinue orders
 
+* Had to remove discontinued Reason from regimenTable.jsp - determine if there is a good way to keep retaining that and readd if so
 
 Further Info:
 
