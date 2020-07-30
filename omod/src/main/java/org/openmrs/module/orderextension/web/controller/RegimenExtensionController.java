@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
@@ -186,24 +187,21 @@ public class RegimenExtensionController extends PortletController{
 		List<Concept> inclusionConcepts = new ArrayList<Concept>();
 		
 		String inclusionStr = Context.getAdministrationService().getGlobalProperty("orderextension.getIndicationConceptsToIncludeInCalendar");
-		
-		String[] inclusions = inclusionStr.split(",");
-		
-		for(String inclusion: inclusions)
-		{
-			Concept inc = Context.getConceptService().getConceptByUuid(inclusion);
-			
-			if(inc == null)
-			{
-				inc = Context.getConceptService().getConcept(Integer.parseInt(inclusion));
-			}
-			
-			if(inc != null)
-			{
-				inclusionConcepts.add(inc);
+		if (StringUtils.isNotBlank(inclusionStr)) {
+			String[] inclusions = inclusionStr.split(",");
+
+			for (String inclusion : inclusions) {
+				Concept inc = Context.getConceptService().getConceptByUuid(inclusion);
+
+				if (inc == null) {
+					inc = Context.getConceptService().getConcept(Integer.parseInt(inclusion));
+				}
+
+				if (inc != null) {
+					inclusionConcepts.add(inc);
+				}
 			}
 		}
-		
 		return inclusionConcepts;
 	}
 }
