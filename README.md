@@ -16,6 +16,40 @@ Testing cases:
 - Delay order group
 - Print chemo
 
+Screens
+
+* Admin>Manage Order Sets
+* Patient dashboard>Regimens tab
+* Drug list view
+* Calendar view
+* Report: Oncology Chemotherapy Treatment Administration Plan
+
+Workflows
+
+* Order drug
+  - patient dashboard> Regimens tab> Add New Medication>Add New Medication> choose drug> fill form
+    - Within this function, add new medicaiton is a new button on the 'add new medication' screen
+    - On the drug order form, reason for prescription, administration instructions, warnings/precautions are new from orderextension
+* order a set
+  - Patient Dashboard> Add New Medication> Select Order set> Start date + (optional) number of cycles
+
+* Register patient for chemotherapy and print treatment administration
+  - Registers patient for chemo. This adds an obs, plus runs the chemo treatment administration plan
+* Chemotherapy treatment plan summary
+  - Lists the chemo cycles planned
+* Calendar view
+  - (Uncommonly used)
+  - Patient dashboard>Calendar view
+  - Shows a traditional 7 day calendar with calendar events for each drug
+* Display orders with start dates
+  - This is the primary view of orders in regimens tab
+    - Includes ability to edit an order
+* Add drug to cycle
+  - Same as a drug order, but adds it to an order group
+* Change cycle Start Date: 
+  - New start date
+  - Whether to change for all future cycles
+
 Future design considerations for the future from OpenMRS and FHIR:
 
 https://talk.openmrs.org/t/chemotherapy-ordering-data-design/19133/6?u=mseaton
