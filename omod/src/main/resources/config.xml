@@ -82,4 +82,10 @@
 		<description>Message to be displayed as Alert.</description>
 	</globalProperty>
 
+	<globalProperty>
+		<property>orderextension.drugOrderDefaultEncounterTypeUuid</property>
+		<defaultValue>a9ef19d1-8875-11ea-8c74-7a7919290ad6</defaultValue>
+		<description>Encounter Type to use to create a new encounter if not otherwise specified</description>
+	</globalProperty>
+
 </module>

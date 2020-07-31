@@ -413,7 +413,7 @@ public class OrderExtensionOrderController {
 		else
 		{
 			Concept stopConcept = Context.getConceptService().getConcept(changeReason);
-			OrderEntryUtil.discontinueOrder(drugOrder, stopConcept, stopDateDrug);
+			OrderEntryUtil.getOrderExtensionService().discontinueOrder(drugOrder, stopConcept, stopDateDrug);
 			
 			//if the user has edited and not chosen the discontinue button, then add a new order with the changes suggested
 			if(discontinue.equals("false"))
@@ -465,7 +465,7 @@ public class OrderExtensionOrderController {
 			}
 		}
 
-		OrderEntryUtil.discontinueOrder(drugOrder, stopConcept, OrderExtensionUtil.adjustDateToEndOfDay(stopDate));
+		OrderEntryUtil.getOrderExtensionService().discontinueOrder(drugOrder, stopConcept, OrderExtensionUtil.adjustDateToEndOfDay(stopDate));
 		
 		return "redirect:" + returnPage;
 	}
@@ -576,7 +576,7 @@ public class OrderExtensionOrderController {
 		
 		for (DrugOrder order : regimen.getMembers()) {
 			if (OrderEntryUtil.isCurrent(order)) {
-				OrderEntryUtil.discontinueOrder(order, stopConcept, OrderExtensionUtil.adjustDateToEndOfDay(stopDate));
+				OrderEntryUtil.getOrderExtensionService().discontinueOrder(order, stopConcept, OrderExtensionUtil.adjustDateToEndOfDay(stopDate));
 			} else if (OrderEntryUtil.isFuture(order)) {
 				Context.getOrderService().voidOrder(order, stopConcept.getDisplayString());
 			}

@@ -77,6 +77,29 @@ public class OrderExtensionUtil  {
 		}
 		return "";
 	}
+
+	public static Date startOfDay(Date d) {
+		if (d != null) {
+			Calendar c = Calendar.getInstance();
+			c.setTime(d);
+			c.set(Calendar.HOUR_OF_DAY, 0);
+			c.set(Calendar.MINUTE, 0);
+			c.set(Calendar.SECOND, 0);
+			c.set(Calendar.MILLISECOND, 0);
+			return c.getTime();
+		}
+		return null;
+	}
+
+	public static Date endOfDay(Date d) {
+		if (d != null) {
+			Calendar c = Calendar.getInstance();
+			c.setTime(startOfDay(d));
+			c.add(Calendar.DATE, 1);
+			c.add(Calendar.MILLISECOND, -1);
+		}
+		return null;
+	}
 	
 	/**
 	 * @return a Date that is the number of days passed in relative to the date passed in

@@ -28,6 +28,7 @@ import org.openmrs.module.orderextension.DrugRegimen;
 import org.openmrs.module.orderextension.util.DrugConceptHelper;
 import org.openmrs.module.orderextension.util.OrderEntryUtil;
 import org.openmrs.web.controller.PortletController;
+import org.openmrs.web.taglib.fieldgen.FieldGenHandlerFactory;
 import org.springframework.stereotype.Controller;
 
 /**
@@ -49,6 +50,10 @@ public class OrderExtensionPortletController extends PortletController {
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void populateModel(HttpServletRequest request, Map<String, Object> model) {
+
+		FieldGenHandlerFactory.getSingletonInstance().getHandlers().put(
+				"org.openmrs.DrugOrder.discontinuedReason", "org.openmrs.web.taglib.fieldgen.GenericReasonHandler"
+		);
 
 		Patient patient = (Patient) model.get("patient");
 		List<DrugOrder> allOrders = OrderEntryUtil.getDrugOrdersByPatient(patient);

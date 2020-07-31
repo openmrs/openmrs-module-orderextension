@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.openmrs.Concept;
 import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
 import org.openmrs.Order;
 import org.openmrs.OrderType;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.orderextension.api.OrderExtensionService;
 
 /**
  * This is a new class, created during the upgrade from 1.9 to 2.3 data model, to encapsulate methods needed
@@ -84,9 +84,7 @@ public class OrderEntryUtil {
 		}
 	}
 
-	public static void discontinueOrder(DrugOrder drugOrder, Concept stopConcept, Date stopDateDrug) {
-		//Context.getOrderService().discontinueOrder(drugOrder, stopConcept, stopDateDrug); TODO: This is what was in place before
-	}
+
 
 	public static boolean isCurrent(DrugOrder drugOrder) {
 		return drugOrder.isActive() && drugOrder.isStarted();  // TODO: Need to review this implementation
@@ -174,5 +172,9 @@ public class OrderEntryUtil {
 
 		}
 		return "";
+	}
+
+	public static OrderExtensionService getOrderExtensionService() {
+		return Context.getService(OrderExtensionService.class);
 	}
 }

@@ -18,8 +18,13 @@ import java.util.List;
 
 import org.openmrs.Concept;
 import org.openmrs.DrugOrder;
+import org.openmrs.Encounter;
+import org.openmrs.EncounterRole;
+import org.openmrs.EncounterType;
 import org.openmrs.OrderSet;
 import org.openmrs.Patient;
+import org.openmrs.Provider;
+import org.openmrs.User;
 import org.openmrs.annotation.Authorized;
 import org.openmrs.api.OpenmrsService;
 import org.openmrs.module.orderextension.DrugRegimen;
@@ -103,7 +108,39 @@ public interface OrderExtensionService extends OpenmrsService {
 	 */
 	@Authorized(OrderExtensionConstants.PRIV_VIEW_ORDER_SETS)
 	public ExtendedOrderSetMember getOrderSetMember(Integer id);
-	
+
+	/**
+	 * @return in 2.3, all Orders must be associated with Encounters
+	 * This method servers to return the EncounterType to use if not otherwise specified
+	 */
+	public EncounterType getDefaultEncounterType();
+
+	/**
+	 * @return in 2.3, all Orders must be associated with Encounters
+	 * This method servers to return the EncounterRole to use if not otherwise specified
+	 */
+	public EncounterRole getDefaultEncounterRole();
+
+	/**
+	 * @return a Provider account to use for Orders and Encounters, given a User
+	 */
+	public Provider getProviderForUser(User user);
+
+	/**
+	 * @return a new Encounter saved for the Patient for the given date, current user, with the default encounter type
+	 */
+	public Encounter createDrugOrderEncounter(Patient patient, Date encounterDate);
+
+	/**
+	 * @return matching Encounters
+	 */
+	public Encounter getExistingDrugOrderEncounter(Patient patient, Date dateCreated, User creator);
+
+	/**
+	 * Discontinues the given Order
+	 */
+	public void discontinueOrder(DrugOrder drugOrder, Concept stopConcept, Date stopDateDrug);
+
 	/**
 	 * @param orderGroup the ExtendedOrderGroup to save
 	 * @return the saved ExtendedOrderGroup

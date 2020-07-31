@@ -15,6 +15,7 @@ package org.openmrs.module.orderextension.api;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -23,6 +24,8 @@ import java.util.UUID;
 import org.openmrs.Concept;
 import org.openmrs.DrugOrder;
 import org.openmrs.Encounter;
+import org.openmrs.EncounterRole;
+import org.openmrs.EncounterType;
 import org.openmrs.Order;
 import org.openmrs.OrderGroup;
 import org.openmrs.OrderSet;
@@ -30,7 +33,10 @@ import org.openmrs.OrderSetMember;
 import org.openmrs.Patient;
 import org.openmrs.Person;
 import org.openmrs.Provider;
+import org.openmrs.User;
 import org.openmrs.api.APIException;
+import org.openmrs.api.AdministrationService;
+import org.openmrs.api.ProviderService;
 import org.openmrs.api.context.Context;
 import org.openmrs.api.impl.BaseOpenmrsService;
 import org.openmrs.module.orderextension.DrugRegimen;
@@ -39,6 +45,7 @@ import org.openmrs.module.orderextension.ExtendedOrderSetMember;
 import org.openmrs.module.orderextension.api.db.OrderExtensionDAO;
 import org.openmrs.module.orderextension.util.OrderExtensionUtil;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 /**
  * Core implementation of the OrderExensionService
@@ -112,6 +119,91 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 	}
 
 	/**
+	 * @see OrderExtensionService#getDefaultEncounterType()
+	 */
+	@Override
+	@Transactional(readOnly=true)
+	public EncounterType getDefaultEncounterType() {
+		EncounterType ret = null;
+		AdministrationService as = Context.getAdministrationService();
+		String gpName = "orderextension.drugOrderDefaultEncounterTypeUuid";
+		String uuid = as.getGlobalProperty(gpName);
+		if (StringUtils.hasText(uuid)) {
+			ret = Context.getEncounterService().getEncounterTypeByUuid(uuid);
+		}
+		if (ret == null) {
+			throw new IllegalStateException("Missing global property configuration: " + gpName + " = " + uuid);
+		}
+		return ret;
+	}
+
+	/**
+	 * @see OrderExtensionService#getDefaultEncounterRole()
+	 */
+	@Override
+	@Transactional(readOnly=true)
+	public EncounterRole getDefaultEncounterRole() {
+		EncounterRole role = Context.getEncounterService().getEncounterRoleByName("Unknown");
+		if (role == null) {
+			throw new IllegalStateException("Missing encounter role named 'Unknown'");
+		}
+		return role;
+	}
+
+	/**
+	 * @see OrderExtensionService#getProviderForUser(User)
+	 */
+	@Override
+	@Transactional(readOnly=true)
+	public Provider getProviderForUser(User user) {
+		ProviderService ps = Context.getProviderService();
+		Collection<Provider> providers = ps.getProvidersByPerson(user.getPerson(), true);
+		if (providers.isEmpty()) {
+			throw new IllegalStateException("User " + user + " has no provider accounts, unable to create orders");
+		}
+		return providers.iterator().next();
+	}
+
+	/**
+	 * @see OrderExtensionService#createDrugOrderEncounter(Patient, Date)
+	 */
+	@Override
+	@Transactional
+	public Encounter createDrugOrderEncounter(Patient patient, Date encounterDate) {
+		Encounter e = new Encounter();
+		e.setPatient(patient);
+		e.setEncounterType(getDefaultEncounterType());
+		e.setEncounterDatetime(encounterDate);
+		e.addProvider(getDefaultEncounterRole(), getProviderForUser(Context.getAuthenticatedUser()));
+		return Context.getEncounterService().saveEncounter(e);
+	}
+
+	/**
+	 * @see OrderExtensionService#getExistingDrugOrderEncounter(Patient, Date, User)
+	 */
+	@Override
+	@Transactional(readOnly=true)
+	public Encounter getExistingDrugOrderEncounter(Patient patient, Date dateCreated, User creator) {
+		return dao.getExistingDrugOrderEncounter(patient, getDefaultEncounterType(), dateCreated, creator);
+	}
+
+	/**
+	 * @see OrderExtensionService#discontinueOrder(DrugOrder, Concept, Date)
+	 */
+	@Override
+	@Transactional
+	public void discontinueOrder(DrugOrder drugOrder, Concept stopConcept, Date stopDateDrug) {
+		Date currentDate = new Date();
+		User currentUser = Context.getAuthenticatedUser();
+		Encounter encounter = getExistingDrugOrderEncounter(drugOrder.getPatient(), currentDate, currentUser);
+		if (encounter == null) {
+			encounter = createDrugOrderEncounter(drugOrder.getPatient(), currentDate);
+		}
+		Provider orderer = getProviderForUser(currentUser);
+		Context.getOrderService().discontinueOrder(drugOrder, stopConcept, stopDateDrug, orderer, encounter);
+	}
+
+	/**
 	 * @see OrderExtensionService#saveDrugRegimen(DrugRegimen)
 	 */
 	@Override
@@ -170,7 +262,7 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
     }
     
     /**
-     * @see OrderExtensionService#getFutureDrugOrdersOfSameOrderSet(Patient patient, ExtendedOrderSet orderSet, Date startDate)
+     * @see OrderExtensionService#getFutureDrugOrdersOfSameOrderSet(Patient patient, OrderSet orderSet, Date startDate)
      */
     @Override
     public List<DrugOrder> getFutureDrugOrdersOfSameOrderSet(Patient patient, OrderSet orderSet, Date startDate) {

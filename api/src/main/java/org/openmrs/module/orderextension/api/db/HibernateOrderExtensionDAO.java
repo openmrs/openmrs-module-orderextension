@@ -23,13 +23,17 @@ import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Restrictions;
 import org.openmrs.Concept;
 import org.openmrs.DrugOrder;
+import org.openmrs.Encounter;
+import org.openmrs.EncounterType;
 import org.openmrs.Order;
 import org.openmrs.Patient;
+import org.openmrs.User;
 import org.openmrs.api.db.hibernate.DbSession;
 import org.openmrs.api.db.hibernate.DbSessionFactory;
 import org.openmrs.module.orderextension.DrugRegimen;
 import org.openmrs.module.orderextension.ExtendedOrderSet;
 import org.openmrs.module.orderextension.ExtendedOrderSetMember;
+import org.openmrs.module.orderextension.util.OrderExtensionUtil;
 
 /**
  * Hibernate implementation of the OrderExtension Data Access Interface
@@ -100,6 +104,22 @@ public class HibernateOrderExtensionDAO implements OrderExtensionDAO {
 	@Override
 	public ExtendedOrderSetMember getOrderSetMember(Integer id) {
 		return (ExtendedOrderSetMember) getCurrentSession().get(ExtendedOrderSetMember.class, id);
+	}
+
+	@Override
+	public Encounter getExistingDrugOrderEncounter(Patient patient, EncounterType type, Date dateCreated, User creator) {
+		Criteria c = getCurrentSession().createCriteria(Encounter.class);
+		c.add(Restrictions.eq("patient", patient));
+		c.add(Restrictions.eq("encounterType", type));
+		c.add(Restrictions.ge("dateCreated", OrderExtensionUtil.startOfDay(dateCreated)));
+		c.add(Restrictions.le("dateCreated", OrderExtensionUtil.endOfDay(dateCreated)));
+		c.add(Restrictions.eq("creator", creator));
+		c.addOrder(org.hibernate.criterion.Order.desc("encounterId"));
+		List<Encounter> l = c.list();
+		if (l.isEmpty()) {
+			return null;
+		}
+		return l.get(0);
 	}
 
 	/**
