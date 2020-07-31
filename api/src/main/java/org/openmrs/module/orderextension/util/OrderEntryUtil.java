@@ -34,7 +34,10 @@ public class OrderEntryUtil {
 		List<DrugOrder> l = new ArrayList<DrugOrder>();
 		for (Order o : Context.getOrderService().getAllOrdersByPatient(patient)) {
 			if (o instanceof DrugOrder) {
-				l.add((DrugOrder)o);
+				DrugOrder drugOrder = (DrugOrder)o;
+				if (drugOrder.getAction() != Order.Action.DISCONTINUE ) {
+					l.add((DrugOrder)o);
+				}
 			}
 		}
 		return l;
