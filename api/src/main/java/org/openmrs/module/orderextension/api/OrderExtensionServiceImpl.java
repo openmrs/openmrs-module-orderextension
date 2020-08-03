@@ -13,28 +13,23 @@
  */
 package org.openmrs.module.orderextension.api;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.UUID;
 
 import org.openmrs.Concept;
 import org.openmrs.DrugOrder;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterRole;
 import org.openmrs.EncounterType;
-import org.openmrs.Order;
 import org.openmrs.OrderGroup;
 import org.openmrs.OrderSet;
 import org.openmrs.OrderSetMember;
 import org.openmrs.Patient;
-import org.openmrs.Person;
 import org.openmrs.Provider;
 import org.openmrs.User;
-import org.openmrs.api.APIException;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.api.ProviderService;
 import org.openmrs.api.context.Context;
@@ -43,6 +38,7 @@ import org.openmrs.module.orderextension.DrugRegimen;
 import org.openmrs.module.orderextension.ExtendedOrderSet;
 import org.openmrs.module.orderextension.ExtendedOrderSetMember;
 import org.openmrs.module.orderextension.api.db.OrderExtensionDAO;
+import org.openmrs.module.orderextension.util.OrderEntryUtil;
 import org.openmrs.module.orderextension.util.OrderExtensionUtil;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -300,24 +296,23 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 	@Override
 	@Transactional
 	public void addOrdersForPatient(Patient patient, ExtendedOrderSet orderSet, Date startDate, Integer numCycles) {
-
-		OrderExtensionService orderExtSvc = Context.getService(OrderExtensionService.class);
 		
 		if (numCycles == null) {
 			numCycles = 1;
 		}
 
-		// TODO: This new encounter creation is something we need to fix, it isn't part of the original module, and we need to properly support this.
-		Encounter encounter = new Encounter();
-		encounter.setPatient(patient);
-		encounter.setEncounterDatetime(new Date());
-		encounter.setEncounterType(Context.getEncounterService().getEncounterType(1));
-		encounter.setLocation(Context.getLocationService().getLocation(1));
-		Context.getEncounterService().saveEncounter(encounter);
+		Date currentDate = new Date();
+		User currentUser = Context.getAuthenticatedUser();
+		Encounter encounter = getExistingDrugOrderEncounter(patient, currentDate, currentUser);
+		if (encounter == null) {
+			encounter = createDrugOrderEncounter(patient, currentDate);
+		}
 		
 		for (int i=0; i<numCycles; i++) {
 			
 			DrugRegimen orderGroup = new DrugRegimen();
+			orderGroup.setPatient(patient);
+			orderGroup.setEncounter(encounter);
 			orderGroup.setOrderSet(orderSet);
 			if (orderSet.isCyclical()) {
 				orderGroup.setCycleNumber(i+1);
@@ -344,10 +339,10 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 				drugOrder.setConcept(drugMember.getConcept());
 				drugOrder.setDrug(drugMember.getDrug());
 				drugOrder.setDose(drugMember.getDose());
-				// drugOrder.setUnits(drugMember.getUnits()); TODO: Need to fix with migration
+				OrderEntryUtil.setDoseUnits(drugOrder, drugMember.getUnits());
 				drugOrder.setRoute(drugMember.getRoute());
 				drugOrder.setDosingInstructions(drugMember.getAdministrationInstructions());
-				// drugOrder.setFrequency(drugMember.getFrequency()); TODO: Need to fix with migration
+				OrderEntryUtil.setFrequency(drugOrder, drugMember.getFrequency());
 				drugOrder.setAsNeeded(drugMember.isAsNeeded());
 				drugOrder.setInstructions(drugMember.getInstructions());
 				Concept indication = drugMember.getIndication();
@@ -355,43 +350,19 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 					indication = orderSet.getIndication();
 				}
 				drugOrder.setOrderReason(indication);
-				drugOrder.setDateActivated(memberStartDate); // TODO: Confirm that setting Date Activated is right
+				OrderEntryUtil.setStartDate(drugOrder, currentDate, memberStartDate);
 				drugOrder.setAutoExpireDate(memberEndDate);
 				drugOrder.setOrderGroup(orderGroup);
 				drugOrder.setPatient(patient);
 				drugOrder.setEncounter(encounter);
-
-				// TODO: This is not null safe, and not reliable - replace with proper method during migraiton
-				Person p = Context.getAuthenticatedUser().getPerson();
-				Provider orderer = Context.getProviderService().getProvidersByPerson(p).iterator().next();
-				drugOrder.setOrderer(orderer);
-
-				drugOrder.setOrderType(Context.getOrderService().getOrderTypeByName("Drug order")); // TODO: Replace this with proper method
-				drugOrder.setCareSetting(Context.getOrderService().getCareSettingByName("INPATIENT")); // TODO: Do this properly during 2.3 upgrade
-				setProperty(drugOrder, "orderNumber", UUID.randomUUID().toString()); // TODO: Remove this, added for 2.3 upgrade temporarily
+				drugOrder.setOrderer(getProviderForUser(currentUser));
+				drugOrder.setOrderType(OrderEntryUtil.getDrugOrderType());
+				drugOrder.setCareSetting(OrderEntryUtil.getDefaultCareSetting());
 
 				orderGroup.addOrder(drugOrder);
 			}
-			
-			orderExtSvc.saveDrugRegimen(orderGroup);
-		}
-	}
 
-	private void setProperty(Order order, String propertyName, Object value) {
-		Boolean isAccessible = null;
-		Field field = null;
-		try {
-			field = Order.class.getDeclaredField(propertyName);
-			field.setAccessible(true);
-			field.set(order, value);
-		}
-		catch (Exception e) {
-			throw new APIException("Order.failed.set.property", new Object[] { propertyName, order }, e);
-		}
-		finally {
-			if (field != null && isAccessible != null) {
-				field.setAccessible(isAccessible);
-			}
+			Context.getService(OrderExtensionService.class).saveDrugRegimen(orderGroup);
 		}
 	}
 

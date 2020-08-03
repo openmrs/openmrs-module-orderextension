@@ -86,7 +86,7 @@ public class ExtendedOrderSetMember {
 			ObjectMapper mapper = new ObjectMapper();
 			if (member.getOrderTemplate() != null) {
 				JsonNode o = mapper.readTree(member.getOrderTemplate()).get(propertyName);
-				if (o != null) {
+				if (o != null && !o.isNull()) {
 					if (type == String.class) {
 						return (T) o.asText();
 					}

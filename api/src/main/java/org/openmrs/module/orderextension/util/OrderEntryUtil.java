@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.openmrs.CareSetting;
 import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
 import org.openmrs.Order;
@@ -24,6 +25,23 @@ public class OrderEntryUtil {
 	 */
 	public static OrderType getDrugOrderType() {
 		return Context.getOrderService().getOrderType(2); // TODO: Needs review and improvement to ensure correct
+	}
+
+	/**
+	 * @return the first found outpatient care setting, or first found care setting if no outpatient ones found
+	 */
+	public static CareSetting getDefaultCareSetting() {
+		CareSetting.CareSettingType outpatient = CareSetting.CareSettingType.OUTPATIENT;
+		List<CareSetting> careSettings = Context.getOrderService().getCareSettings(false);
+		if (careSettings.isEmpty()) {
+			throw new IllegalStateException("No care settings defined, unable to create Orders");
+		}
+		for (CareSetting cs : careSettings) {
+			if (cs.getCareSettingType() == outpatient) {
+				return cs;
+			}
+		}
+		return careSettings.get(0);
 	}
 
 	/**
@@ -58,6 +76,13 @@ public class OrderEntryUtil {
 	}
 
 	/**
+	 * Need to review how string units maps to drug order units, and modify as needed
+	 */
+	public static void setDoseUnits(DrugOrder drugOrder, String doseUnits) {
+		// TODO
+	}
+
+	/**
 	 * Need to review how drug dosage form maps to drug order units, and modify as needed
 	 */
 	public static void setDoseUnits(DrugOrder drugOrder, Drug drug) {
@@ -68,10 +93,26 @@ public class OrderEntryUtil {
 	}
 
 	/**
+	 * Set the start date for orders placed as of now
+	 */
+	public static void setStartDate(DrugOrder drugOrder, Date startDate) {
+		setStartDate(drugOrder, new Date(), startDate);
+	}
+
+	/**
 	 * Needed due to removal of start date from Drug Order
 	 */
-	public static void setStartDate(DrugOrder drugOrder, Date date) {
-		drugOrder.setDateActivated(date); // TODO: Assume this is correct, but review and confirm
+	public static void setStartDate(DrugOrder drugOrder, Date orderDate, Date startDate) {
+		Date orderDateNoTime = OrderExtensionUtil.startOfDay(orderDate);
+		Date startDateNoTime = OrderExtensionUtil.startOfDay(startDate);
+		if (startDateNoTime.after(orderDateNoTime)) {
+			drugOrder.setUrgency(Order.Urgency.ON_SCHEDULED_DATE);
+			drugOrder.setScheduledDate(startDate);
+		}
+		else {
+			drugOrder.setUrgency(Order.Urgency.ROUTINE);
+			drugOrder.setDateActivated(startDate);
+		}
 	}
 
 	/**
