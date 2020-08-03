@@ -58,11 +58,14 @@ public class OrderExtensionAjaxController {
 			String doseStrength = drug.getStrength();
 			info.put("doseStrength", doseStrength);
 
+			String doseFormConceptId = "";
 			String doseForm = "";
 			if(drug.getDosageForm() != null)
 			{
+				doseFormConceptId = drug.getDosageForm().getConceptId().toString();
 				doseForm = drug.getDosageForm().getDisplayString();
 			}
+			info.put("doseFormConceptId", doseFormConceptId);
 			info.put("doseForm", doseForm);
 
 			String route = OrderEntryUtil.getRoute(drug);

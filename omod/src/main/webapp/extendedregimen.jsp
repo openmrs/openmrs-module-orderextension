@@ -374,6 +374,7 @@ function fetchDrugs() {
 function updateDrugInfo() {
 	
 	var route = "";
+	var doseUnitsConceptId = ""
 	var doseUnits = "";
 	var reduce = "";
 	var protocol = "";
@@ -386,6 +387,7 @@ function updateDrugInfo() {
 			route =  "<spring:message code='orderextension.regimen.route'/>" + ": " + drugDetail[index].route;
 		}
 		doseUnits = " " + drugDetail[index].doseForm;
+		doseUnitsConceptId = drugDetail[index].doseFormConceptId;
 		
 		if(drugDetail[index].doseReduce == "true")
 		{
@@ -402,7 +404,7 @@ function updateDrugInfo() {
 	}
 	jQuery("#protocolDose").html(protocol);
 	jQuery("#routeInfo").html(route);
-	jQuery("#doseUnits").html(doseUnits);
+	jQuery("#doseUnits").val(doseUnitsConceptId);
 }
 
 function getIndicationClassifications() {
@@ -697,7 +699,15 @@ $j(document).ready(function(){
 					<th class="padding"><spring:message code="orderextension.regimen.patientPrescription" />:</th>
 				</tr>
 				<tr class="drugDetails">
-					<td class="padding"><spring:message code="DrugOrder.dose" />*:  <input type="text" name="dose" id="dose" size="10"/><span id="doseUnits"></span></td>
+					<td class="padding"><spring:message code="DrugOrder.dose" />*:
+						<input type="text" name="dose" id="dose" size="10"/>
+						<select name="doseUnits" id="doseUnits">
+							<option value=""></option>
+							<c:forEach var="doseUnit" items="${model.drugDosingUnits}">
+								<option value="${doseUnit.conceptId}">${doseUnit.displayString}</option>
+							</c:forEach>
+						</select>
+					</td>
 
 					<td class="padding"><span id="doseReduce"><spring:message code="orderextension.regimen.doseReduction" /> <input type="text" name="doseReduction" id="doseReduction" size="10"/> <input type="hidden" name="doseProtocolValue" id="doseProtocolValue"/><spring:message code="orderextension.regimen.doseReductionFrom" /> <span id="protocolDose"></span></span></div></td>
 					

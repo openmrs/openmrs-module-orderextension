@@ -92,6 +92,7 @@ public class OrderExtensionOrderController {
 	public String addOrder(ModelMap model, @RequestParam(value = "patientId", required = true) Integer patientId,
 	                       @RequestParam(value = "drug", required = true) Integer drugId,
 	                       @RequestParam(value = "dose", required = true) Double dose,
+	                       @RequestParam(value = "doseUnits", required = true) Concept doseUnits,
 	                       @RequestParam(value = "frequencyDay", required = false) String frequencyDay,
 	                       @RequestParam(value = "frequencyWeek", required = false) String frequencyWeek,
 	                       @RequestParam(value = "startDateDrug", required = true) Date startDateDrug,
@@ -105,7 +106,8 @@ public class OrderExtensionOrderController {
 		
 		DrugOrder drugOrder = setUpDrugOrder(patientId, drugId, dose, frequencyDay, frequencyWeek, startDateDrug,
 		    stopDateDrug, asNeeded, classification, indication, instructions, adminInstructions);
-		
+		drugOrder.setDoseUnits(doseUnits);
+
 		getOrderExtensionService().extendedSaveDrugOrder(drugOrder);
 		
 		return "redirect:" + returnPage;
