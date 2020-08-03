@@ -31,6 +31,7 @@ import org.openmrs.Patient;
 import org.openmrs.Provider;
 import org.openmrs.User;
 import org.openmrs.api.AdministrationService;
+import org.openmrs.api.OrderContext;
 import org.openmrs.api.ProviderService;
 import org.openmrs.api.context.Context;
 import org.openmrs.api.impl.BaseOpenmrsService;
@@ -197,6 +198,33 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 		}
 		Provider orderer = getProviderForUser(currentUser);
 		Context.getOrderService().discontinueOrder(drugOrder, stopConcept, stopDateDrug, orderer, encounter);
+	}
+
+	/**
+	 * @see OrderExtensionService#extendedSaveDrugOrder(DrugOrder)
+	 */
+	@Override
+	@Transactional
+	public DrugOrder extendedSaveDrugOrder(DrugOrder drugOrder) {
+		Date currentDate = new Date();
+		User currentUser = Context.getAuthenticatedUser();
+		if (drugOrder.getEncounter() == null) {
+			Encounter encounter = getExistingDrugOrderEncounter(drugOrder.getPatient(), currentDate, currentUser);
+			if (encounter == null) {
+				encounter = createDrugOrderEncounter(drugOrder.getPatient(), currentDate);
+			}
+			drugOrder.setEncounter(encounter);
+		}
+		if (drugOrder.getOrderer() == null) {
+			drugOrder.setOrderer(getProviderForUser(currentUser));
+		}
+		OrderEntryUtil.setDoseUnits(drugOrder, drugOrder.getDrug());
+
+		OrderContext orderContext = new OrderContext();
+		orderContext.setOrderType(OrderEntryUtil.getDrugOrderType());
+		orderContext.setCareSetting(OrderEntryUtil.getDefaultCareSetting());
+
+		return (DrugOrder)Context.getOrderService().saveOrder(drugOrder, orderContext);
 	}
 
 	/**

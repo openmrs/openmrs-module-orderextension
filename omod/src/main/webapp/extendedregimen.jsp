@@ -264,7 +264,7 @@ function handleAddMedication() {
 	{
 		var error = "";
 		
-		var selectedIndex = jQuery("#orderSet").attr("selectedIndex");
+		var selectedIndex = jQuery("#orderSet").prop("selectedIndex");
 		if(selectedIndex == 0)
 		{
 			error = " <spring:message code='orderextension.regimen.orderSetError' /> ";
@@ -306,7 +306,7 @@ function handleAddMedication() {
 }
 
 function includeCycle() {
-	var selectedIndex = jQuery("#orderSet").attr("selectedIndex");
+	var selectedIndex = jQuery("#orderSet").prop("selectedIndex");
 	
 	var cycle = [];
 	<c:forEach items="${model.orderSets}" var="orderSet">
@@ -328,7 +328,7 @@ var drugDetail;
 function fetchDrugs() {
 	var selected = jQuery('#drugCombo').val();
 	
-	if(jQuery("#drugCombo").attr("selectedIndex") > 0)
+	if(jQuery("#drugCombo").prop("selectedIndex") > 0)
 	{
 		var url = "${pageContext.request.contextPath}/module/orderextension/getDrugsByConcept.form?concept=" + selected
 		jQuery.getJSON(url, function(result) 
@@ -378,7 +378,7 @@ function updateDrugInfo() {
 	var reduce = "";
 	var protocol = "";
 	
-	var index = jQuery('#drug').attr("selectedIndex");
+	var index = jQuery('#drug').prop("selectedIndex");
 	if(index != null && index >=0)
 	{
 		if(drugDetail[index].route != "")
@@ -409,7 +409,7 @@ function getIndicationClassifications() {
 
 	var selected = jQuery('#indicationCombo').val();
 	
-	if(jQuery('#indicationCombo').attr("selectedIndex") > 0) {
+	if(jQuery('#indicationCombo').prop("selectedIndex") > 0) {
 		var url = "${pageContext.request.contextPath}/module/orderextension/getClassificationsByIndication.form?id=" + selected
 		jQuery.getJSON(url, function(result) 
 		{
@@ -439,7 +439,7 @@ function validAddDrugPanel() {
 	
 	var error = '';
 	
-	var selectedIndex = jQuery("#drugCombo").attr("selectedIndex");
+	var selectedIndex = jQuery("#drugCombo").prop("selectedIndex");
 	if(selectedIndex == 0)
 	{
 		error = " <spring:message code='orderextension.regimen.drugError' /> ";
@@ -698,7 +698,7 @@ $j(document).ready(function(){
 				</tr>
 				<tr class="drugDetails">
 					<td class="padding"><spring:message code="DrugOrder.dose" />*:  <input type="text" name="dose" id="dose" size="10"/><span id="doseUnits"></span></td>
-					
+
 					<td class="padding"><span id="doseReduce"><spring:message code="orderextension.regimen.doseReduction" /> <input type="text" name="doseReduction" id="doseReduction" size="10"/> <input type="hidden" name="doseProtocolValue" id="doseProtocolValue"/><spring:message code="orderextension.regimen.doseReductionFrom" /> <span id="protocolDose"></span></span></div></td>
 					
 					<td class="padding"><spring:message code="DrugOrder.frequency"/>:			

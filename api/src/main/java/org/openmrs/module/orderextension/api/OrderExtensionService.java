@@ -142,6 +142,11 @@ public interface OrderExtensionService extends OpenmrsService {
 	public void discontinueOrder(DrugOrder drugOrder, Concept stopConcept, Date stopDateDrug);
 
 	/**
+	 * Save a given Drug Order
+	 */
+	public DrugOrder extendedSaveDrugOrder(DrugOrder drugOrder);
+
+	/**
 	 * @param orderGroup the ExtendedOrderGroup to save
 	 * @return the saved ExtendedOrderGroup
 	 * @should save a new ExtendedOrderGroup

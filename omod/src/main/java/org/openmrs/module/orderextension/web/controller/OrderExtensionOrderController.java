@@ -106,7 +106,7 @@ public class OrderExtensionOrderController {
 		DrugOrder drugOrder = setUpDrugOrder(patientId, drugId, dose, frequencyDay, frequencyWeek, startDateDrug,
 		    stopDateDrug, asNeeded, classification, indication, instructions, adminInstructions);
 		
-		OrderEntryUtil.saveDrugOrder(drugOrder);
+		getOrderExtensionService().extendedSaveDrugOrder(drugOrder);
 		
 		return "redirect:" + returnPage;
 	}
@@ -255,7 +255,7 @@ public class OrderExtensionOrderController {
 					}
 
 					OrderEntryUtil.setStartDate(order, adjustDate(order.getEffectiveStartDate(), regimen.getFirstDrugOrderStartDate(), changeDate));
-					OrderEntryUtil.saveDrugOrder(order);
+					getOrderExtensionService().extendedSaveDrugOrder(order);
 				}
 			}
 		}
@@ -267,7 +267,7 @@ public class OrderExtensionOrderController {
 			}
 
 			OrderEntryUtil.setStartDate(order, adjustDate(order.getEffectiveStartDate(), sDate, changeDate));
-			OrderEntryUtil.saveDrugOrder(order);
+			getOrderExtensionService().extendedSaveDrugOrder(order);
 		}
 		
 		return "redirect:" + returnPage;
@@ -306,7 +306,7 @@ public class OrderExtensionOrderController {
 							}
 							
 							OrderEntryUtil.setStartDate(order, adjustDate(order.getEffectiveStartDate(), startDate, changeDate));
-							OrderEntryUtil.saveDrugOrder(order);
+							getOrderExtensionService().extendedSaveDrugOrder(order);
 						}
 					} else {
 						if (order.getAutoExpireDate() != null) {
@@ -314,7 +314,7 @@ public class OrderExtensionOrderController {
 						}
 						
 						OrderEntryUtil.setStartDate(order, adjustDate(order.getEffectiveStartDate(), startDate, changeDate));
-						OrderEntryUtil.saveDrugOrder(order);
+						getOrderExtensionService().extendedSaveDrugOrder(order);
 					}
 				}
 			}
@@ -328,7 +328,7 @@ public class OrderExtensionOrderController {
 					}
 					
 					OrderEntryUtil.setStartDate(order, adjustDate(order.getEffectiveStartDate(), startDate, changeDate));
-					OrderEntryUtil.saveDrugOrder(order);
+					getOrderExtensionService().extendedSaveDrugOrder(order);
 				}
 			} else {
 				if (getCycleDay(regimen.getFirstDrugOrderStartDate(), order.getEffectiveStartDate()) == cycleDay) {
@@ -337,7 +337,7 @@ public class OrderExtensionOrderController {
 					}
 					
 					OrderEntryUtil.setStartDate(order, adjustDate(order.getEffectiveStartDate(), startDate, changeDate));
-					OrderEntryUtil.saveDrugOrder(order);
+					getOrderExtensionService().extendedSaveDrugOrder(order);
 				}
 			}
 		}
@@ -397,7 +397,7 @@ public class OrderExtensionOrderController {
 
 						DrugOrder orderDrug = updateDrugOrder(order, drugId, dose, frequencyDay, frequencyWeek,
 						    startDate, endDate, asNeeded, classification, indication, instructions, adminInstructions);
-						OrderEntryUtil.saveDrugOrder(orderDrug);
+						getOrderExtensionService().extendedSaveDrugOrder(orderDrug);
 					}
 				}
 			}
@@ -429,7 +429,7 @@ public class OrderExtensionOrderController {
 			}
 		}
 
-		OrderEntryUtil.saveDrugOrder(drugOrder);
+		getOrderExtensionService().extendedSaveDrugOrder(drugOrder);
 		
 		return "redirect:" + returnPage;
 	}

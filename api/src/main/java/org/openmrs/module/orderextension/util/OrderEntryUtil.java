@@ -62,13 +62,6 @@ public class OrderEntryUtil {
 	}
 
 	/**
-	 * Needed due to fact that method Context.getOrderService().saveOrder(drugOrder) is invalid in 2.3
-	 */
-	public static void saveDrugOrder(DrugOrder drugOrder) {
-		// return null;  // TODO
-	}
-
-	/**
 	 * Needed due to the fact that frequency is changed from String to OrderFrequency reference in 2.3
 	 */
 	public static void setFrequency(DrugOrder drugOrder, String frequency) {
@@ -87,8 +80,7 @@ public class OrderEntryUtil {
 	 */
 	public static void setDoseUnits(DrugOrder drugOrder, Drug drug) {
 		if (drug.getDosageForm() != null) {
-			// drugOrder.setUnits(drug.getDosageForm().getDisplayString()); TODO: This is what was in place in some of the code need to fix/implement
-			drugOrder.setDoseUnits(drug.getDosageForm()); // This is the closest equivalent, but does not seem correct
+			drugOrder.setDoseUnits(drug.getDosageForm()); // TODO: needs review / explicit setting
 		}
 	}
 
