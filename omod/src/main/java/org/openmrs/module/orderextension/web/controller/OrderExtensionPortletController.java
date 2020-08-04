@@ -23,6 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.DrugOrder;
 import org.openmrs.Patient;
+import org.openmrs.api.context.Context;
 import org.openmrs.module.orderextension.DrugClassificationHelper;
 import org.openmrs.module.orderextension.DrugRegimen;
 import org.openmrs.module.orderextension.util.DrugConceptHelper;
@@ -118,7 +119,11 @@ public class OrderExtensionPortletController extends PortletController {
 		model.put("classifications", helper);
 		
 		model.put("drugs", drugHelper.getDistinctSortedDrugs());
-		
+
 		model.put("indications", drugHelper.getIndications());
+
+		model.put("drugFrequencies", Context.getOrderService().getOrderFrequencies(false));
+		model.put("drugDosingUnits", Context.getOrderService().getDrugDosingUnits());
+		model.put("drugRoutes", Context.getOrderService().getDrugRoutes());
 	}
 }

@@ -471,6 +471,7 @@ function fetchDrugsThree() {
 function updateDrugInfoTwo() {
 	
 	var route = "";
+	var unitsConceptId = "";
 	var units = "";
 	var reduce = "";
 	var protocol = "";
@@ -484,6 +485,7 @@ function updateDrugInfoTwo() {
 			route =  "<spring:message code='orderextension.regimen.route'/>" + ": " + drugDetailTwo[index].route;
 		}
 		units = " " + drugDetailTwo[index].doseForm;
+		unitsConceptId = drugDetailsTwo[index].doseFormConceptId;
 		
 		if(drugDetailTwo[index].doseReduce == "true")
 		{
@@ -501,7 +503,7 @@ function updateDrugInfoTwo() {
 	
 	jQuery("#protocolDoseTwo").html(protocol);
 	jQuery("#routeInfoTwo").html(route);
-	jQuery("#unitsTwo").html(units);
+	jQuery("#unitsTwo").val(unitsConceptId);
 }
 
 function getIndicationClassificationsTwo() {
@@ -539,6 +541,7 @@ function updateDrugInfoThree() {
 	
 	
 	var route = "";
+	var unitsConceptId = "";
 	var units = "";
 	var protocol = "";
 	
@@ -550,7 +553,8 @@ function updateDrugInfoThree() {
 		{
 			route =  "<spring:message code='orderextension.regimen.route'/>" + ": " + drugDetailThree[index].route;
 		}
-		units = " " + drugDetailThree[index].units;
+		units = " " + drugDetailThree[index].doseForm;
+		unitsConceptId = drugDetailThree[index].doseFormConceptId;
 		
 		if(drugDetailThree[index].doseReduce == "true")
 		{
@@ -565,7 +569,7 @@ function updateDrugInfoThree() {
 	}
 	jQuery("#protocolDoseThree").html(protocol);
 	jQuery("#routeInfoThree").html(route);
-	jQuery("#unitsThree").html(units);
+	jQuery("#unitsThree").val(unitsConceptId);
 	updateDosageThree();
 }
 
@@ -646,7 +650,7 @@ function handleChangeStartDateOfPartGroup()
 }
 
 function validAddDrugPanelTwo() {
-	
+
 	var error = '';
 	
 	var selectedIndex = jQuery("#drugComboTwo").attr("selectedIndex");
@@ -805,7 +809,6 @@ function updateEditDrugDialog() {
 		jQuery("#instructionsThree").val(result.instructions);
 		
 		jQuery("#routeInfoThree").val(result.route);
-		jQuery("#unitsThree").html(result.units);
 		
 		if(result.reduce == "true")
 		{
@@ -1074,7 +1077,14 @@ function handleDeleteAllDrugOrder()
 						<th class="padding"><spring:message code="orderextension.regimen.patientPrescription" />:</th>
 					</tr>
 					<tr class="drugDetails">
-						<td class="padding"><spring:message code="DrugOrder.dose" />*:  <input type="text" name="dose" id="dosage" size="10"/><span id="unitsTwo"></span></td>
+						<td class="padding"><spring:message code="DrugOrder.dose" />*:  <input type="text" name="dose" id="dosage" size="10"/>
+							<select name="doseUnits" id="unitsTwo">
+								<option value=""></option>
+								<c:forEach var="doseUnit" items="${model.drugDosingUnits}">
+									<option value="${doseUnit.conceptId}">${doseUnit.displayString}</option>
+								</c:forEach>
+							</select>
+						</td>
 						
 						<td class="padding"><span id="doseReduceTwo"><spring:message code="orderextension.regimen.doseReduction" /> <input type="text" name="doseReduction" id="doseReductionTwo" size="10"/> <input type="hidden" name="doseProtocolValue" id="doseProtocolValueTwo"/><spring:message code="orderextension.regimen.doseReductionFrom" /> <span id="protocolDoseTwo"></span></span></div></td>
 					
@@ -1159,7 +1169,14 @@ function handleDeleteAllDrugOrder()
 						<th class="padding"><spring:message code="orderextension.regimen.patientPrescription" />:</th>
 					</tr>
 					<tr class="drugDetails">
-						<td class="padding"><spring:message code="DrugOrder.dose" />*:  <input type="text" name="dose" id="dosageThree" size="10"/><span id="unitsThree"></span></td>
+						<td class="padding"><spring:message code="DrugOrder.dose" />*:  <input type="text" name="dose" id="dosageThree" size="10"/>
+							<select name="doseUnits" id="unitsThree">
+								<option value=""></option>
+								<c:forEach var="doseUnit" items="${model.drugDosingUnits}">
+									<option value="${doseUnit.conceptId}">${doseUnit.displayString}</option>
+								</c:forEach>
+							</select>
+						</td>
 					
 						<td class="padding"><span id="doseReduceThree"><spring:message code="orderextension.regimen.doseReduction" /> <input type="text" name="doseReductionThree" id="doseReductionThree" size="10"/> <input type="hidden" name="doseProtocolValueThree" id="doseProtocolValueThree"/><spring:message code="orderextension.regimen.doseReductionFrom" /> <span id="protocolDoseThree"></span></span></div></td>
 					

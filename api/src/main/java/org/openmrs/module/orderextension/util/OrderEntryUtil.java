@@ -76,15 +76,6 @@ public class OrderEntryUtil {
 	}
 
 	/**
-	 * Need to review how drug dosage form maps to drug order units, and modify as needed
-	 */
-	public static void setDoseUnits(DrugOrder drugOrder, Drug drug) {
-		if (drug.getDosageForm() != null) {
-			drugOrder.setDoseUnits(drug.getDosageForm()); // TODO: needs review / explicit setting
-		}
-	}
-
-	/**
 	 * Set the start date for orders placed as of now
 	 */
 	public static void setStartDate(DrugOrder drugOrder, Date startDate) {

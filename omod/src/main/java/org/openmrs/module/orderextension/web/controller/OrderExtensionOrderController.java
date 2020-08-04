@@ -104,16 +104,15 @@ public class OrderExtensionOrderController {
 	                       @RequestParam(value = "adminInstructions", required = false) String adminInstructions,
 	                       @RequestParam(value = "returnPage", required = true) String returnPage) {
 		
-		DrugOrder drugOrder = setUpDrugOrder(patientId, drugId, dose, frequencyDay, frequencyWeek, startDateDrug,
+		DrugOrder drugOrder = setUpDrugOrder(patientId, drugId, dose, doseUnits, frequencyDay, frequencyWeek, startDateDrug,
 		    stopDateDrug, asNeeded, classification, indication, instructions, adminInstructions);
-		drugOrder.setDoseUnits(doseUnits);
 
 		getOrderExtensionService().extendedSaveDrugOrder(drugOrder);
 		
 		return "redirect:" + returnPage;
 	}
 	
-	private DrugOrder setUpDrugOrder(Integer patientId, Integer drugId, Double dose, String frequencyDay,
+	private DrugOrder setUpDrugOrder(Integer patientId, Integer drugId, Double dose, Concept doseUnits, String frequencyDay,
 	                                 String frequencyWeek, Date startDateDrug, Date stopDateDrug, String asNeeded,
 	                                 Integer classification, Integer indication, String instructions,
 	                                 String adminInstructions) {
@@ -122,13 +121,13 @@ public class OrderExtensionOrderController {
 		DrugOrder drugOrder = new DrugOrder();
 		drugOrder.setPatient(patient);
 		
-		drugOrder = updateDrugOrder(drugOrder, drugId, dose, frequencyDay, frequencyWeek, startDateDrug, stopDateDrug,
+		drugOrder = updateDrugOrder(drugOrder, drugId, dose, doseUnits, frequencyDay, frequencyWeek, startDateDrug, stopDateDrug,
 		    asNeeded, classification, indication, instructions, adminInstructions);
 		
 		return drugOrder;
 	}
 	
-	private DrugOrder updateDrugOrder(DrugOrder drugOrder, Integer drugId, Double dose, String frequencyDay,
+	private DrugOrder updateDrugOrder(DrugOrder drugOrder, Integer drugId, Double dose, Concept doseUnits, String frequencyDay,
 	                                  String frequencyWeek, Date startDateDrug, Date stopDateDrug, String asNeeded,
 	                                  Integer classification, Integer indication, String instructions,
 	                                  String adminInstructions) {
@@ -136,7 +135,7 @@ public class OrderExtensionOrderController {
 		drugOrder.setDrug(drug);
 		drugOrder.setConcept(drug.getConcept());
 		drugOrder.setDose(dose);
-		OrderEntryUtil.setDoseUnits(drugOrder, drug);
+		drugOrder.setDoseUnits(doseUnits);
 		
 		String frequency = "";
 		if (frequencyDay != null && frequencyDay.length() > 0) {
@@ -186,6 +185,7 @@ public class OrderExtensionOrderController {
 	                                  @RequestParam(value = "groupId", required = true) Integer groupId,
 	                                  @RequestParam(value = "drug", required = true) Integer drugId,
 	                                  @RequestParam(value = "dose", required = true) Double dose,
+									  @RequestParam(value = "doseUits", required = true) Concept doseUnits,
 	                                  @RequestParam(value = "frequencyDay", required = false) String frequencyDay,
 	                                  @RequestParam(value = "frequencyWeek", required = false) String frequencyWeek,
 	                                  @RequestParam(value = "addCycleStartDate", required = true) Date startDateDrug,
@@ -214,7 +214,7 @@ public class OrderExtensionOrderController {
 					    stopDateDrug);
 				}
 				
-				DrugOrder drugOrder = setUpDrugOrder(patientId, drugId, dose, frequencyDay,
+				DrugOrder drugOrder = setUpDrugOrder(patientId, drugId, dose, doseUnits, frequencyDay,
 				    frequencyWeek, startDate, stopDate, asNeeded, classification, indication, instructions,
 				    adminInstructions);
 				drugRegimen.addOrder(drugOrder);
@@ -223,7 +223,7 @@ public class OrderExtensionOrderController {
 			}
 		}
 
-		DrugOrder drugOrder = setUpDrugOrder(patientId, drugId, dose, frequencyDay,
+		DrugOrder drugOrder = setUpDrugOrder(patientId, drugId, dose, doseUnits, frequencyDay,
 		    frequencyWeek, startDateDrug, stopDateDrug, asNeeded, classification, indication, instructions,
 		    adminInstructions);
 		regimen.addOrder(drugOrder);
@@ -351,6 +351,7 @@ public class OrderExtensionOrderController {
 	public String editDrug(ModelMap model, @RequestParam(value = "orderId", required = true) Integer orderId,
 	                       @RequestParam(value = "drug", required = true) Integer drugId,
 	                       @RequestParam(value = "dose", required = true) Double dose,
+						   @RequestParam(value = "doseUnits", required = true) Concept doseUnits,
 	                       @RequestParam(value = "frequencyDay", required = false) String frequencyDay,
 	                       @RequestParam(value = "frequencyWeek", required = false) String frequencyWeek,
 	                       @RequestParam(value = "editStartDate", required = true) Date startDateDrug,
@@ -397,7 +398,7 @@ public class OrderExtensionOrderController {
 							endDate = adjustDate(endDate, drugOrder.getAutoExpireDate(), stopDateDrug);
 						}
 
-						DrugOrder orderDrug = updateDrugOrder(order, drugId, dose, frequencyDay, frequencyWeek,
+						DrugOrder orderDrug = updateDrugOrder(order, drugId, dose, doseUnits, frequencyDay, frequencyWeek,
 						    startDate, endDate, asNeeded, classification, indication, instructions, adminInstructions);
 						getOrderExtensionService().extendedSaveDrugOrder(orderDrug);
 					}
@@ -409,7 +410,7 @@ public class OrderExtensionOrderController {
 		//create a new one with the edit details.
 		if(changeReason == null)
 		{
-			drugOrder = updateDrugOrder(drugOrder, drugId, dose, frequencyDay, frequencyWeek, startDateDrug, stopDateDrug, asNeeded,
+			drugOrder = updateDrugOrder(drugOrder, drugId, dose, doseUnits, frequencyDay, frequencyWeek, startDateDrug, stopDateDrug, asNeeded,
 					classification, indication, instructions, adminInstructions);
 		}
 		else
@@ -420,7 +421,7 @@ public class OrderExtensionOrderController {
 			//if the user has edited and not chosen the discontinue button, then add a new order with the changes suggested
 			if(discontinue.equals("false"))
 			{
-				DrugOrder newDrugOrder = setUpDrugOrder(patientId, drugId, dose, frequencyDay,
+				DrugOrder newDrugOrder = setUpDrugOrder(patientId, drugId, dose, doseUnits, frequencyDay,
 					    frequencyWeek, startDateDrug, stopDateDrug, asNeeded, classification, indication, instructions,
 					    adminInstructions);
 				

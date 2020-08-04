@@ -218,7 +218,6 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 		if (drugOrder.getOrderer() == null) {
 			drugOrder.setOrderer(getProviderForUser(currentUser));
 		}
-		OrderEntryUtil.setDoseUnits(drugOrder, drugOrder.getDrug());
 
 		OrderContext orderContext = new OrderContext();
 		orderContext.setOrderType(OrderEntryUtil.getDrugOrderType());
