@@ -71,10 +71,8 @@ public class OrderExtensionAjaxController {
 			String route = OrderEntryUtil.getRoute(drug);
 			info.put("route", route);
 
-			String units = OrderEntryUtil.getUnits(drug);
 			String doseReduction = OrderEntryUtil.getDoseReduction(drug);
 			String protocolDose = OrderEntryUtil.getProtocolDose(drug);
-			info.put("units", units);
 			info.put("doseReduce", doseReduction);
 			info.put("protocolDose", protocolDose);
 
@@ -126,7 +124,6 @@ public class OrderExtensionAjaxController {
 			info.put("name", drug.getName());
 			info.put("concept", Integer.toString(drug.getConcept().getId()));
 			info.put("drugId", drug.getId().toString());
-			info.put("units", OrderEntryUtil.getUnits(drug));
 			info.put("protocolDose", OrderEntryUtil.getProtocolDose(drug));
 			info.put("route", OrderEntryUtil.getRoute(drug));
 			info.put("protocol", OrderEntryUtil.getProtocol(drug));
@@ -142,6 +139,7 @@ public class OrderExtensionAjaxController {
 			dose = f.format(drugOrder.getDose());
 		}
 		info.put("dose", dose);
+		info.put("doseUnits", drugOrder.getDoseUnits() == null ? "" : Integer.toString(drugOrder.getDoseUnits().getId()));
 
 		String freqDay = OrderEntryUtil.getFrequencyPerDayAsString(drugOrder);
 		String freqWeek = OrderEntryUtil.getFrequencyPerWeekAsString(drugOrder);

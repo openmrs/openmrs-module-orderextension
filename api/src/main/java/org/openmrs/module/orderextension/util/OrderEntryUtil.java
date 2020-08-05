@@ -132,11 +132,6 @@ public class OrderEntryUtil {
 		return "";
 	}
 
-	public static String getUnits(Drug drug) {
-		// No longer a method, not just part of drug strength, used to be drug.getUnits()
-		return "";
-	}
-
 	/**
 	 * This is based sort of on what was present in OrderExtensionAjaxController.  Needs more investigation
 	 */
