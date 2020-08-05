@@ -82,40 +82,44 @@ public class ExtendedOrderSetMember {
 	}
 
 	protected <T> T getTemplateProperty(String propertyName, Class<T> type) {
+		T ret = null;
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 			if (member.getOrderTemplate() != null) {
 				JsonNode o = mapper.readTree(member.getOrderTemplate()).get(propertyName);
 				if (o != null && !o.isNull()) {
 					if (type == String.class) {
-						return (T) o.asText();
+						ret = (T) o.asText();
 					}
 					else if (type == Integer.class) {
-						return (T) Integer.valueOf(o.asInt());
+						ret = (T) Integer.valueOf(o.asInt());
 					}
 					else if (type == Double.class) {
-						return (T) Double.valueOf(o.asDouble());
+						ret = (T) Double.valueOf(o.asDouble());
 					}
 					else if (type == Concept.class) {
 						Concept c = Context.getConceptService().getConceptByUuid(o.asText());
 						if (c == null) {
 							c = Context.getConceptService().getConcept(o.asInt());
 						}
-						return (T)c;
+						ret = (T)c;
 					}
 					else if (type == Drug.class) {
 						Drug d = Context.getConceptService().getDrugByUuid(o.asText());
 						if (d == null) {
 							d = Context.getConceptService().getDrug(o.asInt());
 						}
-						return (T)d;
+						ret = (T)d;
 					}
 					else {
-						throw new IllegalStateException("Only String and Integer properties currently supported");
+						throw new IllegalStateException("Template datatype unsupported: " + type);
+					}
+					if (ret == null) {
+						throw new IllegalStateException("Error parsing " + o + " into " + propertyName + " of type " + type);
 					}
 				}
 			}
-			return null;
+			return ret;
 		}
 		catch (Exception e) {
 			throw new IllegalStateException("Unable to read " + propertyName + " from order set member");
@@ -258,6 +262,17 @@ public class ExtendedOrderSetMember {
 	/**
 	 * @return the units
 	 */
+	public Concept getDoseUnits() {
+		return getTemplateProperty("doseUnits", Concept.class);
+	}
+
+	/**
+	 * @return the units
+	 */
+	public void setDoseUnits(Concept doseUnits) {
+		setTemplateProperty("doseUnits", doseUnits);
+	}
+
 	public String getUnits() {
 		return getTemplateProperty("units", String.class);
 	}

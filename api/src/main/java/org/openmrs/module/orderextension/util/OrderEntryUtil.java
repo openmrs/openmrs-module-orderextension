@@ -69,13 +69,6 @@ public class OrderEntryUtil {
 	}
 
 	/**
-	 * Need to review how string units maps to drug order units, and modify as needed
-	 */
-	public static void setDoseUnits(DrugOrder drugOrder, String doseUnits) {
-		// TODO
-	}
-
-	/**
 	 * Set the start date for orders placed as of now
 	 */
 	public static void setStartDate(DrugOrder drugOrder, Date startDate) {
