@@ -369,7 +369,7 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 				drugOrder.setDoseUnits(drugMember.getDoseUnits());
 				drugOrder.setRoute(drugMember.getRoute());
 				drugOrder.setDosingInstructions(drugMember.getAdministrationInstructions());
-				OrderEntryUtil.setFrequency(drugOrder, drugMember.getFrequency());
+				drugOrder.setFrequency(drugMember.getOrderFrequency());
 				drugOrder.setAsNeeded(drugMember.isAsNeeded());
 				drugOrder.setInstructions(drugMember.getInstructions());
 				Concept indication = drugMember.getIndication();

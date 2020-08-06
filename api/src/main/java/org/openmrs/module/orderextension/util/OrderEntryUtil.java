@@ -61,13 +61,6 @@ public class OrderEntryUtil {
 	}
 
 	/**
-	 * Needed due to the fact that frequency is changed from String to OrderFrequency reference in 2.3
-	 */
-	public static void setFrequency(DrugOrder drugOrder, String frequency) {
-		// TODO
-	}
-
-	/**
 	 * Set the start date for orders placed as of now
 	 */
 	public static void setStartDate(DrugOrder drugOrder, Date startDate) {

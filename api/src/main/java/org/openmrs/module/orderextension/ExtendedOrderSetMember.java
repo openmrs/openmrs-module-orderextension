@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.openmrs.Concept;
 import org.openmrs.Drug;
 import org.openmrs.OpenmrsObject;
+import org.openmrs.OrderFrequency;
 import org.openmrs.OrderSetMember;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.orderextension.util.OrderEntryUtil;
@@ -110,6 +111,13 @@ public class ExtendedOrderSetMember {
 							d = Context.getConceptService().getDrug(o.asInt());
 						}
 						ret = (T)d;
+					}
+					else if (type == OrderFrequency.class) {
+						OrderFrequency f = Context.getOrderService().getOrderFrequencyByUuid(o.asText());
+						if (f == null) {
+							f = Context.getOrderService().getOrderFrequency(o.asInt());
+						}
+						ret = (T)f;
 					}
 					else {
 						throw new IllegalStateException("Template datatype unsupported: " + type);
@@ -296,6 +304,20 @@ public class ExtendedOrderSetMember {
 	 */
 	public void setRoute(Concept route) {
 		setTemplateProperty("route", route);
+	}
+
+	/**
+	 * @return the frequency
+	 */
+	public OrderFrequency getOrderFrequency() {
+		return getTemplateProperty("orderFrequency", OrderFrequency.class);
+	}
+
+	/**
+	 * @param frequency the frequency to set
+	 */
+	public void setOrderFrequency(OrderFrequency frequency) {
+		setTemplateProperty("orderFrequency", frequency);
 	}
 
 	/**
