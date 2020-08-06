@@ -171,11 +171,15 @@ public class OrderExtensionOrderController {
 		}
 
 		drugOrder.setDosingInstructions(adminInstructions);
-
-		
 		drugOrder.setInstructions(instructions);
 
-		OrderEntryUtil.updateStopAndExpireDates(drugOrder, stopDateDrug);
+		if (drugOrder.isDiscontinuedRightNow()) {
+			throw new IllegalStateException("Discontinuation of orders not yet supported in 2.3"); // TODO: Remove this, here just as a safety measure during migration
+			//we want to set the stop date to the end of the evening, otherwise drugs orders that are only for one day never show up as active
+			// TODO: Need to replace this drugOrder.setDiscontinuedDate(OrderExtensionUtil.adjustDateToEndOfDay(stopDateDrug)); // TODO: Need to figure out how to do this
+		} else {
+			drugOrder.setAutoExpireDate(OrderExtensionUtil.adjustDateToEndOfDay(stopDateDrug));
+		}
 		
 		OrderType orderType = OrderEntryUtil.getDrugOrderType();
 		drugOrder.setOrderType(orderType);

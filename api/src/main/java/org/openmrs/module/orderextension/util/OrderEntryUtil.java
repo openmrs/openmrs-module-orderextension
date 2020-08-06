@@ -90,19 +90,6 @@ public class OrderEntryUtil {
 		}
 	}
 
-	/**
-	 * Needed to cover controller code that is trying to set/update the stop and expire dates based on input
-	 */
-	public static void updateStopAndExpireDates(DrugOrder drugOrder, Date stopDateDrug) {
-		// TODO: The below implementation was taken from a Controller.  Had to comment out the one line to compile, but leaving code to understand
-		if (drugOrder.isDiscontinuedRightNow()) {
-			//we want to set the stop date to the end of the evening, otherwise drugs orders that are only for one day never show up as active
-			// drugOrder.setDiscontinuedDate(OrderExtensionUtil.adjustDateToEndOfDay(stopDateDrug)); // TODO: Need to figure out how to do this
-		} else {
-			drugOrder.setAutoExpireDate(OrderExtensionUtil.adjustDateToEndOfDay(stopDateDrug));
-		}
-	}
-
 	public static boolean isOrdered(Order drugOrder) {
 		return !drugOrder.getVoided() && drugOrder.getAction() != Order.Action.DISCONTINUE;
 	}
