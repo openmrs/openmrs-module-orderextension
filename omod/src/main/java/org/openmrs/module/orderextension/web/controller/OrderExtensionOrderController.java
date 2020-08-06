@@ -98,6 +98,7 @@ public class OrderExtensionOrderController {
 	                       @RequestParam(value = "startDateDrug", required = true) Date startDateDrug,
 	                       @RequestParam(value = "stopDateDrug", required = false) Date stopDateDrug,
 	                       @RequestParam(value = "asNeeded", required = false) String asNeeded,
+						   @RequestParam(value = "route", required = true) Concept route,
 	                       @RequestParam(value = "classification", required = false) Integer classification,
 	                       @RequestParam(value = "indication", required = false) Integer indication,
 	                       @RequestParam(value = "instructions", required = false) String instructions,
@@ -105,7 +106,7 @@ public class OrderExtensionOrderController {
 	                       @RequestParam(value = "returnPage", required = true) String returnPage) {
 		
 		DrugOrder drugOrder = setUpDrugOrder(patientId, drugId, dose, doseUnits, frequencyDay, frequencyWeek, startDateDrug,
-		    stopDateDrug, asNeeded, classification, indication, instructions, adminInstructions);
+		    stopDateDrug, asNeeded, route, classification, indication, instructions, adminInstructions);
 
 		getOrderExtensionService().extendedSaveDrugOrder(drugOrder);
 		
@@ -114,7 +115,7 @@ public class OrderExtensionOrderController {
 	
 	private DrugOrder setUpDrugOrder(Integer patientId, Integer drugId, Double dose, Concept doseUnits, String frequencyDay,
 	                                 String frequencyWeek, Date startDateDrug, Date stopDateDrug, String asNeeded,
-	                                 Integer classification, Integer indication, String instructions,
+	                                 Concept route, Integer classification, Integer indication, String instructions,
 	                                 String adminInstructions) {
 		Patient patient = Context.getPatientService().getPatient(patientId);
 		
@@ -122,14 +123,14 @@ public class OrderExtensionOrderController {
 		drugOrder.setPatient(patient);
 		
 		drugOrder = updateDrugOrder(drugOrder, drugId, dose, doseUnits, frequencyDay, frequencyWeek, startDateDrug, stopDateDrug,
-		    asNeeded, classification, indication, instructions, adminInstructions);
+		    asNeeded, route, classification, indication, instructions, adminInstructions);
 		
 		return drugOrder;
 	}
 	
 	private DrugOrder updateDrugOrder(DrugOrder drugOrder, Integer drugId, Double dose, Concept doseUnits, String frequencyDay,
 	                                  String frequencyWeek, Date startDateDrug, Date stopDateDrug, String asNeeded,
-	                                  Integer classification, Integer indication, String instructions,
+	                                  Concept route, Integer classification, Integer indication, String instructions,
 	                                  String adminInstructions) {
 		Drug drug = Context.getConceptService().getDrug(drugId);
 		drugOrder.setDrug(drug);
@@ -156,6 +157,8 @@ public class OrderExtensionOrderController {
 		} else {
 			drugOrder.setAsNeeded(false);
 		}
+
+		drugOrder.setRoute(route);
 
 		if (classification != null) {
 			drugOrder.setOrderReason(Context.getConceptService().getConcept(classification));
@@ -191,6 +194,7 @@ public class OrderExtensionOrderController {
 	                                  @RequestParam(value = "addCycleStartDate", required = true) Date startDateDrug,
 	                                  @RequestParam(value = "stopDate", required = false) Date stopDateDrug,
 	                                  @RequestParam(value = "asNeeded", required = false) String asNeeded,
+									  @RequestParam(value = "route", required = true) Concept route,
 	                                  @RequestParam(value = "classification", required = false) Integer classification,
 	                                  @RequestParam(value = "indication", required = false) Integer indication,
 	                                  @RequestParam(value = "instructions", required = false) String instructions,
@@ -215,7 +219,7 @@ public class OrderExtensionOrderController {
 				}
 				
 				DrugOrder drugOrder = setUpDrugOrder(patientId, drugId, dose, doseUnits, frequencyDay,
-				    frequencyWeek, startDate, stopDate, asNeeded, classification, indication, instructions,
+				    frequencyWeek, startDate, stopDate, asNeeded, route, classification, indication, instructions,
 				    adminInstructions);
 				drugRegimen.addOrder(drugOrder);
 				
@@ -224,7 +228,7 @@ public class OrderExtensionOrderController {
 		}
 
 		DrugOrder drugOrder = setUpDrugOrder(patientId, drugId, dose, doseUnits, frequencyDay,
-		    frequencyWeek, startDateDrug, stopDateDrug, asNeeded, classification, indication, instructions,
+		    frequencyWeek, startDateDrug, stopDateDrug, asNeeded, route, classification, indication, instructions,
 		    adminInstructions);
 		regimen.addOrder(drugOrder);
 		
@@ -357,6 +361,7 @@ public class OrderExtensionOrderController {
 	                       @RequestParam(value = "editStartDate", required = true) Date startDateDrug,
 	                       @RequestParam(value = "editStopDate", required = false) Date stopDateDrug,
 	                       @RequestParam(value = "asNeeded", required = false) String asNeeded,
+						   @RequestParam(value = "route", required = false) Concept route,
 	                       @RequestParam(value = "classification", required = false) Integer classification,
 	                       @RequestParam(value = "indication", required = false) Integer indication,
 	                       @RequestParam(value = "instructions", required = false) String instructions,
@@ -399,7 +404,7 @@ public class OrderExtensionOrderController {
 						}
 
 						DrugOrder orderDrug = updateDrugOrder(order, drugId, dose, doseUnits, frequencyDay, frequencyWeek,
-						    startDate, endDate, asNeeded, classification, indication, instructions, adminInstructions);
+						    startDate, endDate, asNeeded, route, classification, indication, instructions, adminInstructions);
 						getOrderExtensionService().extendedSaveDrugOrder(orderDrug);
 					}
 				}
@@ -411,7 +416,7 @@ public class OrderExtensionOrderController {
 		if(changeReason == null)
 		{
 			drugOrder = updateDrugOrder(drugOrder, drugId, dose, doseUnits, frequencyDay, frequencyWeek, startDateDrug, stopDateDrug, asNeeded,
-					classification, indication, instructions, adminInstructions);
+					route, classification, indication, instructions, adminInstructions);
 		}
 		else
 		{
@@ -422,7 +427,7 @@ public class OrderExtensionOrderController {
 			if(discontinue.equals("false"))
 			{
 				DrugOrder newDrugOrder = setUpDrugOrder(patientId, drugId, dose, doseUnits, frequencyDay,
-					    frequencyWeek, startDateDrug, stopDateDrug, asNeeded, classification, indication, instructions,
+					    frequencyWeek, startDateDrug, stopDateDrug, asNeeded, route, classification, indication, instructions,
 					    adminInstructions);
 				
 				if(regimen != null)

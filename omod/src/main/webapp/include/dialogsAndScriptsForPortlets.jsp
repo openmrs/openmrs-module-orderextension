@@ -410,24 +410,10 @@ function fetchDrugsThree() {
 }
 
 function updateDrugInfoTwo() {
-	
-	var route = "";
-	var unitsConceptId = "";
-	var units = "";
-	
 	var index = jQuery('#drugTwo').attr("selectedIndex");
-	
-	if(index != null && index >=0)
-	{
-		if(drugDetailTwo[index].route != "")
-		{
-			route =  "<spring:message code='orderextension.regimen.route'/>" + ": " + drugDetailTwo[index].route;
-		}
-		units = " " + drugDetailTwo[index].doseForm;
-		unitsConceptId = drugDetailsTwo[index].doseFormConceptId;
+	if(index != null && index >=0) {
+		jQuery("#unitsTwo").val(drugDetailsTwo[index].doseFormConceptId);
 	}
-	jQuery("#routeInfoTwo").html(route);
-	jQuery("#unitsTwo").val(unitsConceptId);
 }
 
 function getIndicationClassificationsTwo() {
@@ -462,25 +448,10 @@ function getIndicationClassificationsTwo() {
 }
 
 function updateDrugInfoThree() {
-	
-	
-	var route = "";
-	var unitsConceptId = "";
-	var units = "";
-	
 	var index = jQuery('#drugThree').attr("selectedIndex");
-	
-	if(index != null && index >=0)
-	{
-		if(drugDetailThree[index].route != "")
-		{
-			route =  "<spring:message code='orderextension.regimen.route'/>" + ": " + drugDetailThree[index].route;
-		}
-		units = " " + drugDetailThree[index].doseForm;
-		unitsConceptId = drugDetailThree[index].doseFormConceptId;
+	if(index != null && index >=0) {
+		jQuery("#unitsThree").val(drugDetailThree[index].doseFormConceptId);
 	}
-	jQuery("#routeInfoThree").html(route);
-	jQuery("#unitsThree").val(unitsConceptId);
 }
 
 function getIndicationClassificationsThree() {
@@ -647,16 +618,12 @@ function updateEditDrugDialog() {
 			
 		});
 		
-		jQuery("#drugComboThree").attr("onChange", "fetchDrugsThree()"); 
-		
+		jQuery("#drugComboThree").attr("onChange", "fetchDrugsThree()");
 		jQuery("#editStartDate").val(result.startDate);
-		
 		jQuery("#editStopDate").val(result.endDate);
-		
 		jQuery("#dosageThree").val(result.dose);
-		
+		jQuery("#routeThree").val(result.route);
 		jQuery("#frequencyDayThree").val(result.freqDay);
-		
 		jQuery("#frequencyWeekThree").val(result.freqWeek);
 
 		if(result.asNeeded == "true")
@@ -965,7 +932,6 @@ function handleDeleteAllDrugOrder()
 							</select>
 						</td>
 						<td id="drugNameTwo" class="padding"></td>
-						<td id="routeInfoTwo" class="padding"></td>
 					</tr>
 				</table>
 				<table>
@@ -1004,7 +970,15 @@ function handleDeleteAllDrugOrder()
 							</select>
 							</td>
 							<td class="padding"><input type="checkbox" name="asNeeded" id="asNeeded" value="asNeeded"><spring:message code='orderextension.orderset.DrugOrderSetMember.asNeeded'/></td>
-						</tr>
+							<td class="padding"><spring:message code="orderextension.orderset.DrugOrderSetMember.route"/>:
+								<select name="route" id="routeTwo">
+									<option value=""></option>
+									<c:forEach var="route" items="${model.drugRoutes}">
+										<option value="${route.conceptId}">${route.displayString}</option>
+									</c:forEach>
+								</select>
+							</td>
+					</tr>
 					</table>
 					<table>
 						<tr class="drugDetails">
@@ -1055,8 +1029,7 @@ function handleDeleteAllDrugOrder()
 					<td class="padding"><spring:message code="orderextension.regimen.individualDrug" />*: </td>
 					<td id="drugSelector"></td>
 					<td id="drugNameThree" class="padding"></td>
-					<td id="routeInfoThree" class="padding"></td>
-					</tr>
+				</tr>
 				</table>
 				<table>
 					<tr class="drugDetails">
@@ -1093,6 +1066,14 @@ function handleDeleteAllDrugOrder()
 						</c:if>											
 					</select></td>
 					<td class="padding"><input type="checkbox" name="asNeeded" id="asNeededThree" value="asNeeded"><spring:message code='orderextension.orderset.DrugOrderSetMember.asNeeded'/></td>
+					<td class="padding"><spring:message code="orderextension.orderset.DrugOrderSetMember.route"/>:
+						<select name="route" id="routeThree">
+							<option value=""></option>
+							<c:forEach var="route" items="${model.drugRoutes}">
+								<option value="${route.conceptId}">${route.displayString}</option>
+							</c:forEach>
+						</select>
+					</td>
 					</tr>
 				</table>
 				<table>

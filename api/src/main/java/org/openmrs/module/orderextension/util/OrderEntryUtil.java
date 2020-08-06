@@ -5,7 +5,6 @@ import java.util.Date;
 import java.util.List;
 
 import org.openmrs.CareSetting;
-import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
 import org.openmrs.Order;
 import org.openmrs.OrderType;
@@ -119,12 +118,6 @@ public class OrderEntryUtil {
 
 	public static boolean isFuture(Order drugOrder) {
 		return isOrdered(drugOrder) && !isPast(drugOrder) && !drugOrder.isStarted();
-	}
-
-	public static String getRoute(Drug drug) {
-		// In OrderEntryAjaxController, is drug.getRoute().getDisplayString();
-		// TODO: Doesn't seem to have a supported equivalent, should work to remove need for this.
-		return "";
 	}
 
 	public static String getFrequencyPerDayAsString(DrugOrder drugOrder) {

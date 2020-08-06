@@ -66,7 +66,7 @@ jQuery(document).ready(function() {
 				<c:forEach items="${model.drugOrdersNonContinuous}" var="drugRegimen" varStatus="loop">
 			           <c:if test="${loop.index > 0 || not empty model.cycles || not empty model.fixedLengthRegimen}">,</c:if>	
 						{
-			               title  : '<c:if test="${!empty drugRegimen.drug}"><c:out value="${drugRegimen.drug.name}"/></c:if><c:if test="${empty drugRegimen.drug}"><c:out value="${drugRegimen.concept.displayString}"/></c:if> <c:out value="${drugRegimen.dose}"/> <c:out value="${drugRegimen.doseUnits}"/> <c:if test="${!empty drugRegimen.route}"><c:out value="${drugRegimen.route.displayString}"/></c:if>',
+			               title  : '<c:if test="${!empty drugRegimen.drug}"><c:out value="${drugRegimen.drug.name}"/></c:if><c:if test="${empty drugRegimen.drug}"><c:out value="${drugRegimen.concept.displayString}"/></c:if> <c:out value="${drugRegimen.dose}"/> <openmrs:format concept="${drugRegimen.doseUnits}"/> <openmrs:format concept="${drugRegimen.route}"/>',
 			               start  : '<openmrs:formatDate date="${drugRegimen.effectiveStartDate}" format="yyyy-MM-dd"/>',
 			               color :'#99CCFF',
 			               textColor :'#000000',
@@ -344,23 +344,10 @@ function fetchDrugs() {
 }
 
 function updateDrugInfo() {
-	
-	var route = "";
-	var doseUnitsConceptId = ""
-	var doseUnits = "";
-	
 	var index = jQuery('#drug').prop("selectedIndex");
-	if(index != null && index >=0)
-	{
-		if(drugDetail[index].route != "")
-		{
-			route =  "<spring:message code='orderextension.regimen.route'/>" + ": " + drugDetail[index].route;
-		}
-		doseUnits = " " + drugDetail[index].doseForm;
-		doseUnitsConceptId = drugDetail[index].doseFormConceptId;
+	if (index != null && index >=0) {
+		jQuery("#doseUnits").val(drugDetail[index].doseFormConceptId);
 	}
-	jQuery("#routeInfo").html(route);
-	jQuery("#doseUnits").val(doseUnitsConceptId);
 }
 
 function getIndicationClassifications() {
@@ -647,7 +634,6 @@ $j(document).ready(function(){
 						</select>
 					</td>
 					<td id="drugName" class="padding"></td>
-					<td id="routeInfo" class="padding"></td>
 				</tr>
 			</table>
 			<table>
@@ -687,6 +673,14 @@ $j(document).ready(function(){
 						</select>
 					</td>
 					<td class="padding"><input type="checkbox" name="asNeeded" id="asNeeded" value="asNeeded"><spring:message code='orderextension.orderset.DrugOrderSetMember.asNeeded'/></td>
+					<td class="padding"><spring:message code="orderextension.orderset.DrugOrderSetMember.route"/>:
+						<select name="route" id="route">
+							<option value=""></option>
+							<c:forEach var="route" items="${model.drugRoutes}">
+								<option value="${route.conceptId}">${route.displayString}</option>
+							</c:forEach>
+						</select>
+					</td>
 				</tr>
 			</table>
 			<table>
