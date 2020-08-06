@@ -114,31 +114,9 @@ public class OrderEntryUtil {
 		return drugOrder.isActive() && !drugOrder.isStarted(); // TODO: Need to review this implementation
 	}
 
-	public static String getProtocol(Drug drug) {
-		// In OrderEntryAjaxController, is drug.getDoseStrength() + " "  + drug.getUnits();.
-		// TODO: This seems to match to the intention of drug.strength - Review This
-		return drug.getStrength();
-	}
-
-	public static String getProtocolDose(Drug drug) {
-		// In OrderEntryAjaxController, is drug.getDoseStrength().toString()
-		// TODO: Review how where this is used, and if this can just use the Strength
-		return drug.getStrength();
-	}
-
 	public static String getRoute(Drug drug) {
 		// In OrderEntryAjaxController, is drug.getRoute().getDisplayString();
 		// TODO: Doesn't seem to have a supported equivalent, should work to remove need for this.
-		return "";
-	}
-
-	/**
-	 * This is based sort of on what was present in OrderExtensionAjaxController.  Needs more investigation
-	 */
-	public static String getDoseReduction(Drug drug) {
-		if (drug.getStrength() != null && drug.getStrength().contains("/")) { // TODO: I doubt this is right. Needs review
-			return "true";
-		}
 		return "";
 	}
 

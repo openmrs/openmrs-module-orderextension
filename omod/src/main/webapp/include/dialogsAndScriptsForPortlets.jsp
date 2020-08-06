@@ -46,48 +46,11 @@ jQuery(document).ready(function() {
 		jQuery(this).next(".content").toggle();
 		jQuery("img", this).toggle();
 	});
-	
-	jQuery("#doseReductionTwo").change(function()
-	{
-		var protocol = jQuery("#doseProtocolValueTwo").val();
-		
-		var reduction = jQuery("#doseReductionTwo").val();
-		
-		var newValue = (reduction/100)*protocol;
-		newValue = myRound(newValue, 5);
-				
-		jQuery("#dosage").val(newValue);
-	});
-	
-	jQuery("#doseReductionThree").change(function()
-	{
-		var protocol = jQuery("#doseProtocolValueThree").val();
-		
-		var reduction = jQuery("#doseReductionThree").val();
-		
-		var newValue = (reduction/100)*protocol;
-		newValue = myRound(newValue, 5);
-				
-		jQuery("#dosageThree").val(newValue);
-	});
-	
-	jQuery("#dosage").change(function()
-	{
-		updateDosageTwo();
-	});
-	
-	jQuery("#dosageThree").change(function()
-	{
-		updateDosageThree();
-	});
 	  
 	jQuery(".drugDetails").hide();
-	
 	jQuery('.openmrs_error').hide();
-	
 	jQuery("#drugComboTwo").chosen({allow_single_deselect: true});
-	
-	
+
 	jQuery('.addDrugToGroupButton').click(function(){ 
 		jQuery('#addNewDrugToGroupDialog').dialog('open');
 		
@@ -349,28 +312,6 @@ jQuery(document).ready(function() {
 
 var drugDetailTwo;
 
-function updateDosageTwo() {
-	var protocol = jQuery("#doseProtocolValueTwo").val();
-	
-	var dose = jQuery("#dosage").val();
-	
-	var newValue = (dose/protocol)*100;
-	newValue = myRound(newValue, 1);
-			
-	jQuery("#doseReductionTwo").val(newValue);
-}
-
-function updateDosageThree() {
-	var protocol = jQuery("#doseProtocolValueThree").val();
-
-	var dose = jQuery("#dosageThree").val();
-
-	var newValue = (dose/protocol)*100;
-	newValue = myRound(newValue, 1);
-			
-	jQuery("#doseReductionThree").val(newValue);
-}
-
 function fetchDrugsTwo() {
 	
 	var selected = jQuery('#drugComboTwo').val();
@@ -473,8 +414,6 @@ function updateDrugInfoTwo() {
 	var route = "";
 	var unitsConceptId = "";
 	var units = "";
-	var reduce = "";
-	var protocol = "";
 	
 	var index = jQuery('#drugTwo').attr("selectedIndex");
 	
@@ -486,22 +425,7 @@ function updateDrugInfoTwo() {
 		}
 		units = " " + drugDetailTwo[index].doseForm;
 		unitsConceptId = drugDetailsTwo[index].doseFormConceptId;
-		
-		if(drugDetailTwo[index].doseReduce == "true")
-		{
-			jQuery("#doseReduceTwo").show();
-			jQuery("#doseReductionTwo").val("100");
-			jQuery("#dosage").val(drugDetailTwo[index].protocolDose);
-		}
-		else
-		{
-			jQuery("#doseReduceTwo").hide();
-		}
-		protocol = drugDetailTwo[index].protocolDose + " " + units;
-		jQuery("#doseProtocolValueTwo").val(drugDetailTwo[index].protocolDose);
 	}
-	
-	jQuery("#protocolDoseTwo").html(protocol);
 	jQuery("#routeInfoTwo").html(route);
 	jQuery("#unitsTwo").val(unitsConceptId);
 }
@@ -543,7 +467,6 @@ function updateDrugInfoThree() {
 	var route = "";
 	var unitsConceptId = "";
 	var units = "";
-	var protocol = "";
 	
 	var index = jQuery('#drugThree').attr("selectedIndex");
 	
@@ -555,22 +478,9 @@ function updateDrugInfoThree() {
 		}
 		units = " " + drugDetailThree[index].doseForm;
 		unitsConceptId = drugDetailThree[index].doseFormConceptId;
-		
-		if(drugDetailThree[index].doseReduce == "true")
-		{
-			jQuery("#doseReduceThree").show();
-		}
-		else
-		{
-			jQuery("#doseReduceThree").hide();
-		}
-		protocol = drugDetailThree[index].protocolDose + " " + units;
-		jQuery("#doseProtocolValueThree").val(drugDetailThree[index].protocolDose);
 	}
-	jQuery("#protocolDoseThree").html(protocol);
 	jQuery("#routeInfoThree").html(route);
 	jQuery("#unitsThree").val(unitsConceptId);
-	updateDosageThree();
 }
 
 function getIndicationClassificationsThree() {
@@ -805,22 +715,8 @@ function updateEditDrugDialog() {
 		}
 		
 		jQuery("#adminInstructionsThree").val(result.adminInstructions);
-		
 		jQuery("#instructionsThree").val(result.instructions);
-		
 		jQuery("#routeInfoThree").val(result.route);
-		
-		if(result.reduce == "true")
-		{
-			jQuery("#doseProtocolValueThree").val(result.protocolDose);
-			jQuery("#protocolDoseThree").html(result.protocol);
-			updateDosageThree();
-			jQuery("#doseReduceThree").show();
-		}
-		else {
-			jQuery("#doseReduceThree").hide();
-		}
-		
 		jQuery(".drugDetails").show();
 	});
 }
@@ -1085,9 +981,7 @@ function handleDeleteAllDrugOrder()
 								</c:forEach>
 							</select>
 						</td>
-						
-						<td class="padding"><span id="doseReduceTwo"><spring:message code="orderextension.regimen.doseReduction" /> <input type="text" name="doseReduction" id="doseReductionTwo" size="10"/> <input type="hidden" name="doseProtocolValue" id="doseProtocolValueTwo"/><spring:message code="orderextension.regimen.doseReductionFrom" /> <span id="protocolDoseTwo"></span></span></div></td>
-					
+
 						<td class="padding"><spring:message code="DrugOrder.frequency"/>:			
 							<select name="frequencyDay" id="frequencyDay">
 								<% for ( int i = 1; i <= 10; i++ ) { %>
@@ -1177,9 +1071,7 @@ function handleDeleteAllDrugOrder()
 								</c:forEach>
 							</select>
 						</td>
-					
-						<td class="padding"><span id="doseReduceThree"><spring:message code="orderextension.regimen.doseReduction" /> <input type="text" name="doseReductionThree" id="doseReductionThree" size="10"/> <input type="hidden" name="doseProtocolValueThree" id="doseProtocolValueThree"/><spring:message code="orderextension.regimen.doseReductionFrom" /> <span id="protocolDoseThree"></span></span></div></td>
-					
+
 						<td class="padding"><spring:message code="DrugOrder.frequency"/>:			
 							<select name="frequencyDay" id="frequencyDayThree">
 								<% for ( int i = 1; i <= 10; i++ ) { %>
