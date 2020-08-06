@@ -104,14 +104,21 @@ public class OrderEntryUtil {
 		}
 	}
 
-
-
-	public static boolean isCurrent(DrugOrder drugOrder) {
-		return drugOrder.isActive() && drugOrder.isStarted();  // TODO: Need to review this implementation
+	public static boolean isOrdered(Order drugOrder) {
+		return !drugOrder.getVoided() && drugOrder.getAction() != Order.Action.DISCONTINUE;
 	}
 
-	public static boolean isFuture(DrugOrder drugOrder) {
-		return drugOrder.isActive() && !drugOrder.isStarted(); // TODO: Need to review this implementation
+	public static boolean isPast(Order drugOrder) {
+		Date now = new Date();
+		return isOrdered(drugOrder) && (drugOrder.isDiscontinued(now) || drugOrder.isExpired(now));
+	}
+
+	public static boolean isCurrent(Order drugOrder) {
+		return isOrdered(drugOrder) && !isPast(drugOrder) && drugOrder.isStarted();
+	}
+
+	public static boolean isFuture(Order drugOrder) {
+		return isOrdered(drugOrder) && !isPast(drugOrder) && !drugOrder.isStarted();
 	}
 
 	public static String getRoute(Drug drug) {

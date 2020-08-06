@@ -109,8 +109,13 @@
 				pageContext.setAttribute("drugOrders", drugOrders);
 			%>
 			<c:forEach items="${drugOrders}" var="drugOrder">
+
+				<orderextension:orderStatusCheck order="${drugOrder}" statusCheck="past" var="orderIsCompleted"/>
+				<orderextension:orderStatusCheck order="${drugOrder}" statusCheck="current" var="orderIsCurrent"/>
+				<orderextension:orderStatusCheck order="${drugOrder}" statusCheck="future" var="orderIsPast"/>
+
 				<c:choose>
-					<c:when test="${!empty drugOrder.dateStopped && completed ne 'true'}">
+					<c:when test="${orderIsCompleted && completed ne 'true'}">
 						<tr class="drugLineRed">
 					</c:when>
 					<c:otherwise>
@@ -146,7 +151,7 @@
 					<c:choose>
 						<c:when test="${empty drugGroup}">
 							<c:choose>
-								<c:when test="${drugOrder.started}">
+								<c:when test="${orderIsCurrent}">
 									<td class="regimenLinks"><input type="button" id="${drugOrder.id},false,<openmrs:formatDate date="${drugOrder.effectiveStartDate}" />" class="stopButton" value="<spring:message code="orderextension.regimen.stop" />"></td>
 								</c:when>
 								<c:otherwise>
@@ -154,15 +159,15 @@
 								</c:otherwise>
 							</c:choose>
 							<c:choose>
-								<c:when test="${drugOrder.active && !drugOrder.started}">
+								<c:when test="${orderIsFuture}">
 									<td class="regimenLinks"><input type="button" id="${drugOrder.id}" class="editButton" value="<spring:message code="general.edit" />"></td>
 								</c:when>
 								<c:otherwise>
 									 <openmrs:hasPrivilege privilege="Edit Current/Completed Regimen">
-										<c:if test="${empty drugOrder.effectiveStopDate}">
+										<c:if test="${orderIsCurrent}">
 											<td class="regimenLinks"><input type="button" id="${drugOrder.id}" class="editButton" value="<spring:message code="general.edit" />"></td>
 										</c:if>
-										<c:if test="${!empty drugOrder.effectiveStopDate}">
+										<c:if test="${orderIsCompleted}">
 											<td></td>
 										</c:if>
 									</openmrs:hasPrivilege>
@@ -173,7 +178,7 @@
 						<c:otherwise>
 							<openmrs:hasPrivilege privilege="Edit Current/Completed Regimen">
 								<c:choose>
-									<c:when test="${drugOrder.started}">
+									<c:when test="${orderIsCurrent}">
 										<c:choose>
 											<c:when test="${drugGroup.cyclical }">
 												<td class="regimenLinks"><input type="button" id="${drugOrder.id},true,<openmrs:formatDate date="${drugOrder.effectiveStartDate}"/>" class="stopButton" value="<spring:message code="orderextension.regimen.stop" />"></td>
@@ -188,7 +193,7 @@
 									</c:otherwise>
 								</c:choose>
 								<c:choose>
-									<c:when test="${drugOrder.active && !drugOrder.started}">
+									<c:when test="${orderIsFuture}">
 										<c:choose>
 											<c:when test="${drugGroup.cyclical }">
 												<td class="regimenLinks"><input type="button" id="${drugOrder.id},true" class="editButton" value="<spring:message code="general.edit" />"></td>
@@ -199,7 +204,7 @@
 										</c:choose>
 									</c:when>
 									<c:otherwise>
-										<c:if test="${empty drugOrder.effectiveStopDate}">
+										<c:if test="${orderIsCurrent}">
 											<c:choose>
 												<c:when test="${drugGroup.cyclical }">
 													<td class="regimenLinks"><input type="button" id="${drugOrder.id},true" class="editButton" value="<spring:message code="general.edit" />"></td>
@@ -209,7 +214,7 @@
 												</c:otherwise>
 											</c:choose>
 										</c:if>
-										<c:if test="${!empty drugOrder.effectiveStopDate}">
+										<c:if test="${orderIsCompleted}">
 											<td></td>
 										</c:if>
 									</c:otherwise>
