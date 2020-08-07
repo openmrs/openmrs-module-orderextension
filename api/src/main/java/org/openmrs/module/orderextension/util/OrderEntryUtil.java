@@ -100,53 +100,6 @@ public class OrderEntryUtil {
 		return isOrdered(drugOrder) && !isPast(drugOrder) && !drugOrder.isStarted();
 	}
 
-	public static String getFrequencyPerDayAsString(DrugOrder drugOrder) {
-		/*
-			TODO: Don't really know what to do here. Logic before was this:
-			if(frequency != null && frequency.length() > 0 && frequency.contains("x")) {
-				String[] substrings = frequency.split("x");
-				freqDay = substrings[0].trim();
-				freqWeek = substrings[1].trim();
-			}
-			else if (frequency != null && frequency.length() > 0) {
-				if (frequency.contains("week")) {
-					freqWeek = frequency.trim();
-				}
-				else {
-					freqDay = frequency.trim();
-				}
-			}
-		*/
-		if (drugOrder.getFrequency() != null && drugOrder.getFrequency().getFrequencyPerDay() != null) {
-			return drugOrder.getFrequency().getFrequencyPerDay().toString(); // TODO: Review if this is compatible with usage in OrderExtensionAjaxController
-		}
-		return "";
-	}
-
-	public static String getFrequencyPerWeekAsString(DrugOrder drugOrder) {
-		/*
-			TODO: Don't really know what to do here. Logic before was this:
-			if(frequency != null && frequency.length() > 0 && frequency.contains("x")) {
-				String[] substrings = frequency.split("x");
-				freqDay = substrings[0].trim();
-				freqWeek = substrings[1].trim();
-			}
-			else if (frequency != null && frequency.length() > 0) {
-				if (frequency.contains("week")) {
-					freqWeek = frequency.trim();
-				}
-				else {
-					freqDay = frequency.trim();
-				}
-			}
-		*/
-		if (drugOrder.getFrequency() != null) {
-			return "";
-
-		}
-		return "";
-	}
-
 	public static OrderExtensionService getOrderExtensionService() {
 		return Context.getService(OrderExtensionService.class);
 	}

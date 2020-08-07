@@ -131,18 +131,9 @@ public class OrderExtensionAjaxController {
 		info.put("dose", dose);
 		info.put("doseUnits", drugOrder.getDoseUnits() == null ? "" : Integer.toString(drugOrder.getDoseUnits().getId()));
 		info.put("route", drugOrder.getRoute() == null ? "" : Integer.toString(drugOrder.getRoute().getId()));
-
-		String freqDay = OrderEntryUtil.getFrequencyPerDayAsString(drugOrder);
-		String freqWeek = OrderEntryUtil.getFrequencyPerWeekAsString(drugOrder);
-
-		info.put("freqDay", freqDay);
-		info.put("freqWeek", freqWeek);
-
+		info.put("frequency", drugOrder.getFrequency() == null ? "" : Integer.toString(drugOrder.getFrequency().getId()));
 		info.put("asNeeded", drugOrder.getAsNeeded().toString());
-
 		info.put("instructions", drugOrder.getInstructions());
-
-
 		info.put("adminInstructions", drugOrder.getDosingInstructions());
 
 		String ind = "";

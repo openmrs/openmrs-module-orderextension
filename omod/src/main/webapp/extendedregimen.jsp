@@ -651,25 +651,12 @@ $j(document).ready(function(){
 						</select>
 					</td>
 					
-					<td class="padding"><spring:message code="DrugOrder.frequency"/>:			
-						<select name="frequencyDay" id="frequencyDay">
-							<% for ( int i = 1; i <= 10; i++ ) { %>
-								<option value="<%= i %>/<spring:message code="DrugOrder.frequency.day" />"><%= i %>/<spring:message code="DrugOrder.frequency.day" /></option>
-							<% } %>
-							<option value="<spring:message code="orderextension.regimen.onceOnlyDose" />"><spring:message code="orderextension.regimen.onceOnlyDose" /></option>
-						</select>
-						<span> x </span>
-						<select name="frequencyWeek" id="frequencyWeek">
-							<openmrs:globalProperty var="drugFrequencies" key="dashboard.regimen.displayFrequencies" listSeparator="," />
-							<c:if test="${empty drugFrequencies}">
-								<option disabled>&nbsp; <spring:message code="DrugOrder.add.error.missingFrequency.interactions" arguments="dashboard.regimen.displayFrequencies"/></option>
-							</c:if>
-							<c:if test="${not empty drugFrequencies}">
-								<option value=""></option>
-								<c:forEach var="drugFrequency" items="${drugFrequencies}">
-									<option value="${drugFrequency}">${drugFrequency}</option>
-								</c:forEach>
-							</c:if>											
+					<td class="padding"><spring:message code="DrugOrder.frequency"/>:
+						<select name="frequency" id="frequency">
+							<option value=""></option>
+							<c:forEach var="drugFrequency" items="${model.drugFrequencies}">
+								<option value="${drugFrequency.id}">${drugFrequency}</option>
+							</c:forEach>
 						</select>
 					</td>
 					<td class="padding"><input type="checkbox" name="asNeeded" id="asNeeded" value="asNeeded"><spring:message code='orderextension.orderset.DrugOrderSetMember.asNeeded'/></td>
