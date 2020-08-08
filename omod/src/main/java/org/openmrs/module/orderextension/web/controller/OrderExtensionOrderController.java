@@ -32,8 +32,11 @@ import org.openmrs.module.orderextension.ExtendedOrderSet;
 import org.openmrs.module.orderextension.api.OrderExtensionService;
 import org.openmrs.module.orderextension.util.OrderEntryUtil;
 import org.openmrs.module.orderextension.util.OrderExtensionUtil;
+import org.openmrs.module.orderextension.util.OrderFrequencyEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -49,7 +52,15 @@ public class OrderExtensionOrderController {
 	private OrderExtensionService getOrderExtensionService() {
 		return Context.getService(OrderExtensionService.class);
 	}
-	
+
+	/**
+	 * Registers any needed property editors
+	 */
+	@InitBinder
+	public void initBinder(WebDataBinder binder)    {
+		binder.registerCustomEditor(OrderFrequency.class, new OrderFrequencyEditor());
+	}
+
 	/**
 	 * Shows the page to list order sets
 	 */
@@ -616,4 +627,5 @@ public class OrderExtensionOrderController {
 		cycleDate.add(Calendar.DAY_OF_YEAR, day - 1);
 		return cycleDate.getTime();
 	}
+
 }
