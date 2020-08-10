@@ -241,10 +241,10 @@
 						concat('{',
 						'"title": "', ifnull(m.title, ''), '", ',
 						'"indication": ', ifnull(m.indication, 'null'), ', ',
-						'"drug": ', ifnull(m.drug_id, 'null'), ', ',
+						'"drug": "', ifnull(d.uuid, 'null'), '", ',
 						'"dose": ', ifnull(m.dose, 'null'), ', ',
 						'"units": "', ifnull(m.units, ''), '", ',
-						'"route": ', ifnull(m.route, 'null'), ', ',
+						'"route": "', ifnull(rt.uuid, 'null'), '", ',
 						'"frequency": "', ifnull(m.frequency, ''), '", ',
 						'"relativeStartDay": ', ifnull(m.relative_start_day, 'null'), ', ',
 						'"lengthInDays": ', ifnull(m.length_days, 'null'), ', ',
@@ -255,6 +255,8 @@
 						s.retired, s.retired_by, s.date_retired, s.retire_reason
 			from    	orderextension_order_set_member m
 			inner join 	orderextension_order_set s on s.id = m.order_set_id
+			left join 	drug d on m.drug_id = d.drug_id
+			left join 	concept rt on m.route = rt.concept_id
 			;
 
 			update order_set_member set order_template = replace(order_template, '\r\n', '\\r\\n');
