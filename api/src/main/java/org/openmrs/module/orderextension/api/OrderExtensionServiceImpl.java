@@ -211,7 +211,8 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 		if (drugOrder.getEncounter() == null) {
 			Encounter encounter = getExistingDrugOrderEncounter(drugOrder.getPatient(), currentDate, currentUser);
 			if (encounter == null) {
-				encounter = createDrugOrderEncounter(drugOrder.getPatient(), currentDate);
+				Date encDate = drugOrder.getDateActivated() == null ? currentDate : drugOrder.getDateActivated();
+				encounter = createDrugOrderEncounter(drugOrder.getPatient(), encDate);
 			}
 			drugOrder.setEncounter(encounter);
 		}
@@ -332,7 +333,8 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 		User currentUser = Context.getAuthenticatedUser();
 		Encounter encounter = getExistingDrugOrderEncounter(patient, currentDate, currentUser);
 		if (encounter == null) {
-			encounter = createDrugOrderEncounter(patient, currentDate);
+			Date encDate = startDate == null || currentDate.before(startDate) ? currentDate : startDate;
+			encounter = createDrugOrderEncounter(patient, encDate);
 		}
 		
 		for (int i=0; i<numCycles; i++) {
