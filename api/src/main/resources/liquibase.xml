@@ -240,7 +240,7 @@
 						@drug_order_type, m.concept_id, 'org.openmrs.module.orderextension',
 						concat('{',
 						'"title": "', ifnull(m.title, ''), '", ',
-						'"indication": ', ifnull(m.indication, 'null'), ', ',
+						'"indication": "', ifnull(indic.uuid, 'null'), '", ',
 						'"drug": "', ifnull(d.uuid, 'null'), '", ',
 						'"dose": ', ifnull(m.dose, 'null'), ', ',
 						'"units": "', ifnull(m.units, ''), '", ',
@@ -256,10 +256,28 @@
 			from    	orderextension_order_set_member m
 			inner join 	orderextension_order_set s on s.id = m.order_set_id
 			left join 	drug d on m.drug_id = d.drug_id
+			left join   concept indic on m.indication = indic.concept_id
 			left join 	concept rt on m.route = rt.concept_id
 			;
 
-			update order_set_member set order_template = replace(order_template, '\r\n', '\\r\\n');
+			set @curr_seq = 0;
+			set @curr_order_set = 0;
+
+			update      order_set_member m
+			inner join  (
+				select  	order_set_member_id, uuid,
+							@curr_seq := if (@curr_order_set = order_set_id, @curr_seq+1, 0) as sequence_number,
+							@curr_order_set := order_set_id as order_set_id
+				from    	order_set_member
+				order by 	order_set_id, sequence_number
+			) osm
+				on m.order_set_member_id = osm.order_set_member_id
+			set
+				m.sequence_number = osm.sequence_number;
+			;
+
+			update order_set_member set order_template = replace(order_template, '\r', '\\r');
+			update order_set_member set order_template = replace(order_template, '\n', '\\n');
 
 			alter table orderextension_order_set drop uuid;
 			alter table orderextension_order_set drop name;
