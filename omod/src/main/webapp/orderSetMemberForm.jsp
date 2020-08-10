@@ -1,7 +1,7 @@
 <%@ include file="/WEB-INF/view/module/orderextension/include/include.jsp"%>
 <%@ include file="/WEB-INF/view/module/orderextension/include/localHeader.jsp"%>
 
-<openmrs:require privilege="View Order Sets" otherwise="/login.htm" redirect="/orderextension/orderSet.form" />
+<openmrs:require privilege="Get Order Sets" otherwise="/login.htm" redirect="/orderextension/orderSet.form" />
 
 <script type="text/javascript">
 

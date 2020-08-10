@@ -501,4 +501,29 @@
 		<dropTable tableName="orderextension_order" />
 	</changeSet>
 
+	<changeSet id="orderextension-update-to-core-privileges" author="mseaton">
+		<sql>
+			update  role_privilege rp
+			left join role_privilege rp2 on rp.role = rp2.role and rp2.privilege = 'Get Order Sets'
+			set rp.privilege = 'Get Order Sets'
+			where rp.privilege = 'View Order Sets' and rp2.privilege is null;
+
+			delete from role_privilege where privilege = 'View Order Sets';
+
+			update  role_privilege rp
+			left join role_privilege rp2 on rp.role = rp2.role and rp2.privilege = 'Manage Order Sets'
+			set rp.privilege = 'Manage Order Sets'
+			where rp.privilege = 'Delete Order Sets' and rp2.privilege is null;
+
+			delete from role_privilege where privilege = 'Delete Order Sets';
+
+			update  role_privilege rp
+			left join role_privilege rp2 on rp.role = rp2.role and rp2.privilege = 'Get Orders'
+			set rp.privilege = 'Get Orders'
+			where rp.privilege = 'View Orders' and rp2.privilege is null;
+
+			delete from role_privilege where privilege = 'View Orders';
+		</sql>
+	</changeSet>
+
 </databaseChangeLog>

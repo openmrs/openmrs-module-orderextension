@@ -37,7 +37,20 @@
 	<privilege>
 		<name>Edit Current/Completed Regimen</name>
 		<description>The ability to edit current completed regimens</description>
-	</privilege>	
+	</privilege>
+	<privilege>
+		<name>Patient Dashboard - View Regimen Section</name>
+		<description>View the regimen tab on patient dashboard</description>
+	</privilege>
+	<privilege>
+		<name>View Regimens</name>
+		<description>View regimens</description>
+	</privilege>
+	<privilege>
+		<name>Edit Regimen</name>
+		<description>Edit regimens</description>
+	</privilege>
+
 	<!-- /Required Privileges -->
 
 	<!-- Maps hibernate file's, if present -->
