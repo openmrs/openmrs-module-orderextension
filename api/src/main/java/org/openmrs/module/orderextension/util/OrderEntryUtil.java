@@ -11,6 +11,7 @@ import org.openmrs.OrderType;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.orderextension.api.OrderExtensionService;
+import org.springframework.util.StringUtils;
 
 /**
  * This is a new class, created during the upgrade from 1.9 to 2.3 data model, to encapsulate methods needed
@@ -52,7 +53,7 @@ public class OrderEntryUtil {
 		for (Order o : Context.getOrderService().getAllOrdersByPatient(patient)) {
 			if (o instanceof DrugOrder) {
 				DrugOrder drugOrder = (DrugOrder)o;
-				if (drugOrder.getAction() != Order.Action.DISCONTINUE ) {
+				if (!drugOrder.getVoided() && drugOrder.getAction() != Order.Action.DISCONTINUE ) {
 					l.add((DrugOrder)o);
 				}
 			}
@@ -88,16 +89,35 @@ public class OrderEntryUtil {
 	}
 
 	public static boolean isPast(Order drugOrder) {
-		Date now = new Date();
-		return isOrdered(drugOrder) && (drugOrder.isDiscontinued(now) || drugOrder.isExpired(now));
+		return isPast(drugOrder, new Date());
+	}
+
+	public static boolean isPast(Order drugOrder, Date onDate) {
+		return isOrdered(drugOrder) && (drugOrder.isDiscontinued(onDate) || drugOrder.isExpired(onDate));
 	}
 
 	public static boolean isCurrent(Order drugOrder) {
 		return isOrdered(drugOrder) && !isPast(drugOrder) && drugOrder.isStarted();
 	}
 
+	public static boolean isCurrent(Order drugOrder, Date onDate) {
+		return isOrdered(drugOrder) && !isPast(drugOrder, onDate) && drugOrder.isStarted(onDate);
+	}
+
 	public static boolean isFuture(Order drugOrder) {
 		return isOrdered(drugOrder) && !isPast(drugOrder) && !drugOrder.isStarted();
+	}
+
+	public static String getDiscontinueReason(Order order) {
+		String ret = null;
+		Order discontinueOrder = Context.getOrderService().getDiscontinuationOrder(order);
+		if (discontinueOrder != null) {
+			ret = discontinueOrder.getOrderReasonNonCoded();
+			if (StringUtils.isEmpty(ret) && discontinueOrder.getOrderReason() != null) {
+				ret = discontinueOrder.getOrderReason().getDisplayString();
+			}
+		}
+		return ret;
 	}
 
 	public static OrderExtensionService getOrderExtensionService() {
