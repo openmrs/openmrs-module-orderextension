@@ -13,7 +13,9 @@
  */
 package org.openmrs.module.orderextension.util;
 
+import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -129,6 +131,11 @@ public class OrderExtensionUtil  {
 			return adjusted.getTime();
 		}
 		return dateToAdjust;
+	}
+
+	public static boolean sameDate(Date dateA, Date dateB) {
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+		return dateA != null && dateB != null && df.format(dateA).equals(df.format(dateB));
 	}
 	
 	private static String calculateDaysDifference(Date observation, Date startingDate)

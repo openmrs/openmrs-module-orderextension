@@ -473,7 +473,16 @@ public class OrderExtensionOrderController {
 			}
 		}
 
-		OrderEntryUtil.getOrderExtensionService().discontinueOrder(drugOrder, stopConcept, OrderExtensionUtil.adjustDateToEndOfDay(stopDate));
+		Date discontinueDate = stopDate;
+		Date now = new Date();
+		if (OrderExtensionUtil.sameDate(discontinueDate, now)) {
+			discontinueDate = new Date();
+		}
+		else if (OrderExtensionUtil.sameDate(drugOrder.getEffectiveStartDate(), discontinueDate)) {
+			discontinueDate = OrderExtensionUtil.adjustDateToEndOfDay(stopDate);
+		}
+
+		OrderEntryUtil.getOrderExtensionService().discontinueOrder(drugOrder, stopConcept, discontinueDate);
 		
 		return "redirect:" + returnPage;
 	}
