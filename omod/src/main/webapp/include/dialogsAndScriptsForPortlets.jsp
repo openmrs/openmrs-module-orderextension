@@ -622,9 +622,9 @@ function updateEditDrugDialog() {
 		jQuery("#editStartDate").val(result.startDate);
 		jQuery("#editStopDate").val(result.endDate);
 		jQuery("#dosageThree").val(result.dose);
+		jQuery("#unitsThree").val(result.doseUnits);
 		jQuery("#routeThree").val(result.route);
-		jQuery("#frequencyDayThree").val(result.freqDay);
-		jQuery("#frequencyWeekThree").val(result.freqWeek);
+		jQuery("#frequencyThree").val(result.frequency);
 
 		if(result.asNeeded == "true")
 		{
