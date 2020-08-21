@@ -28,20 +28,21 @@ public class OrderEntryUtil {
 	}
 
 	/**
-	 * @return the first found outpatient care setting, or first found care setting if no outpatient ones found
+	 * @return the first found INPATIENT care setting
+	 * We choose INPATIENT over OUTPATIENT as outpatient orders have stricter validation requirements around
+	 * required fields for quantity, quantityUnits, and numRefills, which we do not collect or utilize
 	 */
 	public static CareSetting getDefaultCareSetting() {
-		CareSetting.CareSettingType outpatient = CareSetting.CareSettingType.OUTPATIENT;
 		List<CareSetting> careSettings = Context.getOrderService().getCareSettings(false);
 		if (careSettings.isEmpty()) {
 			throw new IllegalStateException("No care settings defined, unable to create Orders");
 		}
 		for (CareSetting cs : careSettings) {
-			if (cs.getCareSettingType() == outpatient) {
+			if (cs.getCareSettingType() == CareSetting.CareSettingType.INPATIENT) {
 				return cs;
 			}
 		}
-		return careSettings.get(0);
+		throw new IllegalStateException("No inpatient care settings defined, unable to create Orders");
 	}
 
 	/**
