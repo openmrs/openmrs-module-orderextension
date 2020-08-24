@@ -358,12 +358,9 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 
 				ExtendedOrderSetMember drugMember = new ExtendedOrderSetMember(member);
 				Date memberStartDate = cycleStart;
-				Date memberEndDate = null;
+
 				if (drugMember.getRelativeStartDay() != null) {
 					memberStartDate = OrderExtensionUtil.incrementDate(memberStartDate, drugMember.getRelativeStartDay() - 1);
-				}
-				if (drugMember.getLengthInDays() != null) {
-					memberEndDate = OrderExtensionUtil.incrementDateEndOfDay(memberStartDate, drugMember.getLengthInDays() - 1);
 				}
 
 				DrugOrder drugOrder = new DrugOrder();
@@ -381,8 +378,10 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 					indication = orderSet.getIndication();
 				}
 				drugOrder.setOrderReason(indication);
+
 				OrderEntryUtil.setStartDate(drugOrder, currentDate, memberStartDate);
-				drugOrder.setAutoExpireDate(memberEndDate);
+				OrderEntryUtil.setEndDate(drugOrder, drugMember.getLengthInDays());
+
 				drugOrder.setOrderGroup(orderGroup);
 				drugOrder.setPatient(patient);
 				drugOrder.setEncounter(encounter);

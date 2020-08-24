@@ -619,7 +619,7 @@ function updateEditDrugDialog() {
 		
 		jQuery("#drugComboThree").attr("onChange", "fetchDrugsThree()");
 		jQuery("#editStartDate").val(result.startDate);
-		jQuery("#editStopDate").val(result.endDate);
+		jQuery("#editDuration").val(result.duration);
 		jQuery("#dosageThree").val(result.dose);
 		jQuery("#unitsThree").val(result.doseUnits);
 		jQuery("#routeThree").val(result.route);
@@ -634,7 +634,7 @@ function updateEditDrugDialog() {
 			jQuery("#asNeededThree").removeAttr('checked');
 		}
 		
-		var indicationHtml = "<spring:message code='orderextension.regimen.reasonForPrescription' />: <select name='indicationCombo' id='indicationComboThree' onChange='getIndicationClassificationsThree()'><option value='' ></option>";
+		var indicationHtml = "<spring:message code='orderextension.regimen.reasonForPrescription' />: <select name='indication' id='indicationComboThree' onChange='getIndicationClassificationsThree()'><option value='' ></option>";
 				
 		<c:forEach items="${model.indications}" var="indication">
 			indicationHtml = indicationHtml + "<option value='${indication.id}'>${indication.displayString}</option>";
@@ -750,11 +750,11 @@ function validAddDrugPanelThreeDis() {
 			error = error + " <spring:message code='orderextension.regimen.startDateError' /> ";
 		}
 
-		var stopDate = jQuery("#editStopDate").val(); 
+		var duration = jQuery("#editDuration").val();
 		
-		if(stopDate == "")
+		if(duration == "")
 		{
-			error = error + " <spring:message code='orderextension.regimen.stopDateError' /> ";
+			error = error + " <spring:message code='orderextension.regimen.durationError' /> ";
 		}
 
 		var changeReason = jQuery("#drugChangeReason").val();
@@ -958,7 +958,7 @@ function handleDeleteAllDrugOrder()
 				<table>
 					<tr	class="drugDetails">
 						<td class="padding"><spring:message code="orderextension.regimen.reasonForPrescription" />:
-							<select name="indicationCombo" id="indicationComboTwo" onChange="getIndicationClassificationsTwo()">
+							<select name="indication" id="indicationComboTwo" onChange="getIndicationClassificationsTwo()">
 								<option value="" selected="selected"></option>
 								<c:forEach items="${model.indications}" var="indication">
 							<option value="${indication.id}">${indication.displayString}</option>
@@ -1035,7 +1035,7 @@ function handleDeleteAllDrugOrder()
 				<table>
 					<tr class="drugDetails">
 						<td class="padding"><spring:message code="orderextension.orderset.field.relativeStartDay" />*:  <openmrs_tag:dateField formFieldName="editStartDate" startValue=""/></td>
-						<td class="padding"><spring:message code="orderextension.regimen.stopDate" />:  <openmrs_tag:dateField formFieldName="editStopDate" startValue=""/></td>
+						<td class="padding"><spring:message code="orderextension.length" />:  <input type="number" id="editDuration" name="editDuration" value=""/></td>
 					</tr>	
 				</table>
 			 	<table>
@@ -1053,7 +1053,10 @@ function handleDeleteAllDrugOrder()
 				<br/>
 				<table>
 					<tr class="drugDetails">
-						<td class="padding"><spring:message code="orderextension.regimen.changeReason"/>:<openmrs:fieldGen type="org.openmrs.DrugOrder.discontinuedReason" formFieldName="drugChangeReason" val="" parameters="optionHeader=[blank]|globalProp=concept.reasonOrderStopped" /></td>
+						<td class="padding">
+							<spring:message code="orderextension.regimen.changeReason"/>:
+							<input type="text" name="drugChangeReason" size="80"/>
+						</td>
 					</tr>	
 				</table>
 				<br/>

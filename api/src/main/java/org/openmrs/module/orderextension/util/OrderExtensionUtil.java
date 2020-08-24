@@ -138,7 +138,7 @@ public class OrderExtensionUtil  {
 		return dateA != null && dateB != null && df.format(dateA).equals(df.format(dateB));
 	}
 	
-	private static String calculateDaysDifference(Date observation, Date startingDate)
+	public static String calculateDaysDifference(Date observation, Date startingDate)
 	{
 		long milis1 = observation.getTime();
 		long milis2 = startingDate.getTime();
@@ -149,5 +149,30 @@ public class OrderExtensionUtil  {
 		
 	
 		return Integer.toString((int)diffDays + 1);
+	}
+
+	public static String calculationDurationFromAutoExpiryDate(DrugOrder drugOrder) {
+		Date sd = drugOrder.getEffectiveStartDate();
+		Date ed = drugOrder.getAutoExpireDate();
+		if (ed == null) {
+			return null;
+		}
+		return OrderExtensionUtil.calculateDaysDifference(ed, sd);
+	}
+
+	public static boolean orderablesMatch(DrugOrder o1, DrugOrder o2) {
+		if (o1.getDrug() != null && o2.getDrug() != null && o1.getDrug().equals(o2.getDrug())) {
+			return true;
+		}
+		return o1.getConcept() != null && o2.getConcept() != null && o1.getConcept().equals(o2.getConcept());
+	}
+
+	public static boolean reasonsMatch(DrugOrder o1, DrugOrder o2) {
+		Concept r1 = o1.getOrderReason();
+		Concept r2 = o2.getOrderReason();
+		if (r1 == null && r2 == null) {
+			return true;
+		}
+		return r1 != null && r2 != null && r1.equals(r2);
 	}
 }

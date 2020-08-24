@@ -28,7 +28,7 @@ import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.orderextension.util.DrugConceptHelper;
-import org.openmrs.module.orderextension.util.OrderEntryUtil;
+import org.openmrs.module.orderextension.util.OrderExtensionUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -169,6 +169,7 @@ public class OrderExtensionAjaxController {
 		if(drugOrder.getAutoExpireDate() != null)
 		{
 			info.put("endDate", Context.getDateFormat().format(drugOrder.getAutoExpireDate()));
+			info.put("duration", OrderExtensionUtil.calculationDurationFromAutoExpiryDate(drugOrder));
 		}
 
 		ObjectMapper mapper = new ObjectMapper();

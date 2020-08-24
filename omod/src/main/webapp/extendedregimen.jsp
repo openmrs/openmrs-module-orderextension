@@ -673,7 +673,7 @@ $j(document).ready(function(){
 			<table>
 				<tr class="drugDetails">	
 					<td class="padding"><spring:message code="orderextension.orderset.field.relativeStartDay" />*:  <openmrs_tag:dateField formFieldName="startDateDrug" startValue=""/></td>
-					<td class="padding"><spring:message code="orderextension.regimen.stopDate" />:  <openmrs_tag:dateField formFieldName="stopDateDrug" startValue=""/></td>	
+					<td class="padding"><spring:message code="orderextension.length" />:  <input type="number" id="duration" name="duration" value=""/></td>
 				</tr>
 			</table>
 		    

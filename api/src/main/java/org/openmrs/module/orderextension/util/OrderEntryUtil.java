@@ -87,6 +87,17 @@ public class OrderEntryUtil {
 		}
 	}
 
+	public static void setEndDate(DrugOrder drugOrder, Integer lengthInDays) {
+		if (lengthInDays == null) {
+			drugOrder.setAutoExpireDate(null);
+		}
+		else {
+			Date startDate = drugOrder.getEffectiveStartDate();
+			Date endDate = OrderExtensionUtil.incrementDateEndOfDay(startDate, lengthInDays - 1);
+			drugOrder.setAutoExpireDate(endDate);
+		}
+	}
+
 	public static boolean isOrdered(Order drugOrder) {
 		return !drugOrder.getVoided() && drugOrder.getAction() != Order.Action.DISCONTINUE;
 	}
