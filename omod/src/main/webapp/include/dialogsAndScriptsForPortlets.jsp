@@ -176,8 +176,7 @@ jQuery(document).ready(function() {
 		height: 480,
 		width: '100%',
 		zIndex: 100,
-		buttons: { '<spring:message code="general.edit"/>': function() { handleEditDrugOrder(); },
-				   '<spring:message code="orderextension.regimen.discontinue"/>': function() { handleDiscontinueDrugOrder(); },
+		buttons: { '<spring:message code="general.save"/>': function() { handleEditDrugOrder(); },
 				   '<spring:message code="general.cancel"/>': function() { $j(this).dialog("close"); }
 		}
 	});	
@@ -691,23 +690,6 @@ function updateEditDrugDialog() {
 function handleEditDrugOrder()
 {	
 	var error = validAddDrugPanelThree();
-	jQuery("#discontinue").val("false");
-	
-	if(error != "")
-	{
-		jQuery('.openmrs_error').show();
-		jQuery('.openmrs_error').html(error);
-	}
-	else
-	{
-		jQuery('#editDrug').submit();
-	}
-}
-
-function handleDiscontinueDrugOrder()
-{	
-	var error = validAddDrugPanelThreeDis();
-	jQuery("#discontinue").val("true");
 	
 	if(error != "")
 	{
@@ -1009,8 +991,7 @@ function handleDeleteAllDrugOrder()
 		<form id="editDrug" name="editDrug" method="post" action="${pageContext.request.contextPath}/module/orderextension/editDrug.form">
 			<input type="hidden" name="orderId" id="orderId">
 			<input type="hidden" name="patientId" value="${model.patient.patientId}">
-			<input type="hidden" name="returnPage" value="${model.redirect}&patientId=${model.patient.patientId}"/>	
-			<input type="hidden" name="discontinue" id="discontinue" value="false"/>	
+			<input type="hidden" name="returnPage" value="${model.redirect}&patientId=${model.patient.patientId}"/>
 			<table>
 				<tr>
 					<td class="padding"><spring:message code="orderextension.regimen.individualDrug" />*: </td>

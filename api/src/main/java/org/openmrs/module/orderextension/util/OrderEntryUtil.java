@@ -78,9 +78,11 @@ public class OrderEntryUtil {
 		if (startDateNoTime.after(orderDateNoTime)) {
 			drugOrder.setUrgency(Order.Urgency.ON_SCHEDULED_DATE);
 			drugOrder.setScheduledDate(startDate);
+			drugOrder.setDateActivated(orderDate);
 		}
 		else {
 			drugOrder.setUrgency(Order.Urgency.ROUTINE);
+			drugOrder.setScheduledDate(null);
 			drugOrder.setDateActivated(startDate);
 		}
 	}
