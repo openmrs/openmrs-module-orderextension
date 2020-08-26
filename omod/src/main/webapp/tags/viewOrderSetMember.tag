@@ -29,9 +29,9 @@
 			<c:otherwise><spring:message code="orderextension.orderset.drugOrder"/></c:otherwise>
 		</c:choose>
 		<c:if test="${!empty member.dose}">${member.dose}</c:if>
-		<c:if test="${!empty member.units}">${member.units}</c:if>
+		<c:if test="${!empty member.doseUnits}"><openmrs:format concept="${member.doseUnits}"/></c:if>
 		<c:if test="${!empty member.route}"><openmrs:format concept="${member.route}"/></c:if>
-		<c:if test="${!empty member.frequency}">${member.frequency}</c:if>
+		<c:if test="${!empty member.orderFrequency}">${member.orderFrequency}</c:if>
 		<c:if test="${member.asNeeded}"><spring:message code="orderextension.orderset.DrugOrderSetMember.asNeeded"/></c:if>
 		<c:if test="${!empty member.administrationInstructions}">${member.administrationInstructions}</c:if>
 	</td>

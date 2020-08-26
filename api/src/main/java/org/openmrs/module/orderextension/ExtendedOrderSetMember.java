@@ -268,19 +268,22 @@ public class ExtendedOrderSetMember {
 	}
 
 	/**
-	 * @return the units
+	 * @return the doseUnits
 	 */
 	public Concept getDoseUnits() {
 		return getTemplateProperty("doseUnits", Concept.class);
 	}
 
 	/**
-	 * @return the units
+	 * @param doseUnits the doseUnits to set
 	 */
 	public void setDoseUnits(Concept doseUnits) {
 		setTemplateProperty("doseUnits", doseUnits);
 	}
 
+	/**
+	 * @return the units
+	 */
 	public String getUnits() {
 		return getTemplateProperty("units", String.class);
 	}

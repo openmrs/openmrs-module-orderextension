@@ -126,15 +126,32 @@
 						<tr>
 							<th><spring:message code="orderextension.orderset.DrugOrderSetMember.units"/></th>
 							<td>
-								<form:input path="units" size="10"/>
-								<form:errors path="units" cssClass="error"/>
+								<spring:bind path="doseUnits">
+									<select name="${status.expression}" id="doseUnits">
+										<option value=""></option>
+										<c:forEach var="doseUnit" items="${dosingUnits}">
+											<option value="${doseUnit.conceptId}" <c:if test="${doseUnit.conceptId == status.value}">selected</c:if>>
+												${doseUnit.displayString}
+											</option>
+										</c:forEach>
+									</select>
+								</spring:bind>
+								<c:if test="${!empty orderSetMember.units}"> ( ${orderSetMember.units} )</c:if>
+								<form:errors path="doseUnits" cssClass="error"/>
 							</td>
 						</tr>
 						<tr>
 							<th><spring:message code="orderextension.orderset.DrugOrderSetMember.route"/></th>
 							<td>
 								<spring:bind path="route">
-									<openmrs_tag:conceptField formFieldName="${status.expression}" initialValue="${status.value}"/>
+									<select name="${status.expression}" id="route">
+										<option value=""></option>
+										<c:forEach var="route" items="${routes}">
+											<option value="${route.conceptId}" <c:if test="${route.conceptId == status.value}">selected</c:if>>
+													${route.displayString}
+											</option>
+										</c:forEach>
+									</select>
 								</spring:bind>
 								<form:errors cssClass="error" path="route"/>
 							</td>
@@ -142,8 +159,18 @@
 						<tr>
 							<th><spring:message code="orderextension.orderset.DrugOrderSetMember.frequency"/></th>
 							<td>
-								<form:input path="frequency" size="50"/>
-								<form:errors path="frequency" cssClass="error"/>
+								<spring:bind path="orderFrequency">
+									<select name="${status.expression}" id="frequency">
+										<option value=""></option>
+										<c:forEach var="frequency" items="${frequencies}">
+											<option value="${frequency.id}" <c:if test="${frequency.id == status.value}">selected</c:if>>
+													${frequency}
+											</option>
+										</c:forEach>
+									</select>
+								</spring:bind>
+								<c:if test="${!empty orderSetMember.frequency}"> ( ${orderSetMember.frequency} )</c:if>
+								<form:errors path="orderFrequency" cssClass="error"/>
 							</td>
 						</tr>
 						<tr>

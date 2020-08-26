@@ -15,11 +15,13 @@ package org.openmrs.module.orderextension.web.controller;
 
 import java.util.List;
 
+import org.openmrs.OrderFrequency;
 import org.openmrs.OrderSetMember;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.orderextension.ExtendedOrderSet;
 import org.openmrs.module.orderextension.ExtendedOrderSetMember;
 import org.openmrs.module.orderextension.api.OrderExtensionService;
+import org.openmrs.module.orderextension.util.OrderFrequencyEditor;
 import org.openmrs.module.orderextension.util.OrderSetEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -44,6 +46,7 @@ public class OrderExtensionOrderSetMemberFormController {
 	@InitBinder
 	public void initBinder(WebDataBinder binder)    {
 		binder.registerCustomEditor(ExtendedOrderSet.class, new OrderSetEditor());
+		binder.registerCustomEditor(OrderFrequency.class, new OrderFrequencyEditor());
 	}
 	
 	/**
@@ -71,6 +74,9 @@ public class OrderExtensionOrderSetMemberFormController {
 		List<ExtendedOrderSet> existingOrderSets = getOrderExtensionService().getNamedOrderSets(false);
 		existingOrderSets.remove(orderSet);
 		model.addAttribute("existingOrderSets", existingOrderSets);
+		model.addAttribute("dosingUnits", Context.getOrderService().getDrugDosingUnits());
+		model.addAttribute("routes", Context.getOrderService().getDrugRoutes());
+		model.addAttribute("frequencies", Context.getOrderService().getOrderFrequencies(true));
 	}
 	
 	/**
