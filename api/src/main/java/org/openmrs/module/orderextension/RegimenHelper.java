@@ -212,12 +212,9 @@ public class RegimenHelper {
 	private class DrugGroupSorter implements Comparator<DrugRegimen>
 	{
 		public int compare(DrugRegimen c1, DrugRegimen c2) {
-            if (c1 instanceof DrugRegimen && c2 instanceof DrugRegimen) {
-            	Date d1 = ((DrugRegimen)c1).getFirstDrugOrderStartDate();
-            	Date d2 = ((DrugRegimen)c1).getFirstDrugOrderStartDate();
-            	return d1.compareTo(d2);
-            }
-			return 0;
+            Date d1 = c1.getFirstDrugOrderStartDate();
+            Date d2 = c2.getFirstDrugOrderStartDate();
+            return d1.compareTo(d2);
          }
 	}
 	
