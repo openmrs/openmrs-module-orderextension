@@ -66,7 +66,7 @@ public class DrugRegimen extends OrderGroup implements Serializable {
 
 	public List<DrugOrder> getMembers() {
 		List<DrugOrder> ret = new ArrayList<DrugOrder>();
-		for (Order o : getOrders()) {
+		for (Order o : OrderExtensionUtil.getOrdersInGroup(this)) {
 			ret.add((DrugOrder)o);
 		}
 		return ret;
@@ -90,17 +90,7 @@ public class DrugRegimen extends OrderGroup implements Serializable {
 	 * @return the discontinueDate or autoExpireDate ending latest, or null if there are open ended orders
 	 */
 	public Date getLastDrugOrderEndDate() {
-		Date d = null;
-		for (Order o : getOrders()) {
-			Date endDate = o.getEffectiveStopDate();
-			if (endDate == null) {
-				return null;
-			}
-			if (d == null || d.before(endDate)) {
-				d = endDate;
-			}
-		}
-		return d;
+		return OrderExtensionUtil.getLastDrugOrderEndDate(this);
 	}
 	
 	/**

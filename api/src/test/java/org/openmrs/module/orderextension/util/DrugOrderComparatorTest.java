@@ -78,7 +78,7 @@ public class DrugOrderComparatorTest extends BaseModuleContextSensitiveTest {
 
                 // Ensure that the right number of drug orders was created, based on the order set
                 List<DrugOrder> orderList = new ArrayList<DrugOrder>();
-                for (Order o : regimen.getOrders()) {
+                for (Order o : regimen.getMembers()) {
                     orderList.add((DrugOrder)o);
                 }
                 Assert.assertEquals(membersOrderedBySortWeight.size(), orderList.size());

@@ -156,7 +156,7 @@ public class HibernateOrderExtensionDAO implements OrderExtensionDAO {
 	    // Then, iterate across these, and for any with orders after the start date of this regimen, look at cycle number
 	    Integer maxCycleNumber = null;
 	    for (DrugRegimen r : drugRegimens) {
-	    	for (Order o : r.getOrders()) {
+	    	for (Order o : r.getMembers()) {
 	    		if (o.getVoided() == null || !o.getVoided()) {
 	    			if (o.getEffectiveStartDate().compareTo(startDate) >= 0) {
 	    				Integer cycleNumber = r.getCycleNumber();

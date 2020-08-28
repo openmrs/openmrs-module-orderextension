@@ -34,6 +34,7 @@ import org.openmrs.api.AdministrationService;
 import org.openmrs.api.OrderContext;
 import org.openmrs.api.ProviderService;
 import org.openmrs.api.context.Context;
+import org.openmrs.api.db.hibernate.HibernateUtil;
 import org.openmrs.api.impl.BaseOpenmrsService;
 import org.openmrs.module.orderextension.DrugRegimen;
 import org.openmrs.module.orderextension.ExtendedOrderSet;
@@ -209,12 +210,17 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 		Date currentDate = new Date();
 		User currentUser = Context.getAuthenticatedUser();
 		if (drugOrder.getEncounter() == null) {
-			Encounter encounter = getExistingDrugOrderEncounter(drugOrder.getPatient(), currentDate, currentUser);
-			if (encounter == null) {
-				Date encDate = drugOrder.getDateActivated() == null ? currentDate : drugOrder.getDateActivated();
-				encounter = createDrugOrderEncounter(drugOrder.getPatient(), encDate);
+			if (drugOrder.getOrderGroup() != null) {
+				drugOrder.setEncounter(drugOrder.getOrderGroup().getEncounter());
 			}
-			drugOrder.setEncounter(encounter);
+			else {
+				Encounter encounter = getExistingDrugOrderEncounter(drugOrder.getPatient(), currentDate, currentUser);
+				if (encounter == null) {
+					Date encDate = drugOrder.getDateActivated() == null ? currentDate : drugOrder.getDateActivated();
+					encounter = createDrugOrderEncounter(drugOrder.getPatient(), encDate);
+				}
+				drugOrder.setEncounter(encounter);
+			}
 		}
 		if (drugOrder.getOrderer() == null) {
 			drugOrder.setOrderer(getProviderForUser(currentUser));
@@ -253,7 +259,8 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 	@Override
 	@Transactional(readOnly=true)
 	public DrugRegimen getDrugRegimen(Integer id) {
-		return (DrugRegimen) Context.getOrderService().getOrderGroup(id);
+		OrderGroup group = Context.getOrderService().getOrderGroup(id);
+		return (DrugRegimen) HibernateUtil.getRealObjectFromProxy(group);
 	}
 	
 	/**

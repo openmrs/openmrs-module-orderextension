@@ -16,8 +16,10 @@ package org.openmrs.module.orderextension.util;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import org.openmrs.Concept;
 import org.openmrs.DrugOrder;
@@ -186,12 +188,42 @@ public class OrderExtensionUtil  {
 	 */
 	public static Date getFirstDrugOrderStartDate(OrderGroup orderGroup) {
 		Date d = null;
-		for (Order o : orderGroup.getOrders()) {
-			if (d == null || d.after(o.getEffectiveStartDate())) {
-				d = o.getEffectiveStartDate();
+		for (Order o : getOrdersInGroup(orderGroup)) {
+			if (!o.getVoided()) {
+				if (d == null || d.after(o.getEffectiveStartDate())) {
+					d = o.getEffectiveStartDate();
+				}
 			}
 		}
 		return d;
+	}
+
+	public static Date getLastDrugOrderEndDate(OrderGroup orderGroup) {
+		Date d = null;
+		for (Order o : getOrdersInGroup(orderGroup)) {
+			if (!o.getVoided()) {
+				Date endDate = o.getEffectiveStopDate();
+				if (endDate == null) {
+					return null;
+				}
+				if (d == null || d.before(endDate)) {
+					d = endDate;
+				}
+			}
+		}
+		return d;
+	}
+
+	public static List<Order> getOrdersInGroup(OrderGroup orderGroup) {
+		List<Order> ret = new ArrayList<Order>();
+		if (orderGroup != null) {
+			for (Order o : orderGroup.getOrders()) {
+				if (!o.getVoided()) {
+					ret.add(o);
+				}
+			}
+		}
+		return ret;
 	}
 
 	public static boolean isCyclical(OrderSet orderSet) {

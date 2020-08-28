@@ -148,7 +148,7 @@ public class RegimenHelper {
 		{
 			Date startDate = drugGroup.getFirstDrugOrderStartDate();
 			
-			for(Order od: drugGroup.getOrders())
+			for(Order od: OrderExtensionUtil.getOrdersInGroup(drugGroup))
 			{
 				if(od.getEffectiveStartDate() != null && startDate != null)
 				{

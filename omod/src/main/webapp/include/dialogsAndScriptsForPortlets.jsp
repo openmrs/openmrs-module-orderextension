@@ -315,7 +315,7 @@ function fetchDrugsTwo() {
 	
 	var selected = jQuery('#drugComboTwo').val();
 	
-	if(jQuery("#drugComboTwo").attr("selectedIndex") > 0)
+	if(selected != '')
 	{
 		var url = "${pageContext.request.contextPath}/module/orderextension/getDrugsByConcept.form?concept=" + selected;
 		jQuery.getJSON(url, function(result) 
@@ -952,7 +952,7 @@ function handleDeleteAllDrugOrder()
 					<table>
 						<tr class="drugDetails">
 							<td class="padding"><spring:message code="orderextension.orderset.field.relativeStartDay" />*:  <openmrs_tag:dateField formFieldName="addCycleStartDate" startValue=""/></td>
-							<td class="padding"><spring:message code="orderextension.regimen.stopDate" />:  <openmrs_tag:dateField formFieldName="stopDate" startValue=""/></td>
+							<td class="padding"><spring:message code="orderextension.length" />:  <input type="number" id="addCycleDuration" name="duration" value=""/></td>
 					</tr>
 				</table>
 				<table>

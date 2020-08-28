@@ -24,6 +24,7 @@ import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
 import org.openmrs.Order;
 import org.openmrs.OrderFrequency;
+import org.openmrs.OrderGroup;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.orderextension.DrugRegimen;
@@ -76,7 +77,7 @@ public class OrderExtensionOrderController {
 
 		List<DrugOrder> drugOrders = OrderEntryUtil.getDrugOrdersByPatient(patient);
 		for (DrugRegimen r : regimens) {
-			drugOrders.removeAll(r.getOrders());
+			drugOrders.removeAll(r.getMembers());
 		}
 		model.addAttribute("drugOrders", drugOrders);
 		
@@ -181,7 +182,7 @@ public class OrderExtensionOrderController {
 	                                  @RequestParam(value = "groupId", required = true) Integer groupId,
 	                                  @RequestParam(value = "drug", required = true) Drug drug,
 	                                  @RequestParam(value = "dose", required = true) Double dose,
-									  @RequestParam(value = "doseUits", required = true) Concept doseUnits,
+									  @RequestParam(value = "doseUnits", required = true) Concept doseUnits,
 	                                  @RequestParam(value = "frequency", required = true) OrderFrequency frequency,
 	                                  @RequestParam(value = "addCycleStartDate", required = true) Date startDateDrug,
 	                                  @RequestParam(value = "duration", required = false) Integer duration,
@@ -198,26 +199,26 @@ public class OrderExtensionOrderController {
 		
 		if (repeatCycle != null) {
 			Patient patient = Context.getPatientService().getPatient(patientId);
-			List<DrugRegimen> futureOrders = getOrderExtensionService().getFutureDrugRegimensOfSameOrderSet(patient, regimen, regimen.getFirstDrugOrderStartDate());
+			List<DrugRegimen> futureRegimens = getOrderExtensionService().getFutureDrugRegimensOfSameOrderSet(patient, regimen, regimen.getFirstDrugOrderStartDate());
 			
-			for (DrugRegimen drugRegimen : futureOrders) {
-				Date firstStartDate = drugRegimen.getFirstDrugOrderStartDate();
+			for (DrugRegimen futureRegimen : futureRegimens) {
+				Date firstStartDate = futureRegimen.getFirstDrugOrderStartDate();
 				Date startDate = adjustDate(firstStartDate, daysDiff(regimen.getFirstDrugOrderStartDate(), startDateDrug));
-				DrugOrder drugOrder = setUpDrugOrder(patientId, drug, dose, doseUnits, frequency,
-				    startDate, duration, asNeeded, route, classification, indication, instructions,
-				    adminInstructions);
-				drugRegimen.addOrder(drugOrder);
-				
-				getOrderExtensionService().saveDrugRegimen(drugRegimen);
+				DrugOrder drugOrder = setUpDrugOrder(
+						patientId, drug, dose, doseUnits, frequency, startDate, duration, asNeeded, route,
+						classification, indication, instructions, adminInstructions
+				);
+				drugOrder.setOrderGroup(futureRegimen);
+				getOrderExtensionService().extendedSaveDrugOrder(drugOrder);
 			}
 		}
 
-		DrugOrder drugOrder = setUpDrugOrder(patientId, drug, dose, doseUnits, frequency,
-		    startDateDrug, duration, asNeeded, route, classification, indication, instructions,
-		    adminInstructions);
-		regimen.addOrder(drugOrder);
-		
-		getOrderExtensionService().saveDrugRegimen(regimen);
+		DrugOrder drugOrder = setUpDrugOrder(
+				patientId, drug, dose, doseUnits, frequency, startDateDrug, duration, asNeeded, route,
+				classification, indication, instructions, adminInstructions
+		);
+		drugOrder.setOrderGroup(regimen);
+		getOrderExtensionService().extendedSaveDrugOrder(drugOrder);
 		
 		return "redirect:" + returnPage;
 	}
@@ -348,7 +349,7 @@ public class OrderExtensionOrderController {
 
 		try {
 			DrugOrder drugOrder = (DrugOrder) Context.getOrderService().getOrder(orderId);
-			DrugRegimen regimen = (DrugRegimen) drugOrder.getOrderGroup();
+			OrderGroup regimen = OrderEntryUtil.getOrderGroup(drugOrder);
 
 			if (StringUtils.isEmpty(changeReason)) {
 				changeReason = "Edit Drug Order";
@@ -357,7 +358,7 @@ public class OrderExtensionOrderController {
 			if (repeatCycle != null) {
 				Patient patient = Context.getPatientService().getPatient(patientId);
 				List<DrugOrder> futureOrders = getOrderExtensionService().getFutureDrugOrdersOfSameOrderSet(
-						patient, regimen.getOrderSet(), regimen.getFirstDrugOrderStartDate()
+						patient, regimen.getOrderSet(), OrderExtensionUtil.getFirstDrugOrderStartDate(regimen)
 				);
 				for (DrugOrder order : futureOrders) {
 					if (OrderExtensionUtil.orderablesMatch(order, drugOrder)) {
@@ -405,11 +406,11 @@ public class OrderExtensionOrderController {
 		
 		DrugOrder drugOrder = (DrugOrder) Context.getOrderService().getOrder(orderId);
 		if (repeatCycle != null) {
-			DrugRegimen regimen = (DrugRegimen) drugOrder.getOrderGroup();
+			OrderGroup regimen = drugOrder.getOrderGroup();
 			Patient patient = Context.getPatientService().getPatient(patientId);
-			List<DrugOrder> futureOrders = getOrderExtensionService()
-			        .getFutureDrugOrdersOfSameOrderSet(patient, regimen.getOrderSet(),
-			            regimen.getFirstDrugOrderStartDate());
+			List<DrugOrder> futureOrders = getOrderExtensionService().getFutureDrugOrdersOfSameOrderSet(
+					patient, regimen.getOrderSet(), OrderExtensionUtil.getFirstDrugOrderStartDate(regimen)
+			);
 
 			for (DrugOrder order : futureOrders) {
 				if (order.getDrug() != null && drugOrder.getDrug() != null) {
@@ -458,11 +459,11 @@ public class OrderExtensionOrderController {
 		DrugOrder drugOrder = (DrugOrder)o;
 			
 		if (repeatCycle != null) {
-			DrugRegimen regimen = (DrugRegimen)drugOrder.getOrderGroup();
+			OrderGroup regimen = drugOrder.getOrderGroup();
 			Patient patient = Context.getPatientService().getPatient(patientId);
-			List<DrugOrder> futureOrders = getOrderExtensionService()
-			        .getFutureDrugOrdersOfSameOrderSet(patient, regimen.getOrderSet(),
-			            regimen.getFirstDrugOrderStartDate());
+			List<DrugOrder> futureOrders = getOrderExtensionService().getFutureDrugOrdersOfSameOrderSet(
+					patient, regimen.getOrderSet(), OrderExtensionUtil.getFirstDrugOrderStartDate(regimen)
+			);
 
 			for (DrugOrder order : futureOrders) {
 				if (order.getDrug() != null && drugOrder.getDrug() != null) {
