@@ -110,12 +110,12 @@
 			%>
 			<c:forEach items="${drugOrders}" var="drugOrder">
 
-				<orderextension:orderStatusCheck order="${drugOrder}" statusCheck="past" var="orderIsCompleted"/>
+				<orderextension:orderStatusCheck order="${drugOrder}" statusCheck="past" var="orderIsPast"/>
 				<orderextension:orderStatusCheck order="${drugOrder}" statusCheck="current" var="orderIsCurrent"/>
-				<orderextension:orderStatusCheck order="${drugOrder}" statusCheck="future" var="orderIsPast"/>
+				<orderextension:orderStatusCheck order="${drugOrder}" statusCheck="future" var="orderIsFuture"/>
 
 				<c:choose>
-					<c:when test="${orderIsCompleted && completed ne 'true'}">
+					<c:when test="${!empty drugOrder.dateStopped && completed ne 'true'}">
 						<tr class="drugLineRed">
 					</c:when>
 					<c:otherwise>
@@ -132,7 +132,7 @@
 					<td class="regimenCurrentDrugDateStart"><openmrs:formatDate date="${drugOrder.effectiveStartDate}" type="medium" /></td>
 					<td class="regimenCurrentDrugScheduledStopDate"><c:if test="${!empty drugOrder.effectiveStopDate }"><openmrs:formatDate date="${drugOrder.effectiveStopDate}" type="medium" /></c:if></td>
 					<td class="regimenCurrentDrugInstructions">
-						${drugOrder.instructions}
+					${drugOrder.instructions}
 						<c:if test="${completed ne 'true'}">
 							<orderextension:orderReason order="${drugOrder}" type="revision" var="revisionReason"/>
 							<c:if test="${!empty revisionReason}">
@@ -167,7 +167,7 @@
 										<c:if test="${orderIsCurrent}">
 											<td class="regimenLinks"><input type="button" id="${drugOrder.id}" class="editButton" value="<spring:message code="general.edit" />"></td>
 										</c:if>
-										<c:if test="${orderIsCompleted}">
+										<c:if test="${orderIsPast}">
 											<td></td>
 										</c:if>
 									</openmrs:hasPrivilege>
@@ -214,7 +214,7 @@
 												</c:otherwise>
 											</c:choose>
 										</c:if>
-										<c:if test="${orderIsCompleted}">
+										<c:if test="${orderIsPast}">
 											<td></td>
 										</c:if>
 									</c:otherwise>
