@@ -22,6 +22,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.DrugOrder;
+import org.openmrs.OrderGroup;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.orderextension.DrugClassificationHelper;
@@ -64,16 +65,15 @@ public class OrderExtensionPortletController extends PortletController {
 		
 		for (DrugOrder o : allOrders) {
 			boolean unsorted = true;
-			if(o.getOrderGroup() != null) {
-				if (o.getOrderGroup() instanceof DrugRegimen) {
-					DrugRegimen dr = (DrugRegimen) o.getOrderGroup();
-					if (dr.getFirstDrugOrderStartDate().before(new Date())) {
-						if (dr.getLastDrugOrderEndDate() == null || dr.getLastDrugOrderEndDate().after(new Date())) {
-							if (CURRENT_MODE.equals(mode)) {
-								orders.add(o);
-							}
-							unsorted = false;
+			OrderGroup group = OrderEntryUtil.getOrderGroup(o);
+			if(group != null && group instanceof DrugRegimen) {
+				DrugRegimen dr = (DrugRegimen) group;
+				if (dr.getFirstDrugOrderStartDate().before(new Date())) {
+					if (dr.getLastDrugOrderEndDate() == null || dr.getLastDrugOrderEndDate().after(new Date())) {
+						if (CURRENT_MODE.equals(mode)) {
+							orders.add(o);
 						}
+						unsorted = false;
 					}
 				}
 			}

@@ -28,6 +28,7 @@ import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
 import org.openmrs.DrugOrder;
 import org.openmrs.Encounter;
+import org.openmrs.OrderGroup;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.orderextension.DrugOrderComparator;
@@ -83,8 +84,9 @@ public class RegimenExtensionController extends PortletController{
 				drugOrdersContinuous.add(drugOrder);
 			}
 
-			if (drugOrder.getOrderGroup() != null && drugOrder.getOrderGroup() instanceof DrugRegimen) {
-				DrugRegimen regimen = (DrugRegimen) drugOrder.getOrderGroup();
+			OrderGroup group = OrderEntryUtil.getOrderGroup(drugOrder);
+			if (group != null && group instanceof DrugRegimen) {
+				DrugRegimen regimen = (DrugRegimen) group;
 				if (regimen.isCyclical()) {
 					if(!cycles.contains(regimen)) {
 						cycles.add(regimen);

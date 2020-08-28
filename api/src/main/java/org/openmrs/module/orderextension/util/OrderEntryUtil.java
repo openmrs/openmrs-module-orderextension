@@ -7,10 +7,14 @@ import java.util.List;
 import org.openmrs.CareSetting;
 import org.openmrs.DrugOrder;
 import org.openmrs.Order;
+import org.openmrs.OrderGroup;
 import org.openmrs.OrderType;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
+import org.openmrs.api.db.hibernate.HibernateUtil;
+import org.openmrs.module.orderextension.DrugRegimen;
 import org.openmrs.module.orderextension.api.OrderExtensionService;
+import org.openmrs.parameter.OrderSearchCriteriaBuilder;
 import org.springframework.util.StringUtils;
 
 /**
@@ -51,12 +55,12 @@ public class OrderEntryUtil {
 	 */
 	public static List<DrugOrder> getDrugOrdersByPatient(Patient patient) {
 		List<DrugOrder> l = new ArrayList<DrugOrder>();
-		for (Order o : Context.getOrderService().getAllOrdersByPatient(patient)) {
+		OrderSearchCriteriaBuilder b = new OrderSearchCriteriaBuilder();
+		b.setPatient(patient).setIncludeVoided(false).setExcludeDiscontinueOrders(true);
+		List<Order> allOrders = Context.getOrderService().getOrders(b.build());
+		for (Order o : allOrders) {
 			if (o instanceof DrugOrder) {
-				DrugOrder drugOrder = (DrugOrder)o;
-				if (!drugOrder.getVoided() && drugOrder.getAction() != Order.Action.DISCONTINUE ) {
-					l.add((DrugOrder)o);
-				}
+				l.add((DrugOrder)o);
 			}
 		}
 		return l;
@@ -132,6 +136,17 @@ public class OrderEntryUtil {
 			}
 		}
 		return ret;
+	}
+
+	public static OrderGroup getOrderGroup(Order order) {
+		return HibernateUtil.getRealObjectFromProxy(order.getOrderGroup());
+	}
+
+	public static boolean isCyclical(OrderGroup group) {
+		if (group instanceof DrugRegimen) {
+			return ((DrugRegimen) group).isCyclical();
+		}
+		return false;
 	}
 
 	public static OrderExtensionService getOrderExtensionService() {

@@ -19,10 +19,15 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.apache.commons.beanutils.BeanComparator;
+import org.openmrs.Concept;
+import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
 import org.openmrs.Order;
+import org.openmrs.OrderGroup;
 import org.openmrs.OrderSet;
 import org.openmrs.OrderSetMember;
+import org.openmrs.api.db.hibernate.HibernateUtil;
+import org.openmrs.module.orderextension.util.OrderEntryUtil;
 
 /**
  * Sorts Drug Orders based on order set sort weight, then by date and then by primary key id
@@ -55,86 +60,71 @@ public class DrugOrderComparator implements Comparator<DrugOrder> {
      * @return compare results of two extended drug orders, based on the sort weight of their associated order set members in the order set
      */
     public int compareOrderInGroup(DrugOrder e1, DrugOrder e2) {
-        OrderSet os1 = (e1.getOrderGroup() != null ? e1.getOrderGroup().getOrderSet() : null);
-        OrderSet os2 = (e2.getOrderGroup() != null ? e2.getOrderGroup().getOrderSet() : null);
-        if (os1 != null && os2 != null && os1.equals(os2)) {
-            Integer weight1 = -1;
-            Integer weight2 = -1;
-            for (OrderSetMember osm : os1.getOrderSetMembers()) {
-                if ("orderextension".equals(osm.getOrderTemplateType())) {
-                    ExtendedOrderSetMember m = new ExtendedOrderSetMember(osm);
-                    if (extendedDrugOrderMatchesOrderSetMember(e1, m)) {
-                        weight1 = m.getSortWeight();
-                    }
-                    if (extendedDrugOrderMatchesOrderSetMember(e2, m)) {
-                        weight2 = m.getSortWeight();
-                    }
-                }
-            }
-            return weight1.compareTo(weight2);
+        // Ensure orders are in the same group
+        if (e1.getOrderGroup() == null || e2.getOrderGroup() == null || !e1.getOrderGroup().equals(e2.getOrderGroup())) {
+            return 0;
         }
-        return 0;
+        Integer weight1 = getPositionInSet(e1);
+        Integer weight2 = getPositionInSet(e2);
+        if (weight1 == null || weight2 == null) {
+            return 0;
+        }
+        return weight1.compareTo(weight2);
     }
 
     /**
      * @return true if an extended drug order matches up with a drug order set member, based on drug and indication
-     * If a particular drug/indication pair occur several times in an order set on different dates, account for this
+     * TODO: IF WE NEED TO DISTINGUISH MULTIPLE IN A GROUP, THAT SHOULD BE ADDED IN
      */
-    public boolean extendedDrugOrderMatchesOrderSetMember(DrugOrder edo, ExtendedOrderSetMember m) {
-        if (nullSafeEquals(edo.getDrug(), m.getDrug())) {
-            if (nullSafeEquals(edo.getOrderReason(), m.getIndication())) {
-                int memberOccuranceNum = getOccuranceNumberInSet(m);
-                int orderOccuranceNum = getOccuranceNumberInGroup(edo);
-                return memberOccuranceNum == orderOccuranceNum;
+    public Integer getPositionInSet(DrugOrder o) {
+        int positionInSet = 0;
+        OrderGroup orderGroup = OrderEntryUtil.getOrderGroup(o);
+        String strToCheck = getMemberIdentifier(o.getDrug(), o.getConcept(), o.getOrderReason());
+        int occursInGroup = getOccuranceNumberInGroup(o);
+        OrderSet orderSet = HibernateUtil.getRealObjectFromProxy(orderGroup.getOrderSet());
+        int numFound = 0;
+        if (orderSet != null && orderSet instanceof ExtendedOrderSet) {
+            for (OrderSetMember m : orderSet.getOrderSetMembers()) {
+                positionInSet++;
+                ExtendedOrderSetMember osm = new ExtendedOrderSetMember(m);
+                String memberStr = getMemberIdentifier(osm.getDrug(), osm.getConcept(), osm.getIndication());
+                if (memberStr.equals(strToCheck)) {
+                    numFound++;
+                }
+                if (numFound == occursInGroup) {
+                    return positionInSet;
+                }
             }
         }
-        return false;
+        return positionInSet;
     }
 
-    protected int getOccuranceNumberInSet(ExtendedOrderSetMember m) {
-        int num = 0;
-        for (int i=0; i<m.getOrderSet().getOrderSetMembers().size(); i++) {
-            OrderSetMember osm = m.getOrderSet().getOrderSetMembers().get(i);
-            ExtendedOrderSetMember memberToCheck = new ExtendedOrderSetMember(osm);
-            if (nullSafeEquals(memberToCheck.getDrug(), m.getDrug()) && nullSafeEquals(memberToCheck.getIndication(), m.getIndication())) {
-                num++;
-            }
-            if (memberToCheck.equals(m)) {
-                return num;
-            }
-        }
-        throw new IllegalStateException("Member not found in set");
+    protected String getMemberIdentifier(Drug drug, Concept concept, Concept indication) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(drug == null ? "*" : drug.getUuid());
+        sb.append(concept == null ? "*" : concept.getUuid());
+        sb.append(indication == null ? "*" : indication.getUuid());
+        return drug + "." + concept + "." + indication;
     }
 
-    protected int getOccuranceNumberInGroup(DrugOrder edo) {
+    protected int getOccuranceNumberInGroup(DrugOrder drugOrder) {
         int num=0;
         List<DrugOrder> regimen = new ArrayList<DrugOrder>();
-        for (Order o : edo.getOrderGroup().getOrders()) {
+        for (Order o : drugOrder.getOrderGroup().getOrders()) {
             regimen.add((DrugOrder)o);
         }
         Collections.sort(regimen, new BeanComparator("effectiveStartDate"));
+        String strId = getMemberIdentifier(drugOrder.getDrug(), drugOrder.getConcept(), drugOrder.getOrderReason());
         for (int i=0; i<regimen.size(); i++) {
             DrugOrder memberToCheck = regimen.get(i);
-            if (nullSafeEquals(memberToCheck.getDrug(), edo.getDrug()) && nullSafeEquals(memberToCheck.getOrderReason(), edo.getOrderReason())) {
+            String strToCheck = getMemberIdentifier(memberToCheck.getDrug(), memberToCheck.getConcept(), memberToCheck.getOrderReason());
+            if (strId.equals(strToCheck)) {
                 num++;
             }
-            if (memberToCheck.equals(edo)) {
+            if (memberToCheck.equals(drugOrder)) {
                 return num;
             }
         }
         throw new IllegalStateException("Order not found in group");
-    }
-
-    /**
-     * @return true if both arguments are null or are equal to each other, false otherwise
-     */
-    private boolean nullSafeEquals(Object o1, Object o2) {
-        if (o1 == null && o2 == null) {
-            return true;
-        }
-        if (o1 != null) {
-            return o1.equals(o2);
-        }
-        return false;
     }
 }

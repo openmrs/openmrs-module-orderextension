@@ -22,6 +22,11 @@ import java.util.Date;
 import org.openmrs.Concept;
 import org.openmrs.DrugOrder;
 import org.openmrs.OpenmrsMetadata;
+import org.openmrs.Order;
+import org.openmrs.OrderGroup;
+import org.openmrs.OrderSet;
+import org.openmrs.api.db.hibernate.HibernateUtil;
+import org.openmrs.module.orderextension.ExtendedOrderSet;
 
 /**
  * Defines any utility methods
@@ -174,5 +179,34 @@ public class OrderExtensionUtil  {
 			return true;
 		}
 		return r1 != null && r2 != null && r1.equals(r2);
+	}
+
+	/**
+	 * @return the startDate for the Drug Order that has the earliest start date among all members
+	 */
+	public static Date getFirstDrugOrderStartDate(OrderGroup orderGroup) {
+		Date d = null;
+		for (Order o : orderGroup.getOrders()) {
+			if (d == null || d.after(o.getEffectiveStartDate())) {
+				d = o.getEffectiveStartDate();
+			}
+		}
+		return d;
+	}
+
+	public static boolean isCyclical(OrderSet orderSet) {
+		orderSet = HibernateUtil.getRealObjectFromProxy(orderSet);
+		if (orderSet instanceof ExtendedOrderSet) {
+			return ((ExtendedOrderSet) orderSet).isCyclical();
+		}
+		return false;
+	}
+
+	public static Integer getCycleLengthInDays(OrderSet orderSet) {
+		orderSet = HibernateUtil.getRealObjectFromProxy(orderSet);
+		if (orderSet instanceof ExtendedOrderSet) {
+			return ((ExtendedOrderSet) orderSet).getCycleLengthInDays();
+		}
+		return null;
 	}
 }

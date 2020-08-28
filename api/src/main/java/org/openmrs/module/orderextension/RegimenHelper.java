@@ -25,15 +25,18 @@ import java.util.Map;
 import org.openmrs.Concept;
 import org.openmrs.DrugOrder;
 import org.openmrs.Order;
+import org.openmrs.OrderGroup;
+import org.openmrs.module.orderextension.util.OrderEntryUtil;
+import org.openmrs.module.orderextension.util.OrderExtensionUtil;
 
 /**
  * Helper class for classifying Regimens
  */
 public class RegimenHelper {
 
-	private List<DrugRegimen> cycles = new ArrayList<DrugRegimen>();
-	private List<DrugRegimen> drugGroups = new ArrayList<DrugRegimen>();
-	private Map<DrugRegimen, List<DrugOrder>> ordersInDrugGroups = new HashMap<DrugRegimen, List<DrugOrder>>();
+	private List<OrderGroup> cycles = new ArrayList<OrderGroup>();
+	private List<OrderGroup> drugGroups = new ArrayList<OrderGroup>();
+	private Map<OrderGroup, List<DrugOrder>> ordersInDrugGroups = new HashMap<OrderGroup, List<DrugOrder>>();
 	
 	private boolean hasCycles = false;
 	private boolean hasDrugGroups = false;
@@ -43,12 +46,8 @@ public class RegimenHelper {
 	{	
 		for(DrugOrder o : drugOrders)
 		{
-			DrugRegimen group = null;
-			boolean isCyclical = false;
-			if (o.getOrderGroup() != null && o.getOrderGroup() instanceof DrugRegimen) {
-				DrugRegimen r = (DrugRegimen)o.getOrderGroup();
-				isCyclical = r.isCyclical();
-			}
+			OrderGroup group = OrderEntryUtil.getOrderGroup(o);
+			boolean isCyclical = OrderEntryUtil.isCyclical(group);
 			
 			if (group != null) {
 				if (isCyclical) {
@@ -80,12 +79,12 @@ public class RegimenHelper {
 		Collections.sort(drugGroups, new DrugGroupSorter());
 	}
 	
-	public List<DrugRegimen> getCycleList()
+	public List<OrderGroup> getCycleList()
 	{	
 		return cycles;
 	}
 	
-	public List<DrugRegimen> getDrugGroupList()
+	public List<OrderGroup> getDrugGroupList()
 	{	
 		return drugGroups;
 	}
@@ -209,11 +208,11 @@ public class RegimenHelper {
 		return cycleDate.getTime();
 	}
 	
-	private class DrugGroupSorter implements Comparator<DrugRegimen>
+	private class DrugGroupSorter implements Comparator<OrderGroup>
 	{
-		public int compare(DrugRegimen c1, DrugRegimen c2) {
-            Date d1 = c1.getFirstDrugOrderStartDate();
-            Date d2 = c2.getFirstDrugOrderStartDate();
+		public int compare(OrderGroup c1, OrderGroup c2) {
+            Date d1 = OrderExtensionUtil.getFirstDrugOrderStartDate(c1);
+            Date d2 = OrderExtensionUtil.getFirstDrugOrderStartDate(c2);
             return d1.compareTo(d2);
          }
 	}

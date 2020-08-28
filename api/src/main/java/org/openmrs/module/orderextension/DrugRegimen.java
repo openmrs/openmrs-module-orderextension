@@ -22,6 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import org.openmrs.DrugOrder;
 import org.openmrs.Order;
 import org.openmrs.OrderGroup;
+import org.openmrs.module.orderextension.util.OrderExtensionUtil;
 
 /**
  * This represents a particular type of OrderGroup which contains one or more
@@ -60,10 +61,7 @@ public class DrugRegimen extends OrderGroup implements Serializable {
 	 * @return whether or not this Regimen is cyclical.  Delegates to the underlying ExtendedOrderSet
 	 */
 	public boolean isCyclical() {
-		if (getOrderSet() instanceof ExtendedOrderSet) {
-			return ((ExtendedOrderSet) getOrderSet()).isCyclical();
-		}
-		return false;
+		return OrderExtensionUtil.isCyclical(getOrderSet());
 	}
 
 	public List<DrugOrder> getMembers() {
@@ -78,23 +76,14 @@ public class DrugRegimen extends OrderGroup implements Serializable {
 	 * @return the length in days between the start of one cycle and the start of the next cycle, if applicable
 	 */
 	public Integer getCycleLengthInDays() {
-		if (getOrderSet() instanceof ExtendedOrderSet) {
-			return ((ExtendedOrderSet) getOrderSet()).getCycleLengthInDays();
-		}
-		return null;
+		return OrderExtensionUtil.getCycleLengthInDays(getOrderSet());
 	}
 	
 	/**
 	 * @return the startDate for the Drug Order that has the earliest start date among all members
 	 */
 	public Date getFirstDrugOrderStartDate() {
-		Date d = null;
-		for (Order o : getOrders()) {
-			if (d == null || d.after(o.getEffectiveStartDate())) {
-				d = o.getEffectiveStartDate();
-			}
-		}
-		return d;
+		return OrderExtensionUtil.getFirstDrugOrderStartDate(this);
 	}
 	
 	/**
