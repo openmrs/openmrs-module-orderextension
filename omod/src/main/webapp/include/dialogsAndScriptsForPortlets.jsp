@@ -46,48 +46,11 @@ jQuery(document).ready(function() {
 		jQuery(this).next(".content").toggle();
 		jQuery("img", this).toggle();
 	});
-	
-	jQuery("#doseReductionTwo").change(function()
-	{
-		var protocol = jQuery("#doseProtocolValueTwo").val();
-		
-		var reduction = jQuery("#doseReductionTwo").val();
-		
-		var newValue = (reduction/100)*protocol;
-		newValue = myRound(newValue, 5);
-				
-		jQuery("#dosage").val(newValue);
-	});
-	
-	jQuery("#doseReductionThree").change(function()
-	{
-		var protocol = jQuery("#doseProtocolValueThree").val();
-		
-		var reduction = jQuery("#doseReductionThree").val();
-		
-		var newValue = (reduction/100)*protocol;
-		newValue = myRound(newValue, 5);
-				
-		jQuery("#dosageThree").val(newValue);
-	});
-	
-	jQuery("#dosage").change(function()
-	{
-		updateDosageTwo();
-	});
-	
-	jQuery("#dosageThree").change(function()
-	{
-		updateDosageThree();
-	});
 	  
 	jQuery(".drugDetails").hide();
-	
 	jQuery('.openmrs_error').hide();
-	
 	jQuery("#drugComboTwo").chosen({allow_single_deselect: true});
-	
-	
+
 	jQuery('.addDrugToGroupButton').click(function(){ 
 		jQuery('#addNewDrugToGroupDialog').dialog('open');
 		
@@ -213,8 +176,7 @@ jQuery(document).ready(function() {
 		height: 480,
 		width: '100%',
 		zIndex: 100,
-		buttons: { '<spring:message code="general.edit"/>': function() { handleEditDrugOrder(); },
-				   '<spring:message code="orderextension.regimen.discontinue"/>': function() { handleDiscontinueDrugOrder(); },
+		buttons: { '<spring:message code="general.save"/>': function() { handleEditDrugOrder(); },
 				   '<spring:message code="general.cancel"/>': function() { $j(this).dialog("close"); }
 		}
 	});	
@@ -349,33 +311,11 @@ jQuery(document).ready(function() {
 
 var drugDetailTwo;
 
-function updateDosageTwo() {
-	var protocol = jQuery("#doseProtocolValueTwo").val();
-	
-	var dose = jQuery("#dosage").val();
-	
-	var newValue = (dose/protocol)*100;
-	newValue = myRound(newValue, 1);
-			
-	jQuery("#doseReductionTwo").val(newValue);
-}
-
-function updateDosageThree() {
-	var protocol = jQuery("#doseProtocolValueThree").val();
-
-	var dose = jQuery("#dosageThree").val();
-
-	var newValue = (dose/protocol)*100;
-	newValue = myRound(newValue, 1);
-			
-	jQuery("#doseReductionThree").val(newValue);
-}
-
 function fetchDrugsTwo() {
 	
 	var selected = jQuery('#drugComboTwo').val();
 	
-	if(jQuery("#drugComboTwo").attr("selectedIndex") > 0)
+	if(selected != '')
 	{
 		var url = "${pageContext.request.contextPath}/module/orderextension/getDrugsByConcept.form?concept=" + selected;
 		jQuery.getJSON(url, function(result) 
@@ -469,39 +409,10 @@ function fetchDrugsThree() {
 }
 
 function updateDrugInfoTwo() {
-	
-	var route = "";
-	var units = "";
-	var reduce = "";
-	var protocol = "";
-	
 	var index = jQuery('#drugTwo').attr("selectedIndex");
-	
-	if(index != null && index >=0)
-	{
-		if(drugDetailTwo[index].route != "")
-		{
-			route =  "<spring:message code='orderextension.regimen.route'/>" + ": " + drugDetailTwo[index].route;
-		}
-		units = " " + drugDetailTwo[index].doseForm;
-		
-		if(drugDetailTwo[index].doseReduce == "true")
-		{
-			jQuery("#doseReduceTwo").show();
-			jQuery("#doseReductionTwo").val("100");
-			jQuery("#dosage").val(drugDetailTwo[index].protocolDose);
-		}
-		else
-		{
-			jQuery("#doseReduceTwo").hide();
-		}
-		protocol = drugDetailTwo[index].protocolDose + " " + units;
-		jQuery("#doseProtocolValueTwo").val(drugDetailTwo[index].protocolDose);
+	if(index != null && index >=0) {
+		jQuery("#unitsTwo").val(drugDetailsTwo[index].doseFormConceptId);
 	}
-	
-	jQuery("#protocolDoseTwo").html(protocol);
-	jQuery("#routeInfoTwo").html(route);
-	jQuery("#unitsTwo").html(units);
 }
 
 function getIndicationClassificationsTwo() {
@@ -536,37 +447,10 @@ function getIndicationClassificationsTwo() {
 }
 
 function updateDrugInfoThree() {
-	
-	
-	var route = "";
-	var units = "";
-	var protocol = "";
-	
 	var index = jQuery('#drugThree').attr("selectedIndex");
-	
-	if(index != null && index >=0)
-	{
-		if(drugDetailThree[index].route != "")
-		{
-			route =  "<spring:message code='orderextension.regimen.route'/>" + ": " + drugDetailThree[index].route;
-		}
-		units = " " + drugDetailThree[index].units;
-		
-		if(drugDetailThree[index].doseReduce == "true")
-		{
-			jQuery("#doseReduceThree").show();
-		}
-		else
-		{
-			jQuery("#doseReduceThree").hide();
-		}
-		protocol = drugDetailThree[index].protocolDose + " " + units;
-		jQuery("#doseProtocolValueThree").val(drugDetailThree[index].protocolDose);
+	if(index != null && index >=0) {
+		jQuery("#unitsThree").val(drugDetailThree[index].doseFormConceptId);
 	}
-	jQuery("#protocolDoseThree").html(protocol);
-	jQuery("#routeInfoThree").html(route);
-	jQuery("#unitsThree").html(units);
-	updateDosageThree();
 }
 
 function getIndicationClassificationsThree() {
@@ -646,7 +530,7 @@ function handleChangeStartDateOfPartGroup()
 }
 
 function validAddDrugPanelTwo() {
-	
+
 	var error = '';
 	
 	var selectedIndex = jQuery("#drugComboTwo").attr("selectedIndex");
@@ -733,17 +617,13 @@ function updateEditDrugDialog() {
 			
 		});
 		
-		jQuery("#drugComboThree").attr("onChange", "fetchDrugsThree()"); 
-		
+		jQuery("#drugComboThree").attr("onChange", "fetchDrugsThree()");
 		jQuery("#editStartDate").val(result.startDate);
-		
-		jQuery("#editStopDate").val(result.endDate);
-		
+		jQuery("#editDuration").val(result.duration);
 		jQuery("#dosageThree").val(result.dose);
-		
-		jQuery("#frequencyDayThree").val(result.freqDay);
-		
-		jQuery("#frequencyWeekThree").val(result.freqWeek);
+		jQuery("#unitsThree").val(result.doseUnits);
+		jQuery("#routeThree").val(result.route);
+		jQuery("#frequencyThree").val(result.frequency);
 
 		if(result.asNeeded == "true")
 		{
@@ -754,7 +634,7 @@ function updateEditDrugDialog() {
 			jQuery("#asNeededThree").removeAttr('checked');
 		}
 		
-		var indicationHtml = "<spring:message code='orderextension.regimen.reasonForPrescription' />: <select name='indicationCombo' id='indicationComboThree' onChange='getIndicationClassificationsThree()'><option value='' ></option>";
+		var indicationHtml = "<spring:message code='orderextension.regimen.reasonForPrescription' />: <select name='indication' id='indicationComboThree' onChange='getIndicationClassificationsThree()'><option value='' ></option>";
 				
 		<c:forEach items="${model.indications}" var="indication">
 			indicationHtml = indicationHtml + "<option value='${indication.id}'>${indication.displayString}</option>";
@@ -801,23 +681,8 @@ function updateEditDrugDialog() {
 		}
 		
 		jQuery("#adminInstructionsThree").val(result.adminInstructions);
-		
 		jQuery("#instructionsThree").val(result.instructions);
-		
 		jQuery("#routeInfoThree").val(result.route);
-		jQuery("#unitsThree").html(result.units);
-		
-		if(result.reduce == "true")
-		{
-			jQuery("#doseProtocolValueThree").val(result.protocolDose);
-			jQuery("#protocolDoseThree").html(result.protocol);
-			updateDosageThree();
-			jQuery("#doseReduceThree").show();
-		}
-		else {
-			jQuery("#doseReduceThree").hide();
-		}
-		
 		jQuery(".drugDetails").show();
 	});
 }
@@ -825,23 +690,6 @@ function updateEditDrugDialog() {
 function handleEditDrugOrder()
 {	
 	var error = validAddDrugPanelThree();
-	jQuery("#discontinue").val("false");
-	
-	if(error != "")
-	{
-		jQuery('.openmrs_error').show();
-		jQuery('.openmrs_error').html(error);
-	}
-	else
-	{
-		jQuery('#editDrug').submit();
-	}
-}
-
-function handleDiscontinueDrugOrder()
-{	
-	var error = validAddDrugPanelThreeDis();
-	jQuery("#discontinue").val("true");
 	
 	if(error != "")
 	{
@@ -902,11 +750,11 @@ function validAddDrugPanelThreeDis() {
 			error = error + " <spring:message code='orderextension.regimen.startDateError' /> ";
 		}
 
-		var stopDate = jQuery("#editStopDate").val(); 
+		var duration = jQuery("#editDuration").val();
 		
-		if(stopDate == "")
+		if(duration == "")
 		{
-			error = error + " <spring:message code='orderextension.regimen.stopDateError' /> ";
+			error = error + " <spring:message code='orderextension.regimen.durationError' /> ";
 		}
 
 		var changeReason = jQuery("#drugChangeReason").val();
@@ -1066,7 +914,6 @@ function handleDeleteAllDrugOrder()
 							</select>
 						</td>
 						<td id="drugNameTwo" class="padding"></td>
-						<td id="routeInfoTwo" class="padding"></td>
 					</tr>
 				</table>
 				<table>
@@ -1074,44 +921,44 @@ function handleDeleteAllDrugOrder()
 						<th class="padding"><spring:message code="orderextension.regimen.patientPrescription" />:</th>
 					</tr>
 					<tr class="drugDetails">
-						<td class="padding"><spring:message code="DrugOrder.dose" />*:  <input type="text" name="dose" id="dosage" size="10"/><span id="unitsTwo"></span></td>
-						
-						<td class="padding"><span id="doseReduceTwo"><spring:message code="orderextension.regimen.doseReduction" /> <input type="text" name="doseReduction" id="doseReductionTwo" size="10"/> <input type="hidden" name="doseProtocolValue" id="doseProtocolValueTwo"/><spring:message code="orderextension.regimen.doseReductionFrom" /> <span id="protocolDoseTwo"></span></span></div></td>
-					
-						<td class="padding"><spring:message code="DrugOrder.frequency"/>:			
-							<select name="frequencyDay" id="frequencyDay">
-								<% for ( int i = 1; i <= 10; i++ ) { %>
-								<option value="<%= i %>/<spring:message code="DrugOrder.frequency.day" />"><%= i %>/<spring:message code="DrugOrder.frequency.day" /></option>
-								<% } %>
-								<option value="<spring:message code="orderextension.regimen.onceOnlyDose" />"><spring:message code="orderextension.regimen.onceOnlyDose" /></option>
+						<td class="padding"><spring:message code="DrugOrder.dose" />*:  <input type="text" name="dose" id="dosage" size="10"/>
+							<select name="doseUnits" id="unitsTwo">
+								<option value=""></option>
+								<c:forEach var="doseUnit" items="${model.drugDosingUnits}">
+									<option value="${doseUnit.conceptId}">${doseUnit.displayString}</option>
+								</c:forEach>
 							</select>
-							<span> x </span>
-							<select name="frequencyWeek" id="frequencyWeek">
-								<openmrs:globalProperty var="drugFrequencies" key="dashboard.regimen.displayFrequencies" listSeparator="," />
-								<c:if test="${empty drugFrequencies}">
-									<option disabled>&nbsp; <spring:message code="DrugOrder.add.error.missingFrequency.interactions" arguments="dashboard.regimen.displayFrequencies"/></option>
-								</c:if>
-								<c:if test="${not empty drugFrequencies}">
-										<option value=""></option>
-									<c:forEach var="drugFrequency" items="${drugFrequencies}">
-										<option value="${drugFrequency}">${drugFrequency}</option>
-									</c:forEach>
-								</c:if>											
+						</td>
+
+						<td class="padding"><spring:message code="DrugOrder.frequency"/>:
+							<select name="frequency" id="frequencyTwo">
+								<option value=""></option>
+								<c:forEach var="drugFrequency" items="${model.drugFrequencies}">
+									<option value="${drugFrequency.id}">${drugFrequency}</option>
+								</c:forEach>
 							</select>
-							</td>
+						</td>
 							<td class="padding"><input type="checkbox" name="asNeeded" id="asNeeded" value="asNeeded"><spring:message code='orderextension.orderset.DrugOrderSetMember.asNeeded'/></td>
-						</tr>
+							<td class="padding"><spring:message code="orderextension.orderset.DrugOrderSetMember.route"/>:
+								<select name="route" id="routeTwo">
+									<option value=""></option>
+									<c:forEach var="route" items="${model.drugRoutes}">
+										<option value="${route.conceptId}">${route.displayString}</option>
+									</c:forEach>
+								</select>
+							</td>
+					</tr>
 					</table>
 					<table>
 						<tr class="drugDetails">
 							<td class="padding"><spring:message code="orderextension.orderset.field.relativeStartDay" />*:  <openmrs_tag:dateField formFieldName="addCycleStartDate" startValue=""/></td>
-							<td class="padding"><spring:message code="orderextension.regimen.stopDate" />:  <openmrs_tag:dateField formFieldName="stopDate" startValue=""/></td>
+							<td class="padding"><spring:message code="orderextension.length" />:  <input type="number" id="addCycleDuration" name="duration" value=""/></td>
 					</tr>
 				</table>
 				<table>
 					<tr	class="drugDetails">
 						<td class="padding"><spring:message code="orderextension.regimen.reasonForPrescription" />:
-							<select name="indicationCombo" id="indicationComboTwo" onChange="getIndicationClassificationsTwo()">
+							<select name="indication" id="indicationComboTwo" onChange="getIndicationClassificationsTwo()">
 								<option value="" selected="selected"></option>
 								<c:forEach items="${model.indications}" var="indication">
 							<option value="${indication.id}">${indication.displayString}</option>
@@ -1144,52 +991,51 @@ function handleDeleteAllDrugOrder()
 		<form id="editDrug" name="editDrug" method="post" action="${pageContext.request.contextPath}/module/orderextension/editDrug.form">
 			<input type="hidden" name="orderId" id="orderId">
 			<input type="hidden" name="patientId" value="${model.patient.patientId}">
-			<input type="hidden" name="returnPage" value="${model.redirect}&patientId=${model.patient.patientId}"/>	
-			<input type="hidden" name="discontinue" id="discontinue" value="false"/>	
+			<input type="hidden" name="returnPage" value="${model.redirect}&patientId=${model.patient.patientId}"/>
 			<table>
 				<tr>
 					<td class="padding"><spring:message code="orderextension.regimen.individualDrug" />*: </td>
 					<td id="drugSelector"></td>
 					<td id="drugNameThree" class="padding"></td>
-					<td id="routeInfoThree" class="padding"></td>
-					</tr>
+				</tr>
 				</table>
 				<table>
 					<tr class="drugDetails">
 						<th class="padding"><spring:message code="orderextension.regimen.patientPrescription" />:</th>
 					</tr>
 					<tr class="drugDetails">
-						<td class="padding"><spring:message code="DrugOrder.dose" />*:  <input type="text" name="dose" id="dosageThree" size="10"/><span id="unitsThree"></span></td>
-					
-						<td class="padding"><span id="doseReduceThree"><spring:message code="orderextension.regimen.doseReduction" /> <input type="text" name="doseReductionThree" id="doseReductionThree" size="10"/> <input type="hidden" name="doseProtocolValueThree" id="doseProtocolValueThree"/><spring:message code="orderextension.regimen.doseReductionFrom" /> <span id="protocolDoseThree"></span></span></div></td>
-					
-						<td class="padding"><spring:message code="DrugOrder.frequency"/>:			
-							<select name="frequencyDay" id="frequencyDayThree">
-								<% for ( int i = 1; i <= 10; i++ ) { %>
-								<option value="<%= i %>/<spring:message code="DrugOrder.frequency.day" />"><%= i %>/<spring:message code="DrugOrder.frequency.day" /></option>
-							<% } %>
-							<option value="<spring:message code="orderextension.regimen.onceOnlyDose" />"><spring:message code="orderextension.regimen.onceOnlyDose" /></option>
-							</select>
-					<span> x </span>
-					<select name="frequencyWeek" id="frequencyWeekThree">
-						<openmrs:globalProperty var="drugFrequencies" key="dashboard.regimen.displayFrequencies" listSeparator="," />
-						<c:if test="${empty drugFrequencies}">
-							<option disabled>&nbsp; <spring:message code="DrugOrder.add.error.missingFrequency.interactions" arguments="dashboard.regimen.displayFrequencies"/></option>
-						</c:if>
-						<c:if test="${not empty drugFrequencies}">
+						<td class="padding"><spring:message code="DrugOrder.dose" />*:  <input type="text" name="dose" id="dosageThree" size="10"/>
+							<select name="doseUnits" id="unitsThree">
 								<option value=""></option>
-							<c:forEach var="drugFrequency" items="${drugFrequencies}">
-								<option value="${drugFrequency}">${drugFrequency}</option>
-							</c:forEach>
-						</c:if>											
-					</select></td>
-					<td class="padding"><input type="checkbox" name="asNeeded" id="asNeededThree" value="asNeeded"><spring:message code='orderextension.orderset.DrugOrderSetMember.asNeeded'/></td>
+								<c:forEach var="doseUnit" items="${model.drugDosingUnits}">
+									<option value="${doseUnit.conceptId}">${doseUnit.displayString}</option>
+								</c:forEach>
+							</select>
+						</td>
+
+						<td class="padding"><spring:message code="DrugOrder.frequency"/>:
+							<select name="frequency" id="frequencyThree">
+								<option value=""></option>
+								<c:forEach var="drugFrequency" items="${model.drugFrequencies}">
+									<option value="${drugFrequency.id}">${drugFrequency}</option>
+								</c:forEach>
+							</select>
+						</td>
+						<td class="padding"><input type="checkbox" name="asNeeded" id="asNeededThree" value="asNeeded"><spring:message code='orderextension.orderset.DrugOrderSetMember.asNeeded'/></td>
+						<td class="padding"><spring:message code="orderextension.orderset.DrugOrderSetMember.route"/>:
+							<select name="route" id="routeThree">
+								<option value=""></option>
+								<c:forEach var="route" items="${model.drugRoutes}">
+									<option value="${route.conceptId}">${route.displayString}</option>
+								</c:forEach>
+							</select>
+						</td>
 					</tr>
 				</table>
 				<table>
 					<tr class="drugDetails">
 						<td class="padding"><spring:message code="orderextension.orderset.field.relativeStartDay" />*:  <openmrs_tag:dateField formFieldName="editStartDate" startValue=""/></td>
-						<td class="padding"><spring:message code="orderextension.regimen.stopDate" />:  <openmrs_tag:dateField formFieldName="editStopDate" startValue=""/></td>
+						<td class="padding"><spring:message code="orderextension.length" />:  <input type="number" id="editDuration" name="editDuration" value=""/></td>
 					</tr>	
 				</table>
 			 	<table>
@@ -1207,7 +1053,10 @@ function handleDeleteAllDrugOrder()
 				<br/>
 				<table>
 					<tr class="drugDetails">
-						<td class="padding"><spring:message code="orderextension.regimen.changeReason"/>:<openmrs:fieldGen type="org.openmrs.DrugOrder.discontinuedReason" formFieldName="drugChangeReason" val="" parameters="optionHeader=[blank]|globalProp=concept.reasonOrderStopped" /></td>
+						<td class="padding">
+							<spring:message code="orderextension.regimen.changeReason"/>:
+							<input type="text" name="drugChangeReason" size="80"/>
+						</td>
 					</tr>	
 				</table>
 				<br/>

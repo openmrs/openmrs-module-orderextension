@@ -17,38 +17,32 @@ import java.beans.PropertyEditorSupport;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openmrs.OrderFrequency;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.orderextension.ExtendedOrderSet;
-import org.openmrs.module.orderextension.api.OrderExtensionService;
 import org.springframework.util.StringUtils;
 
 /**
  * Supports conversion between an ExtendedOrderSet and a String representation
  */
-public class OrderSetEditor extends PropertyEditorSupport {
-	
+public class OrderFrequencyEditor extends PropertyEditorSupport {
+
 	private Log log = LogFactory.getLog(this.getClass());
-	
+
 	/**
 	 * Default constructor
 	 */
-	public OrderSetEditor() { }
+	public OrderFrequencyEditor() { }
 	
 	/**
 	 * @see PropertyEditorSupport#setAsText(String)
 	 */
 	public void setAsText(String text) throws IllegalArgumentException {
-		OrderExtensionService svc = Context.getService(OrderExtensionService.class);
 		if (StringUtils.hasText(text)) {
 			try {
-				setValue(svc.getOrderSet(Integer.valueOf(text)));
+				setValue(Context.getOrderService().getOrderFrequency(Integer.parseInt(text)));
 			}
 			catch (Exception ex) {
-				setValue(svc.getOrderSetByUuid(text));
-				if (getValue() == null) {
-					log.error("Error setting text: " + text, ex);
-					throw new IllegalArgumentException("Order Set not found: " + ex.getMessage());
-				}
+				throw new IllegalArgumentException("Order Frequency not found with id: " + text, ex);
 			}
 		} 
 		else {
@@ -60,18 +54,12 @@ public class OrderSetEditor extends PropertyEditorSupport {
 	 * @see PropertyEditorSupport#getAsText()
 	 */
 	public String getAsText() {
-		ExtendedOrderSet orderSet = (ExtendedOrderSet) getValue();
-		if (orderSet == null) {
+		OrderFrequency frequency = (OrderFrequency) getValue();
+		if (frequency == null) {
 			return "";
 		} 
 		else {
-			Integer orderTypeId = orderSet.getId();
-			if (orderTypeId == null) {
-				return "";
-			} 
-			else {
-				return orderTypeId.toString();
-			}
+			return frequency.getId().toString();
 		}
 	}
 }

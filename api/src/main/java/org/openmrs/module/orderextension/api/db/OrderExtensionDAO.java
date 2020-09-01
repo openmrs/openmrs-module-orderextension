@@ -17,12 +17,14 @@ import java.util.Date;
 import java.util.List;
 
 import org.openmrs.Concept;
+import org.openmrs.DrugOrder;
+import org.openmrs.Encounter;
+import org.openmrs.EncounterType;
 import org.openmrs.Patient;
+import org.openmrs.User;
 import org.openmrs.module.orderextension.DrugRegimen;
-import org.openmrs.module.orderextension.ExtendedDrugOrder;
-import org.openmrs.module.orderextension.OrderGroup;
-import org.openmrs.module.orderextension.OrderSet;
-import org.openmrs.module.orderextension.OrderSetMember;
+import org.openmrs.module.orderextension.ExtendedOrderSet;
+import org.openmrs.module.orderextension.ExtendedOrderSetMember;
 import org.openmrs.module.orderextension.api.OrderExtensionService;
 
 /**
@@ -33,69 +35,54 @@ public interface OrderExtensionDAO {
 	/**
 	 * @see OrderExtensionService#getOrderSet(Integer)
 	 */
-	public OrderSet getOrderSet(Integer id);
+	public ExtendedOrderSet getOrderSet(Integer id);
 	
 	/**
 	 * @see OrderExtensionService#getOrderSetByUuid(String)
 	 */
-	public OrderSet getOrderSetByUuid(String uuid);
+	public ExtendedOrderSet getOrderSetByUuid(String uuid);
 	
 	/**
 	 * Return all OrderSets that have a non-null name property, 
 	 * whose name matches the partialName if specified, whose indication matches the indication if specified,
 	 * and which are not retired, if specified
 	 */
-	public List<OrderSet> getNamedOrderSets(String partialName, Concept indication, boolean includeRetired);
+	public List<ExtendedOrderSet> getNamedOrderSets(String partialName, Concept indication, boolean includeRetired);
 	
 	/**
-	 * @see OrderExtensionService#saveOrderSet(OrderSet)
+	 * @see OrderExtensionService#saveOrderSet(ExtendedOrderSet)
 	 */
-	public OrderSet saveOrderSet(OrderSet orderSet);
+	public ExtendedOrderSet saveOrderSet(ExtendedOrderSet orderSet);
 	
 	/**
-	 * @see OrderExtensionService#purgeOrderSet(OrderSet)
+	 * @see OrderExtensionService#purgeOrderSet(ExtendedOrderSet)
 	 */
-	public void purgeOrderSet(OrderSet orderSet);
+	public void purgeOrderSet(ExtendedOrderSet orderSet);
 	
 	/**
-	 * @see OrderExtensionService#getOrderSetMember(OrderSetMember)
+	 * @see OrderExtensionService#getOrderSetMember(Integer)
 	 */
-	public OrderSetMember getOrderSetMember(Integer id);
-	
+	public ExtendedOrderSetMember getOrderSetMember(Integer id);
+
 	/**
-	 * @see OrderExtensionService#getParentOrderSets(OrderSet)
+	 * @return matching Encounters
 	 */
-	public List<OrderSet> getParentOrderSets(OrderSet orderSet);
-	
+	public Encounter getExistingDrugOrderEncounter(Patient patient, EncounterType type, Date dateCreated, User creator);
+
 	/**
-	 * Persists the passed OrderGroup to the database
+	 * @see OrderExtensionService#getDrugRegimens(Patient)
 	 */
-	public <T extends OrderGroup> T saveOrderGroup(T orderGroup);
-	
-	/**
-	 * @see OrderExtensionService#getOrderGroups(Patient, Class)
-	 */
-	public <T extends OrderGroup> List<T> getOrderGroups(Patient patient, Class<T> type);
-	
-	/**
-	 * @see OrderExtensionService#getOrderGroup(Integer id)
-	 */
-	public OrderGroup getOrderGroup(Integer id);
+	public List<DrugRegimen> getDrugRegimens(Patient patient);
 
     /**
-     * @see OrderExtensionService#getDrugRegimen(Integer id)
+     * Retrieves the Drug Orders for a patient
      */
-    public DrugRegimen getDrugRegimen(Integer id);
-
-    /**
-     * @see OrderExtensionService#getExtendedDrugOrdersForPatient(Patient patient)
-     */
-    public List<ExtendedDrugOrder> getExtendedDrugOrdersForPatient(Patient patient, Concept indication, Date startDateAfter, Date startDateBefore);
+    public List<DrugOrder> getDrugOrdersForPatient(Patient patient, Concept indication);
 
 	/**
-     * @see OrderExtensionService#getMaxNumberOfCyclesForRegimen(DrugRegimen regimen)
+     * @see OrderExtensionService#getMaxNumberOfCyclesForRegimen(DrugRegimen)
      */
-    public Integer getMaxNumberOfCyclesForRegimen(Patient patient, DrugRegimen regimen);
+    public Integer getMaxNumberOfCyclesForRegimen(DrugRegimen regimen);
     
 }
 

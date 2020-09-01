@@ -9,7 +9,7 @@
 
 <h2>
 <c:choose>
-	<c:when test="${empty orderSet.id}"><spring:message code="orderextension.orderset.create.pageTitle"/></c:when>
+	<c:when test="${empty orderSet.orderSetId}"><spring:message code="orderextension.orderset.create.pageTitle"/></c:when>
 	<c:otherwise><spring:message code="orderextension.orderset.edit.pageTitle"/></c:otherwise>
 </c:choose>
 </h2><br/>
@@ -77,11 +77,11 @@
 				<input type="submit" value="<spring:message code='general.save'/>" />
 				&nbsp;&nbsp;
 				<c:choose>
-					<c:when test="${empty orderSet.id}">
+					<c:when test="${empty orderSet.orderSetId}">
 						<input type="button" value="<spring:message code='general.cancel'/>" onclick="document.location.href='orderSetList.list;'" />
 					</c:when>
 					<c:otherwise>
-						<input type="button" value="<spring:message code='general.cancel'/>" onclick="document.location.href='orderSet.list?id=${orderSet.id};'" />
+						<input type="button" value="<spring:message code='general.cancel'/>" onclick="document.location.href='orderSet.list?id=${orderSet.orderSetId};'" />
 					</c:otherwise>
 				</c:choose>
 			</td>

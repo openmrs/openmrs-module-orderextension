@@ -1,7 +1,7 @@
 <%@ include file="/WEB-INF/view/module/orderextension/include/include.jsp"%>
 <%@ include file="/WEB-INF/view/module/orderextension/include/localHeader.jsp"%>
 
-<openmrs:require privilege="View Order Sets" otherwise="/login.htm" redirect="/module/orderextension/orderSetList.list" />
+<openmrs:require privilege="Get Order Sets" otherwise="/login.htm" redirect="/module/orderextension/orderSetList.list" />
 
 <openmrs:htmlInclude file="/scripts/jquery/dataTables/css/dataTables_jui.css"/>
 <openmrs:htmlInclude file="/scripts/jquery/dataTables/js/jquery.dataTables.min.js"/>
@@ -39,8 +39,8 @@
 		<tbody>
 			<c:forEach items="${orderSets}" var="orderSet">
 				<tr>
-					<td><a href="deleteOrderSet.form?id=${orderSet.id}"><img src="<c:url value="/images/trash.gif"/>"/></a>
-					<td nowrap><a href="orderSet.form?id=${orderSet.id}">${orderSet.name}</a></td>
+					<td><a href="deleteOrderSet.form?id=${orderSet.orderSetId}"><img src="<c:url value="/images/trash.gif"/>"/></a>
+					<td nowrap><a href="orderSet.form?id=${orderSet.orderSetId}">${orderSet.name}</a></td>
 					<td nowrap><openmrs:format concept="${orderSet.indication}"/></td>
 				</tr>
 			</c:forEach>

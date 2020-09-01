@@ -24,16 +24,19 @@ import java.util.Map;
 
 import org.openmrs.Concept;
 import org.openmrs.DrugOrder;
-import org.openmrs.api.context.Context;
+import org.openmrs.Order;
+import org.openmrs.OrderGroup;
+import org.openmrs.module.orderextension.util.OrderEntryUtil;
+import org.openmrs.module.orderextension.util.OrderExtensionUtil;
 
 /**
  * Helper class for classifying Regimens
  */
 public class RegimenHelper {
 
-	private List<DrugRegimen> cycles = new ArrayList<DrugRegimen>();
-	private List<DrugRegimen> drugGroups = new ArrayList<DrugRegimen>();
-	private Map<DrugRegimen, List<DrugOrder>> ordersInDrugGroups = new HashMap<DrugRegimen, List<DrugOrder>>();
+	private List<OrderGroup> cycles = new ArrayList<OrderGroup>();
+	private List<OrderGroup> drugGroups = new ArrayList<OrderGroup>();
+	private Map<OrderGroup, List<DrugOrder>> ordersInDrugGroups = new HashMap<OrderGroup, List<DrugOrder>>();
 	
 	private boolean hasCycles = false;
 	private boolean hasDrugGroups = false;
@@ -43,17 +46,8 @@ public class RegimenHelper {
 	{	
 		for(DrugOrder o : drugOrders)
 		{
-			DrugRegimen group = null;
-			boolean isCyclical = false;
-			
-			if (o instanceof ExtendedDrugOrder) {
-				ExtendedDrugOrder edo = (ExtendedDrugOrder)o;
-				OrderGroup og = edo.getGroup();
-				if (og instanceof DrugRegimen) {
-					group = (DrugRegimen)og;
-					isCyclical = group.isCyclical();
-				}
-			}
+			OrderGroup group = OrderEntryUtil.getOrderGroup(o);
+			boolean isCyclical = OrderEntryUtil.isCyclical(group);
 			
 			if (group != null) {
 				if (isCyclical) {
@@ -85,12 +79,12 @@ public class RegimenHelper {
 		Collections.sort(drugGroups, new DrugGroupSorter());
 	}
 	
-	public List<DrugRegimen> getCycleList()
+	public List<OrderGroup> getCycleList()
 	{	
 		return cycles;
 	}
 	
-	public List<DrugRegimen> getDrugGroupList()
+	public List<OrderGroup> getDrugGroupList()
 	{	
 		return drugGroups;
 	}
@@ -119,12 +113,11 @@ public class RegimenHelper {
 		for(DrugOrder o : ordersInDrugGroups.get(drugGroup))
 		{		
 			Concept classification = null;
-			if (o instanceof ExtendedDrugOrder) {
-				if(drugGroup == null || getCycleDay(drugGroup.getFirstDrugOrderStartDate(), o.getStartDate()).equals(day))
-				{
-					classification = ((ExtendedDrugOrder)o).getIndication();
-				}
+			if( drugGroup == null ||
+				getCycleDay(drugGroup.getFirstDrugOrderStartDate(), o.getEffectiveStartDate()).equals(day) ) {
+				classification = o.getOrderReason();
 			}
+
 			if (!classifications.contains(classification)) {
 				classifications.add(classification);
 			}
@@ -155,11 +148,11 @@ public class RegimenHelper {
 		{
 			Date startDate = drugGroup.getFirstDrugOrderStartDate();
 			
-			for(DrugOrder od: drugGroup.getMembers())
+			for(Order od: OrderExtensionUtil.getOrdersInGroup(drugGroup))
 			{
-				if(od.getStartDate() != null && startDate != null)
+				if(od.getEffectiveStartDate() != null && startDate != null)
 				{
-					long cycleDay = od.getStartDate().getTime() - startDate.getTime();
+					long cycleDay = od.getEffectiveStartDate().getTime() - startDate.getTime();
 					if(cycleDay > 0)
 					{
 						cycleDay = cycleDay/86400000;
@@ -188,12 +181,9 @@ public class RegimenHelper {
 		
 		for(DrugOrder o : ordersInDrugGroups.get(cycle))
 		{
-			if(cycle == null || (cycle != null && getCycleDay(cycle.getFirstDrugOrderStartDate(), o.getStartDate()).equals(day)))
+			if(cycle == null || (cycle != null && getCycleDay(cycle.getFirstDrugOrderStartDate(), o.getEffectiveStartDate()).equals(day)))
 			{
-				Concept orderIndication = null;
-				if (o instanceof ExtendedDrugOrder) {
-					orderIndication = ((ExtendedDrugOrder)o).getIndication();
-				}
+				Concept orderIndication = o.getOrderReason();
 				if(classification == null && orderIndication == null)
 				{
 					ret.add(o);
@@ -218,15 +208,12 @@ public class RegimenHelper {
 		return cycleDate.getTime();
 	}
 	
-	private class DrugGroupSorter implements Comparator<DrugRegimen>
+	private class DrugGroupSorter implements Comparator<OrderGroup>
 	{
-		public int compare(DrugRegimen c1, DrugRegimen c2) {
-            if (c1 instanceof DrugRegimen && c2 instanceof DrugRegimen) {
-            	Date d1 = ((DrugRegimen)c1).getFirstDrugOrderStartDate();
-            	Date d2 = ((DrugRegimen)c1).getFirstDrugOrderStartDate();
-            	return d1.compareTo(d2);
-            }
-			return 0;
+		public int compare(OrderGroup c1, OrderGroup c2) {
+            Date d1 = OrderExtensionUtil.getFirstDrugOrderStartDate(c1);
+            Date d2 = OrderExtensionUtil.getFirstDrugOrderStartDate(c2);
+            return d1.compareTo(d2);
          }
 	}
 	

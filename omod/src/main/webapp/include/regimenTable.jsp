@@ -45,12 +45,12 @@
 			</c:if>
 		</tr>
 	</thead>
-	
+
 	<c:forEach items="${cycleDays}" var="cd" varStatus="count">
 		<c:if test="${fn:length(cycleDays) > 1}">
 			<tr class="cycleHeading">
 				<td colspan="1"><b><spring:message code="orderextension.regimen.day" />: <c:out value="${cd}"/></b></td>
-				
+
 				<td colspan="8">
 				 	<c:if test="${count.index > 0 }">
 				 	<%
@@ -61,25 +61,25 @@
 				 		<input type="button" class="changeStartDateOfPartGroupButton" value="<spring:message code="orderextension.regimen.changeStartDateOfPartCycle"/>" id="${drugGroup.id},true,<openmrs:formatDate date="${cycleDate}"/>,${cd}">
 					</c:if>
 				</td>
-				
+
 				<c:if test="${completed eq 'true'}"><td></td></c:if>
-				
+
 				<c:if test="${model.readOnly != 'true'}">
 			<c:choose>
 				<c:when test="${empty drugGroup}">
-				<openmrs:hasPrivilege privilege="Edit Regimen"> 
+				<openmrs:hasPrivilege privilege="Edit Regimen">
 					<td></td>
-				</openmrs:hasPrivilege> 
+				</openmrs:hasPrivilege>
 			    <openmrs:hasPrivilege privilege="Edit Current/Completed Regimen">
 					<td></td>
 				</openmrs:hasPrivilege>
-			    <openmrs:hasPrivilege privilege="Edit Regimen"> 
+			    <openmrs:hasPrivilege privilege="Edit Regimen">
 					<td></td>
 				</openmrs:hasPrivilege>
-				
+
 				</c:when>
 				<c:otherwise>
-				
+
 					<openmrs:hasPrivilege privilege="Edit Current/Completed Regimen">
 						<td></td>
 						<td></td>
@@ -90,12 +90,12 @@
 			</c:if>
 			</tr>
 		</c:if>
-	
+
 		<%
 		Integer day = (Integer)pageContext.getAttribute("cd");
 		List<Concept> classifications = regimenHelper.getClassifications(drugGroup, classification, day);
 		pageContext.setAttribute("classifications", classifications);
-		%>	
+		%>
 		<c:forEach items="${classifications}" var="c">
 
 			<c:if test="${c != classification}">
@@ -106,57 +106,68 @@
 			<%
 				Concept c = (Concept)pageContext.getAttribute("c");
 				List<DrugOrder> drugOrders = regimenHelper.getRegimensForClassification(drugGroup, c, day);
-				pageContext.setAttribute("drugOrders", drugOrders); 
+				pageContext.setAttribute("drugOrders", drugOrders);
 			%>
 			<c:forEach items="${drugOrders}" var="drugOrder">
+
+				<orderextension:orderStatusCheck order="${drugOrder}" statusCheck="past" var="orderIsPast"/>
+				<orderextension:orderStatusCheck order="${drugOrder}" statusCheck="current" var="orderIsCurrent"/>
+				<orderextension:orderStatusCheck order="${drugOrder}" statusCheck="future" var="orderIsFuture"/>
+
 				<c:choose>
-					<c:when test="${!empty drugOrder.discontinuedReason && completed ne 'true'}">
+					<c:when test="${!empty drugOrder.dateStopped && completed ne 'true'}">
 						<tr class="drugLineRed">
 					</c:when>
 					<c:otherwise>
 						<tr class="drugLine">
 					</c:otherwise>
 				</c:choose>
-			
+
 					<td class="regimenCurrentDrugOrdered"><orderextension:format object="${drugOrder}"/></td>
-					<td class="regimenCurrentDrugDose"><orderextension:format object="${drugOrder.dose}"/> ${drugOrder.units}</td>
+					<td class="regimenCurrentDrugDose"><orderextension:format object="${drugOrder.dose}"/> <orderextension:format object="${drugOrder.doseUnits}"/></td>
 					<td class="regimenCurrentDrugRoute"><orderextension:format object="${drugOrder}" format="route"/></td>
-					<td class="regimenCurrentDrugFrequency">${drugOrder.frequency} <c:if test="${drugOrder.prn}"><spring:message code="orderextension.orderset.DrugOrderSetMember.asNeeded" /></c:if></td>
+					<td class="regimenCurrentDrugFrequency">${drugOrder.frequency} <c:if test="${drugOrder.asNeeded}"><spring:message code="orderextension.orderset.DrugOrderSetMember.asNeeded" /></c:if></td>
 					<td class="regimenCurrentDrugLength"><orderextension:format object="${drugOrder}" format="length"/></td>
 					<td class="regimenCurrentDrugInfusion"><orderextension:format object="${drugOrder}" format="administrationInstructions"/></td>
-					<td class="regimenCurrentDrugDateStart"><openmrs:formatDate date="${drugOrder.startDate}" type="medium" /></td>
-					<td class="regimenCurrentDrugScheduledStopDate"><c:choose>
-																		<c:when test="${!empty drugOrder.discontinuedDate }">
-																			<openmrs:formatDate date="${drugOrder.discontinuedDate}" type="medium" />
-																		</c:when>
-																		<c:otherwise>
-																			<openmrs:formatDate date="${drugOrder.autoExpireDate}" type="medium" />
-																		</c:otherwise>
-																	</c:choose></td>
-					<td class="regimenCurrentDrugInstructions">${drugOrder.instructions}<c:if test="${completed ne 'true'}"> <c:if test="${!empty drugOrder.discontinuedReason}"><spring:message code="orderextension.regimen.changeReason"/> ${drugOrder.discontinuedReason.displayString}</c:if></c:if> </td>
-					<c:if test="${completed eq 'true'}"><td class="regimenDiscontinuedReason"><c:if test="${!empty drugOrder.discontinuedReason}">${drugOrder.discontinuedReason.displayString}</c:if>  </td></c:if>
-					<c:if test="${model.readOnly != 'true'}">
+					<td class="regimenCurrentDrugDateStart"><openmrs:formatDate date="${drugOrder.effectiveStartDate}" type="medium" /></td>
+					<td class="regimenCurrentDrugScheduledStopDate"><c:if test="${!empty drugOrder.effectiveStopDate }"><openmrs:formatDate date="${drugOrder.effectiveStopDate}" type="medium" /></c:if></td>
+					<td class="regimenCurrentDrugInstructions">
+					${drugOrder.instructions}
+						<c:if test="${completed ne 'true'}">
+							<orderextension:orderReason order="${drugOrder}" type="revision" var="revisionReason"/>
+							<c:if test="${!empty revisionReason}">
+								<spring:message code="orderextension.regimen.changeReason"/> ${revisionReason.displayString}
+							</c:if>
+						</c:if>
+					</td>
+					<c:if test="${completed eq 'true'}">
+						<td class="regimenDiscontinuedReason">
+							<orderextension:orderReason order="${drugOrder}" type="discontinue"/>
+						</td>
+					</c:if>
+
+				<c:if test="${model.readOnly != 'true'}">
 					<openmrs:hasPrivilege privilege="Edit Regimen">
 					<c:choose>
 						<c:when test="${empty drugGroup}">
 							<c:choose>
-								<c:when test="${drugOrder.current}">
-									<td class="regimenLinks"><input type="button" id="${drugOrder.id},false,<openmrs:formatDate date="${drugOrder.startDate}" />" class="stopButton" value="<spring:message code="orderextension.regimen.stop" />"></td>
+								<c:when test="${orderIsCurrent}">
+									<td class="regimenLinks"><input type="button" id="${drugOrder.id},false,<openmrs:formatDate date="${drugOrder.effectiveStartDate}" />" class="stopButton" value="<spring:message code="orderextension.regimen.stop" />"></td>
 								</c:when>
 								<c:otherwise>
 									<td></td>
 								</c:otherwise>
 							</c:choose>
 							<c:choose>
-								<c:when test="${drugOrder.future}">
+								<c:when test="${orderIsFuture}">
 									<td class="regimenLinks"><input type="button" id="${drugOrder.id}" class="editButton" value="<spring:message code="general.edit" />"></td>
 								</c:when>
 								<c:otherwise>
 									 <openmrs:hasPrivilege privilege="Edit Current/Completed Regimen">
-										<c:if test="${empty drugOrder.discontinuedDate}">
-											<td class="regimenLinks"><input type="button" id="${drugOrder.id}" class="editButton" value="<spring:message code="general.edit" />"></td>	
+										<c:if test="${orderIsCurrent}">
+											<td class="regimenLinks"><input type="button" id="${drugOrder.id}" class="editButton" value="<spring:message code="general.edit" />"></td>
 										</c:if>
-										<c:if test="${!empty drugOrder.discontinuedDate}">
+										<c:if test="${orderIsPast}">
 											<td></td>
 										</c:if>
 									</openmrs:hasPrivilege>
@@ -167,13 +178,13 @@
 						<c:otherwise>
 							<openmrs:hasPrivilege privilege="Edit Current/Completed Regimen">
 								<c:choose>
-									<c:when test="${drugOrder.current}">
+									<c:when test="${orderIsCurrent}">
 										<c:choose>
 											<c:when test="${drugGroup.cyclical }">
-												<td class="regimenLinks"><input type="button" id="${drugOrder.id},true,<openmrs:formatDate date="${drugOrder.startDate}"/>" class="stopButton" value="<spring:message code="orderextension.regimen.stop" />"></td>
+												<td class="regimenLinks"><input type="button" id="${drugOrder.id},true,<openmrs:formatDate date="${drugOrder.effectiveStartDate}"/>" class="stopButton" value="<spring:message code="orderextension.regimen.stop" />"></td>
 											</c:when>
 											<c:otherwise>
-												<td class="regimenLinks"><input type="button" id="${drugOrder.id},false,<openmrs:formatDate date="${drugOrder.startDate}" />" class="stopButton" value="<spring:message code="orderextension.regimen.stop" />"></td>
+												<td class="regimenLinks"><input type="button" id="${drugOrder.id},false,<openmrs:formatDate date="${drugOrder.effectiveStartDate}" />" class="stopButton" value="<spring:message code="orderextension.regimen.stop" />"></td>
 											</c:otherwise>
 										</c:choose>
 									</c:when>
@@ -182,7 +193,7 @@
 									</c:otherwise>
 								</c:choose>
 								<c:choose>
-									<c:when test="${drugOrder.future}">
+									<c:when test="${orderIsFuture}">
 										<c:choose>
 											<c:when test="${drugGroup.cyclical }">
 												<td class="regimenLinks"><input type="button" id="${drugOrder.id},true" class="editButton" value="<spring:message code="general.edit" />"></td>
@@ -193,7 +204,7 @@
 										</c:choose>
 									</c:when>
 									<c:otherwise>
-										<c:if test="${empty drugOrder.discontinuedDate}">
+										<c:if test="${orderIsCurrent}">
 											<c:choose>
 												<c:when test="${drugGroup.cyclical }">
 													<td class="regimenLinks"><input type="button" id="${drugOrder.id},true" class="editButton" value="<spring:message code="general.edit" />"></td>
@@ -201,9 +212,9 @@
 												<c:otherwise>
 													<td class="regimenLinks"><input type="button" id="${drugOrder.id},false" class="editButton" value="<spring:message code="general.edit" />"></td>
 												</c:otherwise>
-											</c:choose>	
+											</c:choose>
 										</c:if>
-										<c:if test="${!empty drugOrder.discontinuedDate}">
+										<c:if test="${orderIsPast}">
 											<td></td>
 										</c:if>
 									</c:otherwise>
@@ -218,12 +229,12 @@
 								</c:choose>
 							</openmrs:hasPrivilege>
 						</c:otherwise>
-					</c:choose>	
+					</c:choose>
 					</openmrs:hasPrivilege>
 					</c:if>
 				</tr>
 			</c:forEach>
 		</c:forEach>
-	</c:forEach>	
+	</c:forEach>
 </table>
 

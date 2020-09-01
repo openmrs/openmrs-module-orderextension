@@ -15,17 +15,14 @@ package org.openmrs.module.orderextension.web.controller;
 
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.openmrs.api.APIException;
+import org.openmrs.OrderFrequency;
+import org.openmrs.OrderSetMember;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.orderextension.NestedOrderSetMember;
-import org.openmrs.module.orderextension.OrderSet;
-import org.openmrs.module.orderextension.OrderSetMember;
-import org.openmrs.module.orderextension.OrderSetMemberValidator;
+import org.openmrs.module.orderextension.ExtendedOrderSet;
+import org.openmrs.module.orderextension.ExtendedOrderSetMember;
 import org.openmrs.module.orderextension.api.OrderExtensionService;
+import org.openmrs.module.orderextension.util.OrderFrequencyEditor;
 import org.openmrs.module.orderextension.util.OrderSetEditor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -38,61 +35,32 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.request.WebRequest;
 
 /**
- * Controls adding / editing / viewing an individual OrderSetMember
+ * Controls adding / editing / viewing an individual ExtendedOrderSetMember
  */
 @Controller
 public class OrderExtensionOrderSetMemberFormController {
-	
-	/** Logger for this class and subclasses */
-	protected final Log log = LogFactory.getLog(getClass());
-	
-	private OrderSetMemberValidator validator;
-	
-	/**
-	 * Default constructor
-	 */
-	public OrderExtensionOrderSetMemberFormController() { }
-	
-	/**
-	 * Constructor that takes in a validator
-	 */
-	@Autowired
-	public OrderExtensionOrderSetMemberFormController(OrderSetMemberValidator validator) {
-		this.validator = validator;
-	}
 	
 	/**
 	 * Registers any needed property editors
 	 */
 	@InitBinder
 	public void initBinder(WebDataBinder binder)    {
-		binder.registerCustomEditor(OrderSet.class, new OrderSetEditor());
+		binder.registerCustomEditor(ExtendedOrderSet.class, new OrderSetEditor());
+		binder.registerCustomEditor(OrderFrequency.class, new OrderFrequencyEditor());
 	}
 	
 	/**
 	 * Prepares form backing object to be used by the view
-	 * @param id (optional) if specified, indicates the OrderSet to edit
 	 * @return backing object for associated view form
 	 */
 	@SuppressWarnings("unchecked")
 	@ModelAttribute("orderSetMember")
-	public OrderSetMember formBackingObject(@RequestParam(value = "memberId", required=false) Integer memberId,
-									  		@RequestParam(value = "memberType", required=false) String memberType) {
-		
-		OrderSetMember ret = null;
-		if (memberId != null) {
-			ret = getOrderExtensionService().getOrderSetMember(memberId);
+	public ExtendedOrderSetMember formBackingObject(@RequestParam(value = "uuid", required=false) String uuid) {
+		OrderSetMember member = new OrderSetMember();
+		if (uuid != null) {
+			member = Context.getOrderSetService().getOrderSetMemberByUuid(uuid);
 		}
-		else {
-			try {
-				Class<? extends OrderSetMember> memberClazz = (Class<? extends OrderSetMember>)Context.loadClass(memberType);
-				ret = memberClazz.newInstance();
-			}
-			catch (Exception e) {
-				throw new APIException("Unable to instantiate OrderSetMember of type " + memberType + " because of error:", e);
-			}
-		}
-		return ret;
+		return new ExtendedOrderSetMember(member);
 	}
 	
 	/**
@@ -100,17 +68,15 @@ public class OrderExtensionOrderSetMemberFormController {
 	@RequestMapping(value = "/module/orderextension/orderSetMemberForm.form", method = RequestMethod.GET)
 	public void showOrderSetMemberForm(ModelMap model, 
 									   @RequestParam(value = "orderSetId", required=true) Integer orderSetId) {
-		OrderSet orderSet = getOrderExtensionService().getOrderSet(orderSetId);
+		ExtendedOrderSet orderSet = getOrderExtensionService().getOrderSet(orderSetId);
 		model.addAttribute("orderSet", orderSet);
 		model.addAttribute("drugList", Context.getConceptService().getAllDrugs());
-		List<OrderSet> existingOrderSets = getOrderExtensionService().getNamedOrderSets(false);
-		for (OrderSetMember member : orderSet.getMembers()) {
-			if (member instanceof NestedOrderSetMember) {
-				existingOrderSets.add(((NestedOrderSetMember)member).getNestedOrderSet());
-			}
-		}
+		List<ExtendedOrderSet> existingOrderSets = getOrderExtensionService().getNamedOrderSets(false);
 		existingOrderSets.remove(orderSet);
 		model.addAttribute("existingOrderSets", existingOrderSets);
+		model.addAttribute("dosingUnits", Context.getOrderService().getDrugDosingUnits());
+		model.addAttribute("routes", Context.getOrderService().getDrugRoutes());
+		model.addAttribute("frequencies", Context.getOrderService().getOrderFrequencies(true));
 	}
 	
 	/**
@@ -119,44 +85,19 @@ public class OrderExtensionOrderSetMemberFormController {
 	 * edit page.
 	 */
 	@RequestMapping(value = "/module/orderextension/orderSetMemberForm.form", method = RequestMethod.POST)
-	public String saveOrderSetMember(@ModelAttribute("orderSetMember") OrderSetMember orderSetMember, BindingResult result, 
+	public String saveOrderSetMember(@ModelAttribute("orderSetMember") ExtendedOrderSetMember orderSetMember, BindingResult result,
 									 @RequestParam(value="orderSetId", required=true) Integer orderSetId, WebRequest request) {
 		
-		Integer nestedOrderSetId = null;
-		
-		if (orderSetMember instanceof NestedOrderSetMember) {
-			NestedOrderSetMember nestedMember = (NestedOrderSetMember) orderSetMember;
-			if (nestedMember.getNestedOrderSet() == null) {
-				OrderSet newNestedOrderSet = new OrderSet();
-				newNestedOrderSet = getOrderExtensionService().saveOrderSet(newNestedOrderSet);
-				nestedMember.setNestedOrderSet(newNestedOrderSet);
-				nestedOrderSetId = newNestedOrderSet.getId();
-			}
+		ExtendedOrderSet orderSet = getOrderExtensionService().getOrderSet(orderSetId);
+		OrderSetMember member = orderSetMember.getMember();
+		if (member.getOrderSet() == null) {
+			member.setOrderSet(orderSet);
+			member.setOrderTemplateType("orderextension");
+			orderSet.addOrderSetMember(member);
 		}
-		
-		// Validate
-		validator.validate(orderSetMember, result);
-		if (result.hasErrors()) {
-			return null;
-		}
-		
-		OrderSet orderSet = getOrderExtensionService().getOrderSet(orderSetId);
-		if (!orderSet.getMembers().contains(orderSetMember)) {
-			orderSet.addMember(orderSetMember);
-		}
-		
-		if (orderSetMember.getSortWeight() == null) {
-			orderSetMember.setSortWeight(orderSet.getMembers().size()-1);
-		}
-		
 		orderSet = getOrderExtensionService().saveOrderSet(orderSet);
-		
-		String redirect = "redirect:orderSet.list?id="+orderSet.getId();
-		if (nestedOrderSetId != null) {
-			redirect = "redirect:orderSetForm.form?id=" + nestedOrderSetId;
-		}
-		
-		return redirect;
+
+		return "redirect:orderSet.list?id="+orderSet.getId();
 	}
 	
 	private OrderExtensionService getOrderExtensionService() {

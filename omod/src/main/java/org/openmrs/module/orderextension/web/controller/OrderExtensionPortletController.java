@@ -13,22 +13,24 @@
  */
 package org.openmrs.module.orderextension.web.controller;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.DrugOrder;
+import org.openmrs.OrderGroup;
+import org.openmrs.Patient;
+import org.openmrs.api.context.Context;
 import org.openmrs.module.orderextension.DrugClassificationHelper;
 import org.openmrs.module.orderextension.DrugRegimen;
-import org.openmrs.module.orderextension.ExtendedDrugOrder;
 import org.openmrs.module.orderextension.util.DrugConceptHelper;
+import org.openmrs.module.orderextension.util.OrderEntryUtil;
 import org.openmrs.web.controller.PortletController;
+import org.openmrs.web.taglib.fieldgen.FieldGenHandlerFactory;
 import org.springframework.stereotype.Controller;
 
 /**
@@ -51,45 +53,38 @@ public class OrderExtensionPortletController extends PortletController {
 	@Override
 	protected void populateModel(HttpServletRequest request, Map<String, Object> model) {
 
-		List<DrugOrder> allOrders = (List<DrugOrder>)model.get("patientDrugOrders");
+		FieldGenHandlerFactory.getSingletonInstance().getHandlers().put(
+				"org.openmrs.DrugOrder.discontinuedReason", "org.openmrs.web.taglib.fieldgen.GenericReasonHandler"
+		);
+
+		Patient patient = (Patient) model.get("patient");
+		List<DrugOrder> allOrders = OrderEntryUtil.getDrugOrdersByPatient(patient);
 		String mode = (String) model.get("mode");
 		
 		List<DrugOrder> orders = new ArrayList<DrugOrder>();
 		
 		for (DrugOrder o : allOrders) {
-			
 			boolean unsorted = true;
-			if(o instanceof ExtendedDrugOrder)
-			{
-				ExtendedDrugOrder edo = (ExtendedDrugOrder)o;
-				if(edo.getGroup() != null)
-				{
-					if(edo.getGroup() instanceof DrugRegimen)
-					{
-						DrugRegimen dr = (DrugRegimen)edo.getGroup();
-						if(dr.getFirstDrugOrderStartDate().before(new Date()))
-						{
-							if(dr.getLastDrugOrderEndDate() == null || dr.getLastDrugOrderEndDate().after(new Date()))
-							{
-								if(CURRENT_MODE.equals(mode))
-								{
-									orders.add(o);
-								}
-									unsorted = false;
-							}
+			OrderGroup group = OrderEntryUtil.getOrderGroup(o);
+			if(group != null && group instanceof DrugRegimen) {
+				DrugRegimen dr = (DrugRegimen) group;
+				if (dr.getFirstDrugOrderStartDate().before(new Date())) {
+					if (dr.getLastDrugOrderEndDate() == null || dr.getLastDrugOrderEndDate().after(new Date())) {
+						if (CURRENT_MODE.equals(mode)) {
+							orders.add(o);
 						}
+						unsorted = false;
 					}
 				}
 			}
 			
-			if(unsorted)
-			{
-				if (o.isCurrent()) {
+			if(unsorted) {
+				if (OrderEntryUtil.isCurrent(o)) {
 					if (CURRENT_MODE.equals(mode)) {
 						orders.add(o);
 					}
 				}
-				else if (o.isFuture()) {
+				else if (OrderEntryUtil.isFuture(o)) {
 					if (FUTURE_MODE.equals(mode)) {
 						orders.add(o);
 					}
@@ -110,8 +105,7 @@ public class OrderExtensionPortletController extends PortletController {
 //							orders.add(o);
 //						}
 //					}
-					if(COMPLETED_MODE.equals(mode))
-					{
+					if(COMPLETED_MODE.equals(mode)) {
 						orders.add(o);
 					}
 				}
@@ -125,7 +119,11 @@ public class OrderExtensionPortletController extends PortletController {
 		model.put("classifications", helper);
 		
 		model.put("drugs", drugHelper.getDistinctSortedDrugs());
-		
+
 		model.put("indications", drugHelper.getIndications());
+
+		model.put("drugFrequencies", Context.getOrderService().getOrderFrequencies(false));
+		model.put("drugDosingUnits", Context.getOrderService().getDrugDosingUnits());
+		model.put("drugRoutes", Context.getOrderService().getDrugRoutes());
 	}
 }

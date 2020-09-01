@@ -13,14 +13,22 @@
  */
 package org.openmrs.module.orderextension.util;
 
+import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import org.openmrs.Concept;
 import org.openmrs.DrugOrder;
 import org.openmrs.OpenmrsMetadata;
-import org.openmrs.module.orderextension.ExtendedDrugOrder;
+import org.openmrs.Order;
+import org.openmrs.OrderGroup;
+import org.openmrs.OrderSet;
+import org.openmrs.api.db.hibernate.HibernateUtil;
+import org.openmrs.module.orderextension.ExtendedOrderSet;
 
 /**
  * Defines any utility methods
@@ -34,41 +42,23 @@ public class OrderExtensionUtil  {
 		if (o != null) {
 			if (o instanceof DrugOrder) {
 				DrugOrder drugOrder = (DrugOrder)o;
-				ExtendedDrugOrder edo = null;
-				if (drugOrder instanceof ExtendedDrugOrder) {
-					edo = (ExtendedDrugOrder)drugOrder;
-				}
 				
 				if ("route".equals(format)) {
-					if (edo != null && edo.getRoute() != null) {
-						return format(edo.getRoute(), null);
-					}
-					if (drugOrder.getDrug() != null) {
-						return format(drugOrder.getDrug().getRoute(), null);
+					if (drugOrder.getRoute() != null) {
+						return format(drugOrder.getRoute(), null);
 					}
 					return "";
 				}
 				
 				if("length".equals(format)){
-					if(drugOrder.getDiscontinuedDate() != null) {
-						return calculateDaysDifference(drugOrder.getDiscontinuedDate(), drugOrder.getStartDate());
-						
+					if(drugOrder.getEffectiveStopDate() != null) {
+						return calculateDaysDifference(drugOrder.getEffectiveStopDate(), drugOrder.getEffectiveStartDate());
 					}
-					if(drugOrder.getAutoExpireDate() != null) {
-						return calculateDaysDifference(drugOrder.getAutoExpireDate(), drugOrder.getStartDate());
-						
-					}
-					else
-					{
-						return "";
-					}
+					return "";
 				}
 				
 				if ("administrationInstructions".equals(format)) {
-					if (edo != null) {
-						return edo.getAdministrationInstructions();
-					}
-					return "";
+					return drugOrder.getDosingInstructions();
 				}
 				
 				if (drugOrder.getDrug() != null) {
@@ -96,6 +86,29 @@ public class OrderExtensionUtil  {
 		}
 		return "";
 	}
+
+	public static Date startOfDay(Date d) {
+		if (d != null) {
+			Calendar c = Calendar.getInstance();
+			c.setTime(d);
+			c.set(Calendar.HOUR_OF_DAY, 0);
+			c.set(Calendar.MINUTE, 0);
+			c.set(Calendar.SECOND, 0);
+			c.set(Calendar.MILLISECOND, 0);
+			return c.getTime();
+		}
+		return null;
+	}
+
+	public static Date endOfDay(Date d) {
+		if (d != null) {
+			Calendar c = Calendar.getInstance();
+			c.setTime(startOfDay(d));
+			c.add(Calendar.DATE, 1);
+			c.add(Calendar.MILLISECOND, -1);
+		}
+		return null;
+	}
 	
 	/**
 	 * @return a Date that is the number of days passed in relative to the date passed in
@@ -115,8 +128,24 @@ public class OrderExtensionUtil  {
 		c.set(Calendar.MINUTE, 59);
 		return c.getTime();
 	}
+
+	public static Date adjustDateToEndOfDay(Date dateToAdjust) {
+		if (dateToAdjust != null) {
+			Calendar adjusted = Calendar.getInstance();
+			adjusted.setTime(dateToAdjust);
+			adjusted.set(Calendar.HOUR, 23);
+			adjusted.set(Calendar.MINUTE, 59);
+			return adjusted.getTime();
+		}
+		return dateToAdjust;
+	}
+
+	public static boolean sameDate(Date dateA, Date dateB) {
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+		return dateA != null && dateB != null && df.format(dateA).equals(df.format(dateB));
+	}
 	
-	private static String calculateDaysDifference(Date observation, Date startingDate)
+	public static String calculateDaysDifference(Date observation, Date startingDate)
 	{
 		long milis1 = observation.getTime();
 		long milis2 = startingDate.getTime();
@@ -127,5 +156,89 @@ public class OrderExtensionUtil  {
 		
 	
 		return Integer.toString((int)diffDays + 1);
+	}
+
+	public static String calculationDurationFromAutoExpiryDate(DrugOrder drugOrder) {
+		Date sd = drugOrder.getEffectiveStartDate();
+		Date ed = drugOrder.getAutoExpireDate();
+		if (ed == null) {
+			return null;
+		}
+		return OrderExtensionUtil.calculateDaysDifference(ed, sd);
+	}
+
+	public static boolean orderablesMatch(DrugOrder o1, DrugOrder o2) {
+		if (o1.getDrug() != null && o2.getDrug() != null && o1.getDrug().equals(o2.getDrug())) {
+			return true;
+		}
+		return o1.getConcept() != null && o2.getConcept() != null && o1.getConcept().equals(o2.getConcept());
+	}
+
+	public static boolean reasonsMatch(DrugOrder o1, DrugOrder o2) {
+		Concept r1 = o1.getOrderReason();
+		Concept r2 = o2.getOrderReason();
+		if (r1 == null && r2 == null) {
+			return true;
+		}
+		return r1 != null && r2 != null && r1.equals(r2);
+	}
+
+	/**
+	 * @return the startDate for the Drug Order that has the earliest start date among all members
+	 */
+	public static Date getFirstDrugOrderStartDate(OrderGroup orderGroup) {
+		Date d = null;
+		for (Order o : getOrdersInGroup(orderGroup)) {
+			if (!o.getVoided()) {
+				if (d == null || d.after(o.getEffectiveStartDate())) {
+					d = o.getEffectiveStartDate();
+				}
+			}
+		}
+		return d;
+	}
+
+	public static Date getLastDrugOrderEndDate(OrderGroup orderGroup) {
+		Date d = null;
+		for (Order o : getOrdersInGroup(orderGroup)) {
+			if (!o.getVoided()) {
+				Date endDate = o.getEffectiveStopDate();
+				if (endDate == null) {
+					return null;
+				}
+				if (d == null || d.before(endDate)) {
+					d = endDate;
+				}
+			}
+		}
+		return d;
+	}
+
+	public static List<Order> getOrdersInGroup(OrderGroup orderGroup) {
+		List<Order> ret = new ArrayList<Order>();
+		if (orderGroup != null) {
+			for (Order o : orderGroup.getOrders()) {
+				if (!o.getVoided()) {
+					ret.add(o);
+				}
+			}
+		}
+		return ret;
+	}
+
+	public static boolean isCyclical(OrderSet orderSet) {
+		orderSet = HibernateUtil.getRealObjectFromProxy(orderSet);
+		if (orderSet instanceof ExtendedOrderSet) {
+			return ((ExtendedOrderSet) orderSet).isCyclical();
+		}
+		return false;
+	}
+
+	public static Integer getCycleLengthInDays(OrderSet orderSet) {
+		orderSet = HibernateUtil.getRealObjectFromProxy(orderSet);
+		if (orderSet instanceof ExtendedOrderSet) {
+			return ((ExtendedOrderSet) orderSet).getCycleLengthInDays();
+		}
+		return null;
 	}
 }

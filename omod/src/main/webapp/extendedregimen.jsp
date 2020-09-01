@@ -22,30 +22,6 @@ jQuery(document).ready(function() {
 	jQuery('.error').hide();
 	
 	jQuery(".drugDetails").hide();
-	
-	jQuery("#doseReduction").change(function()
-	{
-		var protocol = jQuery("#doseProtocolValue").val();
-		
-		var reduction = jQuery("#doseReduction").val();
-		
-		var newValue = (reduction/100)*protocol;
-		newValue = myRound(newValue, 5);
-				
-		jQuery("#dose").val(newValue);
-	});
-	
-	jQuery("#dose").change(function()
-	{
-		var protocol = jQuery("#doseProtocolValue").val();
-		
-		var dose = jQuery("#dose").val();
-		
-		var newValue = (dose/protocol)*100;
-		newValue = myRound(newValue, 1);
-				
-		jQuery("#doseReduction").val(newValue);
-	});
 		
 	jQuery("#drugListView").click(function()
 	{
@@ -90,11 +66,11 @@ jQuery(document).ready(function() {
 				<c:forEach items="${model.drugOrdersNonContinuous}" var="drugRegimen" varStatus="loop">
 			           <c:if test="${loop.index > 0 || not empty model.cycles || not empty model.fixedLengthRegimen}">,</c:if>	
 						{
-			               title  : '<c:if test="${!empty drugRegimen.drug}"><c:out value="${drugRegimen.drug.name}"/></c:if><c:if test="${empty drugRegimen.drug}"><c:out value="${drugRegimen.concept.displayString}"/></c:if> <c:out value="${drugRegimen.dose}"/> <c:out value="${drugRegimen.units}"/> <c:if test="${!empty drugRegimen.route}"><c:out value="${drugRegimen.route.displayString}"/></c:if>',				
-			               start  : '<openmrs:formatDate date="${drugRegimen.startDate}" format="yyyy-MM-dd"/>',
+			               title  : '<c:if test="${!empty drugRegimen.drug}"><c:out value="${drugRegimen.drug.name}"/></c:if><c:if test="${empty drugRegimen.drug}"><c:out value="${drugRegimen.concept.displayString}"/></c:if> <c:out value="${drugRegimen.dose}"/> <openmrs:format concept="${drugRegimen.doseUnits}"/> <openmrs:format concept="${drugRegimen.route}"/>',
+			               start  : '<openmrs:formatDate date="${drugRegimen.effectiveStartDate}" format="yyyy-MM-dd"/>',
 			               color :'#99CCFF',
 			               textColor :'#000000',
-			               end : <c:choose><c:when test="${!empty drugRegimen.discontinuedDate}">'<openmrs:formatDate date="${drugRegimen.discontinuedDate}" format="yyyy-MM-dd"/>'</c:when><c:otherwise><c:if test="${!empty drugRegimen.autoExpireDate}">'<openmrs:formatDate date="${drugRegimen.autoExpireDate}" format="yyyy-MM-dd"/>'</c:if></c:otherwise></c:choose>
+			               end : '<c:if test="${!empty drugRegimen.effectiveStopDate}"><openmrs:formatDate date="${drugRegimen.effectiveStopDate}" format="yyyy-MM-dd"/></c:if>'
 			            } 
 				</c:forEach>
 			       ]
@@ -132,11 +108,11 @@ jQuery(document).ready(function() {
 					<c:forEach items="${model.drugOrdersNonContinuous}" var="drugRegimen" varStatus="loop">
 				           <c:if test="${loop.index > 0 || not empty model.cycles || not empty model.fixedLengthRegimen}">,</c:if>	
 							{
-				               title  : '<c:if test="${!empty drugRegimen.drug}"><c:out value="${drugRegimen.drug.name}"/></c:if><c:if test="${empty drugRegimen.drug}"><c:out value="${drugRegimen.concept.displayString}"/></c:if> <c:out value="${drugRegimen.dose}"/> <c:out value="${drugRegimen.units}"/> <c:if test="${!empty drugRegimen.route}"><c:out value="${drugRegimen.route.displayString}"/></c:if>',				
-				               start  : '<openmrs:formatDate date="${drugRegimen.startDate}" format="yyyy-MM-dd"/>',
+				               title  : '<c:if test="${!empty drugRegimen.drug}"><c:out value="${drugRegimen.drug.name}"/></c:if><c:if test="${empty drugRegimen.drug}"><c:out value="${drugRegimen.concept.displayString}"/></c:if> <c:out value="${drugRegimen.dose}"/> <c:out value="${drugRegimen.doseUnits}"/> <c:if test="${!empty drugRegimen.route}"><c:out value="${drugRegimen.route.displayString}"/></c:if>',
+				               start  : '<openmrs:formatDate date="${drugRegimen.effectiveStartDate}" format="yyyy-MM-dd"/>',
 				               textColor :'#000000',
 				       		   color :'#CCCCCC',
-				               end : <c:choose><c:when test="${!empty drugRegimen.discontinuedDate}">'<openmrs:formatDate date="${drugRegimen.discontinuedDate}" format="yyyy-MM-dd"/>'</c:when><c:otherwise><c:if test="${!empty drugRegimen.autoExpireDate}">'<openmrs:formatDate date="${drugRegimen.autoExpireDate}" format="yyyy-MM-dd"/>'</c:if></c:otherwise></c:choose>
+				               end : <c:if test="${!empty drugRegimen.effectiveStopDate}"><openmrs:formatDate date="${drugRegimen.effectiveStopDate}" format="yyyy-MM-dd"/></c:if>
 				            } 
 					</c:forEach>
 				       ]
@@ -246,10 +222,6 @@ jQuery(document).ready(function() {
 	jQuery("#orderSet").change(function(){ 
 		includeCycle();
 	});
-	
-	jQuery("#doseReduction").change(function(){ 
-		calculateDoseReduction()
-	});
 });
 
 function myRound(value, places) {
@@ -264,7 +236,7 @@ function handleAddMedication() {
 	{
 		var error = "";
 		
-		var selectedIndex = jQuery("#orderSet").attr("selectedIndex");
+		var selectedIndex = jQuery("#orderSet").prop("selectedIndex");
 		if(selectedIndex == 0)
 		{
 			error = " <spring:message code='orderextension.regimen.orderSetError' /> ";
@@ -306,7 +278,7 @@ function handleAddMedication() {
 }
 
 function includeCycle() {
-	var selectedIndex = jQuery("#orderSet").attr("selectedIndex");
+	var selectedIndex = jQuery("#orderSet").prop("selectedIndex");
 	
 	var cycle = [];
 	<c:forEach items="${model.orderSets}" var="orderSet">
@@ -328,7 +300,7 @@ var drugDetail;
 function fetchDrugs() {
 	var selected = jQuery('#drugCombo').val();
 	
-	if(jQuery("#drugCombo").attr("selectedIndex") > 0)
+	if(jQuery("#drugCombo").prop("selectedIndex") > 0)
 	{
 		var url = "${pageContext.request.contextPath}/module/orderextension/getDrugsByConcept.form?concept=" + selected
 		jQuery.getJSON(url, function(result) 
@@ -372,44 +344,17 @@ function fetchDrugs() {
 }
 
 function updateDrugInfo() {
-	
-	var route = "";
-	var units = "";
-	var reduce = "";
-	var protocol = "";
-	
-	var index = jQuery('#drug').attr("selectedIndex");
-	if(index != null && index >=0)
-	{
-		if(drugDetail[index].route != "")
-		{
-			route =  "<spring:message code='orderextension.regimen.route'/>" + ": " + drugDetail[index].route;
-		}
-		units = " " + drugDetail[index].doseForm;
-		
-		if(drugDetail[index].doseReduce == "true")
-		{
-			jQuery("#doseReduce").show();
-			jQuery("#doseReduction").val("100");
-			jQuery("#dose").val(drugDetail[index].protocolDose);
-		}
-		else
-		{
-			jQuery("#doseReduce").hide();
-		}
-		protocol = drugDetail[index].protocolDose + " " + units;
-		jQuery("#doseProtocolValue").val(drugDetail[index].protocolDose);
+	var index = jQuery('#drug').prop("selectedIndex");
+	if (index != null && index >=0) {
+		jQuery("#doseUnits").val(drugDetail[index].doseFormConceptId);
 	}
-	jQuery("#protocolDose").html(protocol);
-	jQuery("#routeInfo").html(route);
-	jQuery("#units").html(units);
 }
 
 function getIndicationClassifications() {
 
 	var selected = jQuery('#indicationCombo').val();
 	
-	if(jQuery('#indicationCombo').attr("selectedIndex") > 0) {
+	if(jQuery('#indicationCombo').prop("selectedIndex") > 0) {
 		var url = "${pageContext.request.contextPath}/module/orderextension/getClassificationsByIndication.form?id=" + selected
 		jQuery.getJSON(url, function(result) 
 		{
@@ -439,7 +384,7 @@ function validAddDrugPanel() {
 	
 	var error = '';
 	
-	var selectedIndex = jQuery("#drugCombo").attr("selectedIndex");
+	var selectedIndex = jQuery("#drugCombo").prop("selectedIndex");
 	if(selectedIndex == 0)
 	{
 		error = " <spring:message code='orderextension.regimen.drugError' /> ";
@@ -555,11 +500,11 @@ $j(document).ready(function(){
 <div id="regimenViewLink"><a href="#" id="drugListView">Drug List View</a> <openmrs:hasPrivilege privilege="View Calendar Regimen">|<a href="#" id="calendarView">Calendar View</a></openmrs:hasPrivilege> </div>
 
 <div id="regimenPortlet">
-	<div class="regimenPortletCurrent">	
+	<div class="regimenPortletCurrent">
 		<div class="boxHeader${model.patientVariation}"><spring:message code="orderextension.regimen.current" /></div>
 		<div class="box${model.patientVariation}">
-			<openmrs:portlet url="currentregimen" moduleId="orderextension" id="patientRegimenCurrent" patientId="${model.patient.patientId}" parameters="mode=current|redirect=${model.redirect}"/>	
-		</div>			
+			<openmrs:portlet url="currentregimen" moduleId="orderextension" id="patientRegimenCurrent" patientId="${model.patient.patientId}" parameters="mode=current|redirect=${model.redirect}"/>
+		</div>
 	</div>
 	<br />
 	<div class="regimenPortletFuture">
@@ -594,9 +539,9 @@ $j(document).ready(function(){
 				<c:forEach items="${model.drugOrdersContinuous}" var="regimen">
 					<tr class="drugLine">
 						<td class="regimenCurrentDrugOrdered"><orderextension:format object="${regimen}"/></td>
-						<td class="regimenCurrentDrugDose"><c:out value="${regimen.dose}"/><c:out value="${regimen.drug.units}"/></td>
+						<td class="regimenCurrentDrugDose"><c:out value="${regimen.dose}"/><c:out value="${regimen.doseUnits}"/></td>
 						<td class="regimenCurrentDrugFrequency"><c:out value="${regimen.frequency}"/></td>
-						<td class="regimenCurrentDrugDateStart"><openmrs:formatDate date="${regimen.startDate}" type="medium" /></td>
+						<td class="regimenCurrentDrugDateStart"><openmrs:formatDate date="${regimen.effectiveStartDate}" type="medium" /></td>
 						<td class="regimenCurrentDrugScheduledStopDate"><openmrs:formatDate date="${regimen.autoExpireDate}" type="medium" /></td>
 				
 					</tr>
@@ -641,7 +586,7 @@ $j(document).ready(function(){
 	
 	<div class="box">
 		<div id="openmrs_error" class="openmrs_error"></div>
-		<form id="addOrderSet" name="addMedication" method="post" action="${pageContext.request.contextPath}/module/orderextension/addOrderSet.form">
+		<form id="addOrderSet" name="addMedication" method="post" action="${pageContext.request.contextPath}/module/orderextension/addOrdersFromSet.form">
 			<input type="hidden" name="patientId" value="${model.patient.patientId}">
 			<input type="hidden" name="returnPage" value="${model.redirect}&patientId=${model.patient.patientId}"/>
 			<table>
@@ -689,7 +634,6 @@ $j(document).ready(function(){
 						</select>
 					</td>
 					<td id="drugName" class="padding"></td>
-					<td id="routeInfo" class="padding"></td>
 				</tr>
 			</table>
 			<table>
@@ -697,38 +641,39 @@ $j(document).ready(function(){
 					<th class="padding"><spring:message code="orderextension.regimen.patientPrescription" />:</th>
 				</tr>
 				<tr class="drugDetails">
-					<td class="padding"><spring:message code="DrugOrder.dose" />*:  <input type="text" name="dose" id="dose" size="10"/><span id="units"></span></td>
-					
-					<td class="padding"><span id="doseReduce"><spring:message code="orderextension.regimen.doseReduction" /> <input type="text" name="doseReduction" id="doseReduction" size="10"/> <input type="hidden" name="doseProtocolValue" id="doseProtocolValue"/><spring:message code="orderextension.regimen.doseReductionFrom" /> <span id="protocolDose"></span></span></div></td>
-					
-					<td class="padding"><spring:message code="DrugOrder.frequency"/>:			
-						<select name="frequencyDay" id="frequencyDay">
-							<% for ( int i = 1; i <= 10; i++ ) { %>
-								<option value="<%= i %>/<spring:message code="DrugOrder.frequency.day" />"><%= i %>/<spring:message code="DrugOrder.frequency.day" /></option>
-							<% } %>
-							<option value="<spring:message code="orderextension.regimen.onceOnlyDose" />"><spring:message code="orderextension.regimen.onceOnlyDose" /></option>
+					<td class="padding"><spring:message code="DrugOrder.dose" />*:
+						<input type="text" name="dose" id="dose" size="10"/>
+						<select name="doseUnits" id="doseUnits">
+							<option value=""></option>
+							<c:forEach var="doseUnit" items="${model.drugDosingUnits}">
+								<option value="${doseUnit.conceptId}">${doseUnit.displayString}</option>
+							</c:forEach>
 						</select>
-						<span> x </span>
-						<select name="frequencyWeek" id="frequencyWeek">
-							<openmrs:globalProperty var="drugFrequencies" key="dashboard.regimen.displayFrequencies" listSeparator="," />
-							<c:if test="${empty drugFrequencies}">
-								<option disabled>&nbsp; <spring:message code="DrugOrder.add.error.missingFrequency.interactions" arguments="dashboard.regimen.displayFrequencies"/></option>
-							</c:if>
-							<c:if test="${not empty drugFrequencies}">
-								<option value=""></option>
-								<c:forEach var="drugFrequency" items="${drugFrequencies}">
-									<option value="${drugFrequency}">${drugFrequency}</option>
-								</c:forEach>
-							</c:if>											
+					</td>
+					
+					<td class="padding"><spring:message code="DrugOrder.frequency"/>:
+						<select name="frequency" id="frequency">
+							<option value=""></option>
+							<c:forEach var="drugFrequency" items="${model.drugFrequencies}">
+								<option value="${drugFrequency.id}">${drugFrequency}</option>
+							</c:forEach>
 						</select>
 					</td>
 					<td class="padding"><input type="checkbox" name="asNeeded" id="asNeeded" value="asNeeded"><spring:message code='orderextension.orderset.DrugOrderSetMember.asNeeded'/></td>
+					<td class="padding"><spring:message code="orderextension.orderset.DrugOrderSetMember.route"/>:
+						<select name="route" id="route">
+							<option value=""></option>
+							<c:forEach var="route" items="${model.drugRoutes}">
+								<option value="${route.conceptId}">${route.displayString}</option>
+							</c:forEach>
+						</select>
+					</td>
 				</tr>
 			</table>
 			<table>
 				<tr class="drugDetails">	
 					<td class="padding"><spring:message code="orderextension.orderset.field.relativeStartDay" />*:  <openmrs_tag:dateField formFieldName="startDateDrug" startValue=""/></td>
-					<td class="padding"><spring:message code="orderextension.regimen.stopDate" />:  <openmrs_tag:dateField formFieldName="stopDateDrug" startValue=""/></td>	
+					<td class="padding"><spring:message code="orderextension.length" />:  <input type="number" id="duration" name="duration" value=""/></td>
 				</tr>
 			</table>
 		    

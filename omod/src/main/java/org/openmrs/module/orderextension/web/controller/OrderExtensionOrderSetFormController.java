@@ -15,13 +15,11 @@ package org.openmrs.module.orderextension.web.controller;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openmrs.OrderSet;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.orderextension.OrderSet;
-import org.openmrs.module.orderextension.OrderSetValidator;
-import org.openmrs.module.orderextension.OrderSet.Operator;
+import org.openmrs.module.orderextension.ExtendedOrderSet;
 import org.openmrs.module.orderextension.api.OrderExtensionService;
 import org.openmrs.web.WebConstants;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -32,7 +30,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.request.WebRequest;
 
 /**
- * Controls adding / editing / viewing an individual OrderSet
+ * Controls adding / editing / viewing an individual ExtendedOrderSet
  */
 @Controller
 public class OrderExtensionOrderSetFormController {
@@ -40,33 +38,18 @@ public class OrderExtensionOrderSetFormController {
 	/** Logger for this class and subclasses */
 	protected final Log log = LogFactory.getLog(getClass());
 	
-	private OrderSetValidator validator;
-	
-	/**
-	 * Default constructor
-	 */
-	public OrderExtensionOrderSetFormController() { }
-	
-	/**
-	 * Constructor that takes in a validator
-	 */
-	@Autowired
-	public OrderExtensionOrderSetFormController(OrderSetValidator validator) {
-		this.validator = validator;
-	}
-	
 	/**
 	 * Prepares form backing object to be used by the view
-	 * @param id (optional) if specified, indicates the OrderSet to edit
+	 * @param id (optional) if specified, indicates the ExtendedOrderSet to edit
 	 * @return backing object for associated view form
 	 */
 	@ModelAttribute("orderSet")
-	public OrderSet formBackingObject(@RequestParam(value = "id", required = false) Integer id) {
+	public ExtendedOrderSet formBackingObject(@RequestParam(value = "id", required = false) Integer id) {
 		if (id != null) {
 			return getOrderExtensionService().getOrderSet(id);
 		}
 		else {
-			return new OrderSet();
+			return new ExtendedOrderSet();
 		}
 	}
 	
@@ -74,7 +57,7 @@ public class OrderExtensionOrderSetFormController {
 	 */
 	@RequestMapping(value = "/module/orderextension/orderSetForm.form", method = RequestMethod.GET)
 	public void showOrderSetForm(ModelMap model) {
-		model.addAttribute("operators", Operator.values());
+		model.addAttribute("operators", OrderSet.Operator.values());
 	}
 	
 	/**
@@ -83,13 +66,7 @@ public class OrderExtensionOrderSetFormController {
 	 * edit page.
 	 */
 	@RequestMapping(value = "/module/orderextension/orderSetForm.form", method = RequestMethod.POST)
-	public String saveOrderSet(@ModelAttribute("orderSet") OrderSet orderSet, BindingResult result, WebRequest request) {
-		
-		// Validate
-		validator.validate(orderSet, result);
-		if (result.hasErrors()) {
-			return null;
-		}
+	public String saveOrderSet(@ModelAttribute("orderSet") ExtendedOrderSet orderSet, BindingResult result, WebRequest request) {
 
 		try {
 			orderSet = getOrderExtensionService().saveOrderSet(orderSet);

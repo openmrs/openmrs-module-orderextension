@@ -44,7 +44,7 @@
 	</bean>
 	
 	<bean id="orderExtensionDao" class="${project.parent.groupId}.${project.parent.artifactId}.api.db.HibernateOrderExtensionDAO">
-		<property name="sessionFactory" ref="sessionFactory" />
+		<property name="sessionFactory" ref="dbSessionFactory" />
 	</bean>
 	
 </beans>

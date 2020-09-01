@@ -13,12 +13,15 @@
  */
 package org.openmrs.module.orderextension;
 
+import java.util.Date;
+
 import org.junit.Test;
+import org.openmrs.DrugOrder;
+import org.openmrs.Encounter;
 import org.openmrs.Patient;
+import org.openmrs.api.OrderContext;
 import org.openmrs.api.context.Context;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
-
-import java.util.Date;
 
 /**
  * Tests for Order Extension
@@ -32,14 +35,28 @@ public class OrderExtensionTests extends BaseModuleContextSensitiveTest {
 		Patient p2 = Context.getPatientService().getPatient(6);
 
 		{
-			ExtendedDrugOrder drugOrder = new ExtendedDrugOrder();
+			Encounter encounter = new Encounter();
+			encounter.setPatient(p1);
+			encounter.setEncounterDatetime(new Date());
+			encounter.setEncounterType(Context.getEncounterService().getAllEncounterTypes().get(0));
+			encounter.setLocation(Context.getLocationService().getLocation(1));
+			Context.getEncounterService().saveEncounter(encounter);
+
+			DrugOrder drugOrder = new DrugOrder();
 			drugOrder.setOrderType(Context.getOrderService().getOrderType(1));
 			drugOrder.setPatient(p1);
+			drugOrder.setEncounter(encounter);
 			drugOrder.setConcept(Context.getConceptService().getConcept(88));
 			drugOrder.setDrug(Context.getConceptService().getDrug(3));
-			drugOrder.setAdministrationInstructions("Take 2 and call me in the morning");
-			drugOrder.setStartDate(new Date());
-			Context.getOrderService().saveOrder(drugOrder);
+			drugOrder.setCareSetting(Context.getOrderService().getCareSettingByName("INPATIENT"));
+			drugOrder.setOrderer(Context.getProviderService().getProvider(1));
+			drugOrder.setDose(100d);
+			drugOrder.setDoseUnits(Context.getConceptService().getConcept(50));
+			drugOrder.setRoute(Context.getOrderService().getDrugRoutes().get(0));
+			drugOrder.setFrequency(Context.getOrderService().getOrderFrequency(1));
+			drugOrder.setDosingInstructions("Take 2 and call me in the morning");
+			drugOrder.setDateActivated(new Date());
+			Context.getOrderService().saveOrder(drugOrder, new OrderContext());
 		}
 
 		Context.getPatientService().mergePatients(p1, p2);

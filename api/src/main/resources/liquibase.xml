@@ -207,4 +207,323 @@
 		<renameColumn tableName="orderextension_order_set_member" oldColumnName="order_index" newColumnName="sort_weight" columnDataType="int"/>
 	</changeSet>
 
+	<changeSet id="orderextension-migrate-order-sets-to-core" author="mseaton">
+		<validCheckSum>3:7e9cc20be951b93e867c12f2dd1be2e2</validCheckSum>
+		<preConditions>
+			<sqlCheck expectedResult="0">select count(*) from order_set where order_set_id in (select id from orderextension_order_set)</sqlCheck>
+		</preConditions>
+		<comment>
+			This will migrate order set data into the core table.  If order sets already exist there, this will fail
+			and the migration will need to be undertaken manually
+		</comment>
+		<sql>
+			insert into order_set (
+						order_set_id, uuid, name, description, operator, category,
+						creator, date_created, changed_by, date_changed,
+						retired, retired_by, date_retired, retire_reason
+			)
+			select 		id, uuid, name, description, operator, indication,
+						creator, date_created, changed_by, date_changed,
+						retired, retired_by, date_retired, retire_reason
+			from    	orderextension_order_set
+			;
+
+			select order_type_id into @drug_order_type from order_type where name = 'Drug Order';
+
+			insert into order_set_member (
+						order_set_member_id, uuid, order_set_id, sequence_number,
+						order_type, concept_id, order_template_type, order_template,
+						creator, date_created, changed_by, date_changed,
+						retired, retired_by, date_retired, retire_reason
+			)
+			select  	m.id, m.uuid, m.order_set_id, m.sort_weight,
+						@drug_order_type, m.concept_id, 'org.openmrs.module.orderextension',
+						concat('{',
+						'"title": "', ifnull(m.title, ''), '", ',
+						'"indication": "', ifnull(indic.uuid, 'null'), '", ',
+						'"drug": "', ifnull(d.uuid, 'null'), '", ',
+						'"dose": ', ifnull(m.dose, 'null'), ', ',
+						'"units": "', ifnull(m.units, ''), '", ',
+						'"route": "', ifnull(rt.uuid, 'null'), '", ',
+						'"frequency": "', ifnull(m.frequency, ''), '", ',
+						'"relativeStartDay": ', ifnull(m.relative_start_day, 'null'), ', ',
+						'"lengthInDays": ', ifnull(m.length_days, 'null'), ', ',
+						'"instructions": "', ifnull(m.instructions, ''), '", ',
+						'"administrationInstructions": "', ifnull(m.administration_instructions, ''), '"',
+						'}') as template,
+						s.creator, s.date_created, s.changed_by, s.date_changed,
+						s.retired, s.retired_by, s.date_retired, s.retire_reason
+			from    	orderextension_order_set_member m
+			inner join 	orderextension_order_set s on s.id = m.order_set_id
+			left join 	drug d on m.drug_id = d.drug_id
+			left join   concept indic on m.indication = indic.concept_id
+			left join 	concept rt on m.route = rt.concept_id
+			;
+
+			set @curr_seq = 0;
+			set @curr_order_set = 0;
+
+			update      order_set_member m
+			inner join  (
+				select  	order_set_member_id, uuid,
+							@curr_seq := if (@curr_order_set = order_set_id, @curr_seq+1, 0) as sequence_number,
+							@curr_order_set := order_set_id as order_set_id
+				from    	order_set_member
+				order by 	order_set_id, sequence_number
+			) osm
+				on m.order_set_member_id = osm.order_set_member_id
+			set
+				m.sequence_number = osm.sequence_number;
+			;
+
+			update order_set_member set order_template = replace(order_template, '\r', '\\r');
+			update order_set_member set order_template = replace(order_template, '\n', '\\n');
+
+			alter table orderextension_order_set drop uuid;
+			alter table orderextension_order_set drop name;
+			alter table orderextension_order_set drop description;
+			alter table orderextension_order_set drop operator;
+			alter table orderextension_order_set drop foreign key orderextension_order_set_indication_fk;
+			alter table orderextension_order_set drop indication;
+			alter table orderextension_order_set drop foreign key orderextension_order_set_creator_fk;
+			alter table orderextension_order_set drop creator;
+			alter table orderextension_order_set drop date_created;
+			alter table orderextension_order_set drop foreign key orderextension_order_set_changed_by_fk;
+			alter table orderextension_order_set drop changed_by;
+			alter table orderextension_order_set drop date_changed;
+			alter table orderextension_order_set drop retired;
+			alter table orderextension_order_set drop foreign key orderextension_order_set_retired_by_fk;
+			alter table orderextension_order_set drop retired_by;
+			alter table orderextension_order_set drop date_retired;
+			alter table orderextension_order_set drop retire_reason;
+
+			drop table orderextension_order_set_member;
+		</sql>
+	</changeSet>
+
+	<!--
+		 orderextension representation of order group does not link to patient or encounter explicitly,
+		 so these need to be pulled off of the underlying orders referenced to the group.
+		 for convenience, pull these onto the orderextension_order_group table to facilitate the migration to order_group
+	-->
+	<changeSet id="orderextension-add-patient-id-to-order-group" author="mseaton">
+		<preConditions onFail="MARK_RAN">
+			<not><columnExists tableName="orderextension_order_group" columnName="patient_id" /></not>
+		</preConditions>
+		<addColumn tableName="orderextension_order_group">
+			<column name="patient_id" type="int" ></column>
+		</addColumn>
+	</changeSet>
+
+	<changeSet id="orderextension-add-encounter-id-to-order-group" author="mseaton">
+		<preConditions onFail="MARK_RAN">
+			<not><columnExists tableName="orderextension_order_group" columnName="encounter_id" /></not>
+		</preConditions>
+		<addColumn tableName="orderextension_order_group">
+			<column name="encounter_id" type="int" ></column>
+		</addColumn>
+	</changeSet>
+
+	<changeSet id="orderextension-populate-patient-id-and-encounter-id" author="mseaton">
+		<preConditions>
+			<sqlCheck expectedResult="0">
+				select count(*) from orderextension_order_group where patient_id is not null or encounter_id is not null
+			</sqlCheck>
+		</preConditions>
+		<sql>
+			update      orderextension_order_group g
+			inner join  orderextension_order oo on g.id = oo.group_id
+			inner join  orders o on oo.order_id = o.order_id
+			set         g.patient_id = o.patient_id,
+						g.encounter_id = o.encounter_id;
+		</sql>
+	</changeSet>
+
+	<!--
+		Perform the migration of data from orderextension_order_group to order_group
+		We don't migrate "group_type" as it is always the same - org.openmrs.module.orderextension.DrugRegimen
+	-->
+
+	<changeSet id="orderextension-migrate-to-core-order-group" author="mseaton">
+		<preConditions onFail="HALT">
+			<sqlCheck expectedResult="0">
+				select count(*) from order_group
+			</sqlCheck>
+		</preConditions>
+		<sql>
+			insert into order_group (
+					order_group_id, uuid, order_set_id, patient_id, encounter_id,
+					creator, date_created, changed_by, date_changed,
+					voided, voided_by, date_voided, void_reason
+			)
+			select  g.id, g.uuid, g.order_set_id, g.patient_id, g.encounter_id,
+					g.creator, g.date_created, g.creator, g.date_created,
+					g.voided, g.voided_by, g.date_voided, g.void_reason
+			from    orderextension_order_group g
+			where   g.patient_id is not null
+			;
+		</sql>
+	</changeSet>
+
+	<!--
+		Many of the fields we need to add to extended order are now available on order in 2.x.  These migrate across
+	-->
+	<changeSet id="orderextension-migrate-to-core-order" author="mseaton">
+		<sql>
+			update      orders o
+			inner join  orderextension_order oo on o.order_id = oo.order_id
+			set         o.order_group_id = oo.group_id,
+						o.sort_weight = oo.order_index,
+						o.order_reason = oo.indication
+			;
+		</sql>
+	</changeSet>
+
+	<!--
+		Many of the fields we need to add to extended order are now available on drug_order in 2.x.  These migrate across
+	-->
+	<changeSet id="orderextension-migrate-to-core-drug-order" author="mseaton">
+		<sql>
+			update      drug_order o
+			inner join  orderextension_order oo on o.order_id = oo.order_id
+			set         o.route = oo.route,
+						o.dosing_instructions = oo.administration_instructions;
+			;
+		</sql>
+	</changeSet>
+
+	<!--
+		Once migration to core is complete for various data, remove them from the
+		orderextension tables
+	-->
+	<changeSet id="orderextension-drop-order-group-uuid" author="mseaton">
+		<preConditions onFail="MARK_RAN">
+			<columnExists tableName="orderextension_order_group" columnName="uuid" />
+		</preConditions>
+		<dropColumn tableName="orderextension_order_group" columnName="uuid" />
+	</changeSet>
+
+	<changeSet id="orderextension-drop-order-group-group_type" author="mseaton">
+		<preConditions onFail="MARK_RAN">
+			<columnExists tableName="orderextension_order_group" columnName="group_type" />
+		</preConditions>
+		<dropColumn tableName="orderextension_order_group" columnName="group_type" />
+	</changeSet>
+
+	<changeSet id="orderextension-drop-order-group-set-fk" author="mseaton">
+		<preConditions onFail="MARK_RAN">
+			<foreignKeyConstraintExists foreignKeyName="orderextension_order_group_order_set_id_fk" />
+		</preConditions>
+		<dropForeignKeyConstraint baseTableName="orderextension_order_group" constraintName="orderextension_order_group_order_set_id_fk" />
+	</changeSet>
+
+	<changeSet id="orderextension-drop-order-group-order_set_id" author="mseaton">
+		<preConditions onFail="MARK_RAN">
+			<columnExists tableName="orderextension_order_group" columnName="order_set_id" />
+		</preConditions>
+		<dropColumn tableName="orderextension_order_group" columnName="order_set_id" />
+	</changeSet>
+
+	<changeSet id="orderextension-drop-order-group-patient_id" author="mseaton">
+		<preConditions onFail="MARK_RAN">
+			<columnExists tableName="orderextension_order_group" columnName="patient_id" />
+		</preConditions>
+		<dropColumn tableName="orderextension_order_group" columnName="patient_id" />
+	</changeSet>
+
+	<changeSet id="orderextension-drop-order-group-encounter_id" author="mseaton">
+		<preConditions onFail="MARK_RAN">
+			<columnExists tableName="orderextension_order_group" columnName="encounter_id" />
+		</preConditions>
+		<dropColumn tableName="orderextension_order_group" columnName="encounter_id" />
+	</changeSet>
+
+	<changeSet id="orderextension-drop-order-creator-fk" author="mseaton">
+		<preConditions onFail="MARK_RAN">
+			<foreignKeyConstraintExists foreignKeyName="orderextension_order_group_creator_fk" />
+		</preConditions>
+		<dropForeignKeyConstraint baseTableName="orderextension_order_group" constraintName="orderextension_order_group_creator_fk" />
+	</changeSet>
+
+	<changeSet id="orderextension-drop-order-group-creator" author="mseaton">
+		<preConditions onFail="MARK_RAN">
+			<columnExists tableName="orderextension_order_group" columnName="creator" />
+		</preConditions>
+		<dropColumn tableName="orderextension_order_group" columnName="creator" />
+	</changeSet>
+
+	<changeSet id="orderextension-drop-order-group-date_created" author="mseaton">
+		<preConditions onFail="MARK_RAN">
+			<columnExists tableName="orderextension_order_group" columnName="date_created" />
+		</preConditions>
+		<dropColumn tableName="orderextension_order_group" columnName="date_created" />
+	</changeSet>
+
+	<changeSet id="orderextension-drop-order-group-voided" author="mseaton">
+		<preConditions onFail="MARK_RAN">
+			<columnExists tableName="orderextension_order_group" columnName="voided" />
+		</preConditions>
+		<dropColumn tableName="orderextension_order_group" columnName="voided" />
+	</changeSet>
+
+	<changeSet id="orderextension-drop-order-voided_by-fk" author="mseaton">
+		<preConditions onFail="MARK_RAN">
+			<foreignKeyConstraintExists foreignKeyName="orderextension_order_group_voided_by_fk" />
+		</preConditions>
+		<dropForeignKeyConstraint baseTableName="orderextension_order_group" constraintName="orderextension_order_group_voided_by_fk" />
+	</changeSet>
+
+	<changeSet id="orderextension-drop-order-group-voided_by" author="mseaton">
+		<preConditions onFail="MARK_RAN">
+			<columnExists tableName="orderextension_order_group" columnName="voided_by" />
+		</preConditions>
+		<dropColumn tableName="orderextension_order_group" columnName="voided_by" />
+	</changeSet>
+
+	<changeSet id="orderextension-drop-order-group-date_voided" author="mseaton">
+		<preConditions onFail="MARK_RAN">
+			<columnExists tableName="orderextension_order_group" columnName="date_voided" />
+		</preConditions>
+		<dropColumn tableName="orderextension_order_group" columnName="date_voided" />
+	</changeSet>
+
+	<changeSet id="orderextension-drop-order-group-void_reason" author="mseaton">
+		<preConditions onFail="MARK_RAN">
+			<columnExists tableName="orderextension_order_group" columnName="void_reason" />
+		</preConditions>
+		<dropColumn tableName="orderextension_order_group" columnName="void_reason" />
+	</changeSet>
+
+	<changeSet id="orderextension-drop-orderextension_order" author="mseaton">
+		<preConditions onFail="MARK_RAN">
+			<tableExists tableName="orderextension_order" />
+		</preConditions>
+		<dropTable tableName="orderextension_order" />
+	</changeSet>
+
+	<changeSet id="orderextension-update-to-core-privileges" author="mseaton">
+		<sql>
+			update  role_privilege rp
+			left join role_privilege rp2 on rp.role = rp2.role and rp2.privilege = 'Get Order Sets'
+			set rp.privilege = 'Get Order Sets'
+			where rp.privilege = 'View Order Sets' and rp2.privilege is null;
+
+			delete from role_privilege where privilege = 'View Order Sets';
+
+			update  role_privilege rp
+			left join role_privilege rp2 on rp.role = rp2.role and rp2.privilege = 'Manage Order Sets'
+			set rp.privilege = 'Manage Order Sets'
+			where rp.privilege = 'Delete Order Sets' and rp2.privilege is null;
+
+			delete from role_privilege where privilege = 'Delete Order Sets';
+
+			update  role_privilege rp
+			left join role_privilege rp2 on rp.role = rp2.role and rp2.privilege = 'Get Orders'
+			set rp.privilege = 'Get Orders'
+			where rp.privilege = 'View Orders' and rp2.privilege is null;
+
+			delete from role_privilege where privilege = 'View Orders';
+		</sql>
+	</changeSet>
+
 </databaseChangeLog>

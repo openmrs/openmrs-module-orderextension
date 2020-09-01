@@ -9,6 +9,10 @@
  */
 package org.openmrs.module.orderextension;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.Properties;
+
 import org.dbunit.database.DatabaseConnection;
 import org.dbunit.database.IDatabaseConnection;
 import org.dbunit.database.QueryDataSet;
@@ -20,11 +24,7 @@ import org.openmrs.api.context.Context;
 import org.openmrs.test.BaseContextSensitiveTest;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.openmrs.test.SkipBaseSetup;
-import org.openmrs.util.OpenmrsConstants;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.util.Properties;
+import org.openmrs.util.OpenmrsUtil;
 
 @Ignore
 public class CreateInitialDataSet extends BaseModuleContextSensitiveTest {
@@ -70,7 +70,7 @@ public class CreateInitialDataSet extends BaseModuleContextSensitiveTest {
                         ")");
         initialDataSet.addTable("drug", "SELECT * from drug where drug_id in (select drug_id from orderextension_order_set_member where order_set_id = 21)");
 
-        File outputFile = new File(OpenmrsConstants.APPLICATION_DATA_DIRECTORY, "orderSets.xml");
+        File outputFile = new File(OpenmrsUtil.getApplicationDataDirectory(), "orderSets.xml");
         System.out.println("Writing to file: " + outputFile.getAbsolutePath());
 		FlatXmlDataSet.write(initialDataSet, new FileOutputStream(outputFile));
 	}

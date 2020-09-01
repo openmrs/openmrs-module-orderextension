@@ -10,32 +10,26 @@
 	<description>
 		${project.parent.description}
 	</description>
-	<updateURL>
-		https://dev.openmrs.org/modules/download/${project.parent.artifactId}/update.rdf
-	</updateURL>
-	<require_version>1.6.5</require_version>
+
+	<require_version>2.3.0</require_version>
+
+	<require_modules>
+		<require_module>org.openmrs.module.legacyui</require_module>
+	</require_modules>
 
 	<!-- Module Activator -->
 	<activator>${project.parent.groupId}.${project.parent.artifactId}.OrderExtensionModuleActivator</activator>
-	
+
 	<extension>
-        <point>org.openmrs.admin.orders.localHeader</point>
-        <class>org.openmrs.module.orderextension.web.extension.AdminList</class>
-    </extension>
+		<point>org.openmrs.admin.list</point>
+		<class>org.openmrs.module.orderextension.web.extension.AdminList</class>
+	</extension>
+	<extension>
+		<point>org.openmrs.patientDashboardTab</point>
+		<class>org.openmrs.module.orderextension.web.extension.RegimenTab</class>
+	</extension>
 
 	<!-- Required Privileges -->
-	<privilege>
-		<name>View Order Sets</name>
-		<description>Allows users to view and use existing of Order Sets</description>
-	</privilege>
-	<privilege>
-		<name>Manage Order Sets</name>
-		<description>Allows users to add new Order Sets, edit or retire existing Order Sets</description>
-	</privilege>
-	<privilege>
-		<name>Delete Order Sets</name>
-		<description>Allows users to delete existing Order Sets</description>
-	</privilege>
 	<privilege>
 		<name>View Calendar Regimen</name>
 		<description>Allows users to view regimen calendar</description>
@@ -43,7 +37,20 @@
 	<privilege>
 		<name>Edit Current/Completed Regimen</name>
 		<description>The ability to edit current completed regimens</description>
-	</privilege>	
+	</privilege>
+	<privilege>
+		<name>Patient Dashboard - View Regimen Section</name>
+		<description>View the regimen tab on patient dashboard</description>
+	</privilege>
+	<privilege>
+		<name>View Regimens</name>
+		<description>View regimens</description>
+	</privilege>
+	<privilege>
+		<name>Edit Regimen</name>
+		<description>Edit regimens</description>
+	</privilege>
+
 	<!-- /Required Privileges -->
 
 	<!-- Maps hibernate file's, if present -->
@@ -86,6 +93,12 @@
 		<property>orderextension.DrugSetReminderMsg</property>
 		<defaultValue>Please complete the DST before ordering chemotherapy.</defaultValue>
 		<description>Message to be displayed as Alert.</description>
+	</globalProperty>
+
+	<globalProperty>
+		<property>orderextension.drugOrderDefaultEncounterTypeUuid</property>
+		<defaultValue>a9ef19d1-8875-11ea-8c74-7a7919290ad6</defaultValue>
+		<description>Encounter Type to use to create a new encounter if not otherwise specified</description>
 	</globalProperty>
 
 </module>

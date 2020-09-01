@@ -4,10 +4,10 @@
 
 	<groupId>org.openmrs.module</groupId>
 	<artifactId>orderextension</artifactId>
-	<version>2.0-SNAPSHOT</version>
+	<version>3.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>Order Extension</name>
-	<description>Provides support for extensions to the 1.6 Order Entry model</description>
+	<description>Provides support for extensions to the 2.3 Order Entry model</description>
 	<url>http://openmrs.org</url>
 
 	<scm>
@@ -36,7 +36,7 @@
 	</modules>
 
 	<properties>
-		<openMRSVersion>1.9.0</openMRSVersion>
+		<openMRSVersion>2.3.2-SNAPSHOT</openMRSVersion>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
