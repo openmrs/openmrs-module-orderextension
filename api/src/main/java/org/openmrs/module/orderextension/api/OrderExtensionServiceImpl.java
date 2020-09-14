@@ -20,10 +20,13 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.openmrs.Concept;
+import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterRole;
 import org.openmrs.EncounterType;
+import org.openmrs.Order;
+import org.openmrs.OrderFrequency;
 import org.openmrs.OrderGroup;
 import org.openmrs.OrderSet;
 import org.openmrs.OrderSetMember;
@@ -244,6 +247,14 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 		return (DrugRegimen)Context.getOrderService().saveOrderGroup(orderGroup);
 	}
 
+	@Override
+	@Transactional
+	public void saveDrugRegimens(List<DrugRegimen> drugRegimens) {
+		for (DrugRegimen drugRegimen : drugRegimens) {
+			getOrderExtensionService().saveDrugRegimen(drugRegimen);
+		}
+	}
+
 	/**
 	 * @see OrderExtensionService#getDrugRegimens(Patient)
 	 */
@@ -293,8 +304,260 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 	    }
 	    return l;
     }
-    
-    /**
+
+	@Override
+	@Transactional
+	public void updateOrderStartAndEndDates(DrugOrder oldOrder, int daysDiff, String reason) {
+		if (daysDiff != 0) {
+			DrugOrder newOrder = getOrderExtensionService().cloneAndVoidPrevious(oldOrder, reason);
+			if (newOrder.getAutoExpireDate() != null) {
+				newOrder.setAutoExpireDate(OrderExtensionUtil.adjustDate(newOrder.getAutoExpireDate(), daysDiff));
+			}
+			OrderEntryUtil.setStartDate(newOrder, OrderExtensionUtil.adjustDate(newOrder.getEffectiveStartDate(), daysDiff));
+			getOrderExtensionService().extendedSaveDrugOrder(newOrder);
+		}
+	}
+
+	@Override
+	@Transactional
+	public DrugOrder cloneAndVoidPrevious(DrugOrder orderToVoid, String reason) {
+		DrugOrder newOrder = orderToVoid.cloneForRevision();
+		newOrder.setAction(Order.Action.NEW);
+		newOrder.setPreviousOrder(null);
+		Context.getOrderService().voidOrder(orderToVoid, reason);
+		return newOrder;
+	}
+
+	@Override
+	@Transactional
+	public void changeStartDateOfGroup(Patient patient, DrugRegimen regimen, Date changeDate, boolean includeCycles) {
+		Date firstDate = regimen.getFirstDrugOrderStartDate();
+		int daysDiff = OrderExtensionUtil.daysDiff(firstDate, changeDate);
+
+		if (daysDiff != 0) {
+			if (includeCycles) {
+
+				List<DrugRegimen> futureOrders = getOrderExtensionService().getFutureDrugRegimensOfSameOrderSet(
+						patient, regimen, firstDate
+				);
+				for (DrugRegimen drugRegimen : futureOrders) {
+					for (DrugOrder order : drugRegimen.getMembers()) {
+						getOrderExtensionService().updateOrderStartAndEndDates(order, daysDiff, "Changing start date of order group");
+					}
+				}
+			}
+			for (DrugOrder order : regimen.getMembers()) {
+				getOrderExtensionService().updateOrderStartAndEndDates(order, daysDiff, "Changing start date of order group");
+			}
+		}
+	}
+
+	@Override
+	@Transactional
+	public void changeStartDateOfPartGroup(Patient patient, DrugRegimen regimen, Date changeDate, Integer cycleDay,
+			boolean includeCycles, boolean includePartCycles, boolean includeThisCycle) {
+
+		Date startDate = OrderExtensionUtil.getCycleDate(regimen.getFirstDrugOrderStartDate(), cycleDay);
+		int days = OrderExtensionUtil.daysDiff(startDate, changeDate);
+
+		if (includeCycles || includePartCycles) {
+
+			List<DrugRegimen> futureOrders = getOrderExtensionService()
+					.getFutureDrugRegimensOfSameOrderSet(patient, regimen, regimen.getFirstDrugOrderStartDate());
+
+			for (DrugRegimen drugRegimen : futureOrders) {
+				for (DrugOrder order : drugRegimen.getMembers()) {
+					if (includeCycles) {
+						int cd = OrderExtensionUtil.getCycleDay(drugRegimen.getFirstDrugOrderStartDate(), order.getEffectiveStartDate());
+						if (cd == cycleDay) {
+							updateOrderStartAndEndDates(order, days, "Changing start date of part of order group");
+						}
+					}
+					else {
+						updateOrderStartAndEndDates(order, days, "Changing start date of part of order group");
+					}
+				}
+			}
+		}
+
+		for (DrugOrder order : regimen.getMembers()) {
+			int cd = OrderExtensionUtil.getCycleDay(regimen.getFirstDrugOrderStartDate(), order.getEffectiveStartDate());
+			if (includeThisCycle || includePartCycles) {
+				if (cd >= cycleDay) {
+					updateOrderStartAndEndDates(order, days, "Changing start date of part of order group");
+				}
+			}
+			else {
+				if (cd == cycleDay) {
+					updateOrderStartAndEndDates(order, days, "Changing start date of part of order group");
+				}
+			}
+		}
+	}
+
+	@Override
+	@Transactional
+	public DrugOrder changeDrugOrder(Patient patient, DrugOrder drugOrder, Drug drug, Concept orderReason, Date startDateDrug,
+			Integer duration, Double dose, Concept doseUnits, Concept route, OrderFrequency frequency, boolean asNeeded,
+			String instructions, String administrationInstructions, String changeReason, boolean includeCycles) {
+		OrderGroup regimen = OrderEntryUtil.getOrderGroup(drugOrder);
+
+		if (includeCycles) {
+
+			List<DrugOrder> futureOrders = getOrderExtensionService().getFutureDrugOrdersOfSameOrderSet(
+					patient, regimen.getOrderSet(), OrderExtensionUtil.getFirstDrugOrderStartDate(regimen)
+			);
+			for (DrugOrder order : futureOrders) {
+				if (OrderExtensionUtil.orderablesMatch(order, drugOrder)) {
+					//assuming that the same drug won't appear twice in the same indication within a cycle and that you would want to change the dose on one
+					if (OrderExtensionUtil.reasonsMatch(order, drugOrder)) {
+						Date startDate = order.getEffectiveStartDate();
+						if (drugOrder.getEffectiveStartDate().getTime() != startDateDrug.getTime()) {
+							startDate = OrderExtensionUtil.adjustDate(startDate, OrderExtensionUtil.daysDiff(drugOrder.getEffectiveStartDate(), startDateDrug));
+						}
+						DrugOrder newOrder = cloneAndVoidPrevious(order, changeReason);
+						if (drugOrder.getOrderType() == null) {
+							drugOrder.setOrderType(OrderEntryUtil.getDrugOrderType());
+						}
+						newOrder.setDrug(drug);
+						newOrder.setConcept(drug.getConcept());
+						newOrder.setOrderReason(orderReason);
+						newOrder.setDose(dose);
+						newOrder.setDoseUnits(doseUnits);
+						newOrder.setFrequency(frequency);
+						OrderEntryUtil.setStartDate(newOrder, startDate);
+						OrderEntryUtil.setEndDate(newOrder, duration);
+						newOrder.setAsNeeded(asNeeded);
+						newOrder.setRoute(route);
+						drugOrder.setDosingInstructions(administrationInstructions);
+						drugOrder.setInstructions(instructions);
+						getOrderExtensionService().extendedSaveDrugOrder(newOrder);
+					}
+				}
+			}
+		}
+
+		DrugOrder newOrder = cloneAndVoidPrevious(drugOrder, changeReason);
+		if (drugOrder.getOrderType() == null) {
+			drugOrder.setOrderType(OrderEntryUtil.getDrugOrderType());
+		}
+		newOrder.setDrug(drug);
+		newOrder.setConcept(drug.getConcept());
+		newOrder.setOrderReason(orderReason);
+		newOrder.setDose(dose);
+		newOrder.setDoseUnits(doseUnits);
+		newOrder.setFrequency(frequency);
+		OrderEntryUtil.setStartDate(newOrder, startDateDrug);
+		OrderEntryUtil.setEndDate(newOrder, duration);
+		newOrder.setAsNeeded(asNeeded);
+		newOrder.setRoute(route);
+		drugOrder.setDosingInstructions(administrationInstructions);
+		drugOrder.setInstructions(instructions);
+		getOrderExtensionService().extendedSaveDrugOrder(newOrder);
+
+		return getOrderExtensionService().extendedSaveDrugOrder(newOrder);
+	}
+
+	@Override
+	@Transactional
+	public void stopDrugOrder(Patient patient, DrugOrder drugOrder, Date stopDate, Concept stopReason, boolean includeCycles) {
+    	if (includeCycles) {
+			OrderGroup regimen = drugOrder.getOrderGroup();
+
+			List<DrugOrder> futureOrders = getOrderExtensionService().getFutureDrugOrdersOfSameOrderSet(
+					patient, regimen.getOrderSet(), OrderExtensionUtil.getFirstDrugOrderStartDate(regimen)
+			);
+
+			String stopReasonStr = stopReason.getDisplayString();
+
+			for (DrugOrder order : futureOrders) {
+				if (order.getDrug() != null && drugOrder.getDrug() != null) {
+					if (order.getDrug().equals(drugOrder.getDrug())) {
+						Context.getOrderService().voidOrder(order, stopReasonStr);
+					}
+				}
+				else if (order.getConcept() != null && drugOrder.getConcept() != null) {
+					if (order.getConcept().equals(drugOrder.getConcept())) {
+						Context.getOrderService().voidOrder(order, stopReasonStr);
+					}
+				}
+			}
+		}
+
+		Date discontinueDate = stopDate;
+		Date now = new Date();
+		if (OrderExtensionUtil.sameDate(discontinueDate, now)) {
+			discontinueDate = new Date();
+		}
+		else if (OrderExtensionUtil.sameDate(drugOrder.getEffectiveStartDate(), discontinueDate)) {
+			discontinueDate = OrderExtensionUtil.adjustDateToEndOfDay(stopDate);
+		}
+
+		getOrderExtensionService().discontinueOrder(drugOrder, stopReason, discontinueDate);
+	}
+
+	@Override
+	@Transactional
+	public void stopDrugOrdersInGroup(Patient patient, DrugRegimen regimen, Date stopDate, Concept stopReason, boolean includeCycles) {
+		if (includeCycles) {
+			List<DrugOrder> futureOrders = getOrderExtensionService().getFutureDrugOrdersOfSameOrderSet(
+					patient, regimen.getOrderSet(), regimen.getLastDrugOrderEndDate()
+			);
+			for (DrugOrder order : futureOrders) {
+				Context.getOrderService().voidOrder(order, stopReason.getDisplayString());
+			}
+		}
+		for (DrugOrder order : regimen.getMembers()) {
+			if (OrderEntryUtil.isCurrent(order)) {
+				getOrderExtensionService().discontinueOrder(order, stopReason, OrderExtensionUtil.adjustDateToEndOfDay(stopDate));
+			}
+			else if (OrderEntryUtil.isFuture(order)) {
+				Context.getOrderService().voidOrder(order, stopReason.getDisplayString());
+			}
+		}
+	}
+
+	@Override
+	@Transactional
+	public void voidDrugOrder(Patient patient, DrugOrder drugOrder, String voidReason, boolean includeCycles) {
+		if (includeCycles) {
+			OrderGroup regimen = drugOrder.getOrderGroup();
+			List<DrugOrder> futureOrders = getOrderExtensionService().getFutureDrugOrdersOfSameOrderSet(
+					patient, regimen.getOrderSet(), OrderExtensionUtil.getFirstDrugOrderStartDate(regimen)
+			);
+			for (DrugOrder order : futureOrders) {
+				if (order.getDrug() != null && drugOrder.getDrug() != null) {
+					if (order.getDrug().equals(drugOrder.getDrug())) {
+						Context.getOrderService().voidOrder(order, voidReason);
+					}
+				}
+				else if (order.getConcept() != null && drugOrder.getConcept() != null) {
+					if (order.getConcept().equals(drugOrder.getConcept())) {
+						Context.getOrderService().voidOrder(order, voidReason);
+					}
+				}
+			}
+		}
+		Context.getOrderService().voidOrder(drugOrder, voidReason);
+	}
+
+	@Override
+	@Transactional
+	public void voidDrugOrdersInGroup(Patient patient, DrugRegimen regimen, String voidReason, boolean includeCycles) {
+		if (includeCycles) {
+			List<DrugOrder> futureOrders = getOrderExtensionService().getFutureDrugOrdersOfSameOrderSet(
+					patient, regimen.getOrderSet(), regimen.getLastDrugOrderEndDate()
+			);
+			for (DrugOrder order : futureOrders) {
+				Context.getOrderService().voidOrder(order, voidReason);
+			}
+		}
+		for (DrugOrder order : regimen.getMembers()) {
+			Context.getOrderService().voidOrder(order, voidReason);
+		}
+	}
+
+	/**
      * @see OrderExtensionService#getFutureDrugOrdersOfSameOrderSet(Patient patient, OrderSet orderSet, Date startDate)
      */
     @Override
@@ -318,7 +581,7 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
     	for (DrugOrder order: getDrugOrders(patient, null, startDate, null)) {
 		    OrderGroup g = order.getOrderGroup();
 		    if (g != null) {
-			    DrugRegimen regimen = Context.getService(OrderExtensionService.class).getDrugRegimen(g.getId());
+			    DrugRegimen regimen = getOrderExtensionService().getDrugRegimen(g.getId());
 			    if (regimen.getFirstDrugOrderStartDate().after(drugRegimen.getLastDrugOrderEndDate()) && !futureRegimens.contains(regimen)) {
 				    futureRegimens.add(regimen);
 			    }
@@ -399,8 +662,12 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 				orderGroup.addOrder(drugOrder);
 			}
 
-			Context.getService(OrderExtensionService.class).saveDrugRegimen(orderGroup);
+			getOrderExtensionService().saveDrugRegimen(orderGroup);
 		}
+	}
+
+	protected OrderExtensionService getOrderExtensionService() {
+		return Context.getService(OrderExtensionService.class);
 	}
 
 	/**

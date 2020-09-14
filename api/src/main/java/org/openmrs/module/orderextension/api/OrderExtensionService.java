@@ -17,10 +17,12 @@ import java.util.Date;
 import java.util.List;
 
 import org.openmrs.Concept;
+import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterRole;
 import org.openmrs.EncounterType;
+import org.openmrs.OrderFrequency;
 import org.openmrs.OrderSet;
 import org.openmrs.Patient;
 import org.openmrs.Provider;
@@ -44,7 +46,7 @@ public interface OrderExtensionService extends OpenmrsService {
 	 * @should return an ExtendedOrderSet with the passed id
 	 */
 	@Authorized(OrderExtensionConstants.PRIV_VIEW_ORDER_SETS)
-	public ExtendedOrderSet getOrderSet(Integer id);
+	ExtendedOrderSet getOrderSet(Integer id);
 	
 	/**
 	 * @param uuid the unique uuid for the ExtendedOrderSet
@@ -52,7 +54,7 @@ public interface OrderExtensionService extends OpenmrsService {
 	 * @should return an ExtendedOrderSet with the passed uuid
 	 */
 	@Authorized(OrderExtensionConstants.PRIV_VIEW_ORDER_SETS)
-	public ExtendedOrderSet getOrderSetByUuid(String uuid);
+	ExtendedOrderSet getOrderSetByUuid(String uuid);
 	
 	/**
 	 * This will retrieve all named OrderSets, optionally including those that are retired
@@ -63,7 +65,7 @@ public interface OrderExtensionService extends OpenmrsService {
 	 * @should not return retired order sets if specified
 	 */
 	@Authorized(OrderExtensionConstants.PRIV_VIEW_ORDER_SETS)
-	public List<ExtendedOrderSet> getNamedOrderSets(boolean includeRetired);
+	List<ExtendedOrderSet> getNamedOrderSets(boolean includeRetired);
 	
 	/**
 	 * Retrieves all named, non-retired Order Sets that match all or part of the specified name and the specified Concept
@@ -78,7 +80,7 @@ public interface OrderExtensionService extends OpenmrsService {
 	 * @should not return retired order sets
 	 */
 	@Authorized(OrderExtensionConstants.PRIV_VIEW_ORDER_SETS)
-	public List<ExtendedOrderSet> findAvailableOrderSets(String partialName, Concept indication);
+	List<ExtendedOrderSet> findAvailableOrderSets(String partialName, Concept indication);
 	
 	/**
 	 * @param orderSet the ExtendedOrderSet to save
@@ -87,7 +89,7 @@ public interface OrderExtensionService extends OpenmrsService {
 	 * @should save changes to an existing ExtendedOrderSet
 	 */
 	@Authorized(OrderExtensionConstants.PRIV_MANAGE_ORDER_SETS)
-	public ExtendedOrderSet saveOrderSet(ExtendedOrderSet orderSet);
+	ExtendedOrderSet saveOrderSet(ExtendedOrderSet orderSet);
 	
 	/**
 	 * This will purge an ExtendedOrderSet from the database.  If this ExtendedOrderSet contains
@@ -99,7 +101,7 @@ public interface OrderExtensionService extends OpenmrsService {
 	 * @should throw an exception if any Order Groups are linked to unnamed, nested order sets
 	 */
 	@Authorized(OrderExtensionConstants.PRIV_DELETE_ORDER_SETS)
-	public void purgeOrderSet(ExtendedOrderSet orderSet);
+	void purgeOrderSet(ExtendedOrderSet orderSet);
 	
 	/**
 	 * @param id the primary key id for the ExtendedOrderSetMember
@@ -107,53 +109,59 @@ public interface OrderExtensionService extends OpenmrsService {
 	 * @should return an ExtendedOrderSetMember with the passed id
 	 */
 	@Authorized(OrderExtensionConstants.PRIV_VIEW_ORDER_SETS)
-	public ExtendedOrderSetMember getOrderSetMember(Integer id);
+	ExtendedOrderSetMember getOrderSetMember(Integer id);
 
 	/**
 	 * @return in 2.3, all Orders must be associated with Encounters
 	 * This method servers to return the EncounterType to use if not otherwise specified
 	 */
-	public EncounterType getDefaultEncounterType();
+	EncounterType getDefaultEncounterType();
 
 	/**
 	 * @return in 2.3, all Orders must be associated with Encounters
 	 * This method servers to return the EncounterRole to use if not otherwise specified
 	 */
-	public EncounterRole getDefaultEncounterRole();
+	EncounterRole getDefaultEncounterRole();
 
 	/**
 	 * @return a Provider account to use for Orders and Encounters, given a User
 	 */
-	public Provider getProviderForUser(User user);
+	Provider getProviderForUser(User user);
 
 	/**
 	 * @return a new Encounter saved for the Patient for the given date, current user, with the default encounter type
 	 */
-	public Encounter createDrugOrderEncounter(Patient patient, Date encounterDate);
+	Encounter createDrugOrderEncounter(Patient patient, Date encounterDate);
 
 	/**
 	 * @return matching Encounters
 	 */
-	public Encounter getExistingDrugOrderEncounter(Patient patient, Date dateCreated, User creator);
+	Encounter getExistingDrugOrderEncounter(Patient patient, Date dateCreated, User creator);
 
 	/**
 	 * Discontinues the given Order
 	 */
-	public void discontinueOrder(DrugOrder drugOrder, Concept stopConcept, Date stopDateDrug);
+	void discontinueOrder(DrugOrder drugOrder, Concept stopConcept, Date stopDateDrug);
 
 	/**
 	 * Save a given Drug Order
 	 */
-	public DrugOrder extendedSaveDrugOrder(DrugOrder drugOrder);
+	DrugOrder extendedSaveDrugOrder(DrugOrder drugOrder);
 
 	/**
-	 * @param orderGroup the ExtendedOrderGroup to save
+	 * @param orderGroup the DrugRegimen to save
 	 * @return the saved ExtendedOrderGroup
 	 * @should save a new ExtendedOrderGroup
 	 * @should save changes to an existing ExtendedOrderGroup
 	 */
 	@Authorized(PrivilegeConstants.ADD_ORDERS)
-	public DrugRegimen saveDrugRegimen(DrugRegimen orderGroup);
+	DrugRegimen saveDrugRegimen(DrugRegimen orderGroup);
+
+	/**
+	 * @param drugRegimens the DrugRegimens to save
+	 */
+	@Authorized(PrivilegeConstants.ADD_ORDERS)
+	void saveDrugRegimens(List<DrugRegimen> drugRegimens);
 	
 	/**
 	 * @param patient the Patient for whom to retrieve the Orders
@@ -161,7 +169,7 @@ public interface OrderExtensionService extends OpenmrsService {
 	 * @should return all OrderGroups for the passed patient for the passed type
 	 */
 	@Authorized(PrivilegeConstants.GET_ORDERS)
-	public List<DrugRegimen> getDrugRegimens(Patient patient);
+	List<DrugRegimen> getDrugRegimens(Patient patient);
 	
 	/**
 	 * @param patient the Patient for whom to add the Orders
@@ -171,34 +179,82 @@ public interface OrderExtensionService extends OpenmrsService {
 	 * @should add the appropriate number of Orders for the patient given the passed ExtendedOrderSet
 	 */
 	@Authorized(PrivilegeConstants.ADD_ORDERS)
-	public void addOrdersForPatient(Patient patient, ExtendedOrderSet orderSet, Date startDate, Integer numCycles);
+	void addOrdersForPatient(Patient patient, ExtendedOrderSet orderSet, Date startDate, Integer numCycles);
     
     /**
      * @param id the id of the drugRegimen to be returned
      * @return the requested drugRegimen
      */
-    public DrugRegimen getDrugRegimen(Integer id);
+    DrugRegimen getDrugRegimen(Integer id);
     
     /**
      * @param regimen for which the maximum number of cycles should be retrieved for
      * @return the Integer representing the maximum number of cycles
      */
-    public Integer getMaxNumberOfCyclesForRegimen(DrugRegimen regimen);
+    Integer getMaxNumberOfCyclesForRegimen(DrugRegimen regimen);
+
+	/**
+	 * Clones the passed in order, voids it, updates the new order with revised dates, and returns it
+	 */
+	void updateOrderStartAndEndDates(DrugOrder order, int daysDiff, String reason);
+
+	/**
+	 * Clones the passed in order, voids it, and returns it
+	 */
+	DrugOrder cloneAndVoidPrevious(DrugOrder orderToVoid, String reason);
+
+	/**
+	 * Change the start date of the given regimen
+	 */
+	void changeStartDateOfGroup(Patient patient, DrugRegimen drugRegimen, Date changeDate, boolean includeCycles);
+
+	/**
+	 * Changes the start date of part of a given regimen
+	 */
+	void changeStartDateOfPartGroup(Patient patient, DrugRegimen drugRegimen, Date changeDate, Integer cycleDay,
+			boolean includeCycles, boolean includePartCycles, boolean includeThisCycle);
+
+	/**
+	 * Changes the details of a drug order and optionally other similar orders in the same regimen
+	 */
+	DrugOrder changeDrugOrder(Patient patient, DrugOrder drugOrder, Drug drug, Concept orderReason, Date startDate,
+			Integer duration, Double dose, Concept doseUnits, Concept route, OrderFrequency frequency, boolean asNeeded,
+			String instructions, String administrationInstructions, String changeReason, boolean includeCycles);
+
+	/**
+	 * Stops the order and optionally all of the same instances of the order in future cycles
+	 */
+	void stopDrugOrder(Patient patient, DrugOrder drugOrder, Date stopDate, Concept stopReason, boolean includeCycles);
+
+	/**
+	 * Stops the regimen and optionally all of the same instances of the regimen in future cycles
+	 */
+	void stopDrugOrdersInGroup(Patient patient, DrugRegimen regimen, Date stopDate, Concept stopReason, boolean includeCycles);
+
+	/**
+	 * Deletes/voids the order and optionally all of the same instances of the order in future cycles
+	 */
+	void voidDrugOrder(Patient patient, DrugOrder drugOrder, String voidReason, boolean includeCycles);
+
+	/**
+	 * Deletes/voids the regimen and optionally all of the same instances of the regimen in future cycles
+	 */
+	void voidDrugOrdersInGroup(Patient patient, DrugRegimen regimen, String voidReason, boolean includeCycles);
 
 	/**
      * @param patient the Patient for whom to retrieve orders
      * @param orderSet the id of the order set to which the drug orders should belong
      */
-    public List<DrugOrder> getFutureDrugOrdersOfSameOrderSet(Patient patient, OrderSet orderSet, Date startDate);
+    List<DrugOrder> getFutureDrugOrdersOfSameOrderSet(Patient patient, OrderSet orderSet, Date startDate);
 
     /**
      * @param patient the Patient for whom to retrieve orders
      * @param drugRegimen the regimen whose orderSet is used to retrieve other regimens for the patient
      */
-    public List<DrugRegimen> getFutureDrugRegimensOfSameOrderSet(Patient patient, DrugRegimen drugRegimen, Date startDate);
+    List<DrugRegimen> getFutureDrugRegimensOfSameOrderSet(Patient patient, DrugRegimen drugRegimen, Date startDate);
     
 	/**
      * @param patient the Patient for whom to retrieve the orders
      */
-     public List<DrugOrder> getDrugOrders(Patient patient, Concept indication, Date startDateAfter, Date startDateBefore);
+     List<DrugOrder> getDrugOrders(Patient patient, Concept indication, Date startDateAfter, Date startDateBefore);
 }

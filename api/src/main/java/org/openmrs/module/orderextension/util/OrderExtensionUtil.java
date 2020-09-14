@@ -241,4 +241,39 @@ public class OrderExtensionUtil  {
 		}
 		return null;
 	}
+
+	public static int daysDiff(Date startDateComparison, Date endDateComparison) {
+		long milis2 = startDateComparison.getTime();
+		long milis1 = endDateComparison.getTime();
+		long diff = milis1 - milis2;
+		long diffDays = diff / (24 * 60 * 60 * 1000);
+		return (int)diffDays;
+	}
+
+	public static Date adjustDate(Date dateToAdjust, int daysDiff) {
+		Calendar adjusted = Calendar.getInstance();
+		adjusted.setTime(dateToAdjust);
+		adjusted.add(Calendar.DAY_OF_YEAR, daysDiff);
+		return adjusted.getTime();
+	}
+
+	public static Date getCycleDate(Date cycleStart, Integer day) {
+		Calendar cycleDate = Calendar.getInstance();
+		cycleDate.setTime(cycleStart);
+		cycleDate.add(Calendar.DAY_OF_YEAR, day - 1);
+		return cycleDate.getTime();
+	}
+
+	public static Integer getCycleDay(Date firstDrugStart, Date drugStart) {
+		if (firstDrugStart != null && drugStart != null) {
+			long cycleDay = drugStart.getTime() - firstDrugStart.getTime();
+			if (cycleDay > 0) {
+				cycleDay = cycleDay / 86400000;
+				cycleDay = cycleDay + 1;
+				return (int) cycleDay;
+			}
+		}
+
+		return 1;
+	}
 }

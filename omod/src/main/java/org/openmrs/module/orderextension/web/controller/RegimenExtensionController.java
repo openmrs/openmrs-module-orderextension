@@ -143,8 +143,7 @@ public class RegimenExtensionController extends PortletController{
 		model.put("drugFrequencies", Context.getOrderService().getOrderFrequencies(false));
 		model.put("drugDosingUnits", Context.getOrderService().getDrugDosingUnits());
 		model.put("drugRoutes", Context.getOrderService().getDrugRoutes());
-		
-		model.put("patient", Context.getPatientService().getPatient((Integer)model.get("patientId")));
+
 		// Start of adding DST Alert
 		String[] formIdsAndDrugSetIndications=Context.getAdministrationService().getGlobalProperty("orderextension.DrugSetReminderOnForm").split("@");
 		String msg=Context.getAdministrationService().getGlobalProperty("orderextension.DrugSetReminderMsg");
