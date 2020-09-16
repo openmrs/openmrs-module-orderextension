@@ -65,7 +65,12 @@
 		<file>messages.properties</file>
 	</messages>
 	<!-- /Internationalization -->
-	
+
+	<globalProperty>
+		<property>orderextension.drugOrderType</property>
+		<defaultValue>2</defaultValue>
+		<description>The order type to use for drug orders with this module.  Primary key id, uuid, or name</description>
+	</globalProperty>
 	<globalProperty>
 		<property>orderextension.drugGroupClassification</property>
 		<defaultValue>9b81d9ce-91a3-4da6-8d19-ba6ff020f64a</defaultValue>

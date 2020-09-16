@@ -35,8 +35,10 @@ import org.openmrs.Provider;
 import org.openmrs.User;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.api.OrderContext;
+import org.openmrs.api.OrderService;
 import org.openmrs.api.ProviderService;
 import org.openmrs.api.context.Context;
+import org.openmrs.api.db.OrderDAO;
 import org.openmrs.api.db.hibernate.HibernateUtil;
 import org.openmrs.api.impl.BaseOpenmrsService;
 import org.openmrs.module.orderextension.DrugRegimen;
@@ -53,7 +55,8 @@ import org.springframework.util.StringUtils;
  */
 @Transactional
 public class OrderExtensionServiceImpl extends BaseOpenmrsService implements OrderExtensionService {
-	
+
+	protected OrderDAO orderDao;
 	private OrderExtensionDAO dao;
 
 	/**
@@ -166,42 +169,30 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 	}
 
 	/**
-	 * @see OrderExtensionService#createDrugOrderEncounter(Patient, Date)
+	 * @see OrderExtensionService#ensureDrugOrderEncounter(Patient, Encounter, Date)
 	 */
 	@Override
 	@Transactional
-	public Encounter createDrugOrderEncounter(Patient patient, Date encounterDate) {
-		Encounter e = new Encounter();
-		e.setPatient(patient);
-		e.setEncounterType(getDefaultEncounterType());
-		e.setEncounterDatetime(encounterDate);
-		e.addProvider(getDefaultEncounterRole(), getProviderForUser(Context.getAuthenticatedUser()));
-		return Context.getEncounterService().saveEncounter(e);
-	}
-
-	/**
-	 * @see OrderExtensionService#getExistingDrugOrderEncounter(Patient, Date, User)
-	 */
-	@Override
-	@Transactional(readOnly=true)
-	public Encounter getExistingDrugOrderEncounter(Patient patient, Date dateCreated, User creator) {
-		return dao.getExistingDrugOrderEncounter(patient, getDefaultEncounterType(), dateCreated, creator);
-	}
-
-	/**
-	 * @see OrderExtensionService#discontinueOrder(DrugOrder, Concept, Date)
-	 */
-	@Override
-	@Transactional
-	public void discontinueOrder(DrugOrder drugOrder, Concept stopConcept, Date stopDateDrug) {
-		Date currentDate = new Date();
-		User currentUser = Context.getAuthenticatedUser();
-		Encounter encounter = getExistingDrugOrderEncounter(drugOrder.getPatient(), currentDate, currentUser);
-		if (encounter == null) {
-			encounter = createDrugOrderEncounter(drugOrder.getPatient(), currentDate);
+	public Encounter ensureDrugOrderEncounter(Patient patient, Encounter encounter, Date encounterDate) {
+		Date today = new Date();
+		if (encounterDate.after(today)) {
+			encounterDate = today;
 		}
-		Provider orderer = getProviderForUser(currentUser);
-		Context.getOrderService().discontinueOrder(drugOrder, stopConcept, stopDateDrug, orderer, encounter);
+		if (encounter == null) {
+			encounter = dao.getExistingDrugOrderEncounter(patient, getDefaultEncounterType(), encounterDate);
+		}
+		if (encounter == null) {
+			encounter = new Encounter();
+			encounter.setPatient(patient);
+			encounter.setEncounterType(getDefaultEncounterType());
+			encounter.setEncounterDatetime(encounterDate);
+			encounter.addProvider(getDefaultEncounterRole(), getProviderForUser(Context.getAuthenticatedUser()));
+			encounter = Context.getEncounterService().saveEncounter(encounter);
+		}
+		else {
+			encounter.setEncounterDatetime(encounterDate);
+		}
+		return encounter;
 	}
 
 	/**
@@ -210,23 +201,22 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 	@Override
 	@Transactional
 	public DrugOrder extendedSaveDrugOrder(DrugOrder drugOrder) {
-		Date currentDate = new Date();
-		User currentUser = Context.getAuthenticatedUser();
-		if (drugOrder.getEncounter() == null) {
-			if (drugOrder.getOrderGroup() != null) {
-				drugOrder.setEncounter(drugOrder.getOrderGroup().getEncounter());
-			}
-			else {
-				Encounter encounter = getExistingDrugOrderEncounter(drugOrder.getPatient(), currentDate, currentUser);
-				if (encounter == null) {
-					Date encDate = drugOrder.getDateActivated() == null ? currentDate : drugOrder.getDateActivated();
-					encounter = createDrugOrderEncounter(drugOrder.getPatient(), encDate);
-				}
-				drugOrder.setEncounter(encounter);
-			}
+
+		// First ensure that the encounter is set correctly
+		Patient patient = drugOrder.getPatient();
+		Date encounterDate = drugOrder.getDateActivated();
+		Encounter encounter = drugOrder.getEncounter();
+		if (drugOrder.getOrderGroup() != null) {
+			OrderGroup regimen = HibernateUtil.getRealObjectFromProxy(drugOrder.getOrderGroup());
+			encounter = (encounter == null ? regimen.getEncounter() : encounter);
+			encounterDate = OrderExtensionUtil.getFirstDrugOrderDateActivated(regimen);
 		}
+		encounter = ensureDrugOrderEncounter(patient, encounter, encounterDate);
+		drugOrder.setEncounter(encounter);
+
+		// Now ensure other defaults are set correctly if not specified
 		if (drugOrder.getOrderer() == null) {
-			drugOrder.setOrderer(getProviderForUser(currentUser));
+			drugOrder.setOrderer(getProviderForUser(Context.getAuthenticatedUser()));
 		}
 		if (drugOrder.getOrderType() == null) {
 			drugOrder.setOrderType(OrderEntryUtil.getDrugOrderType());
@@ -235,7 +225,17 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 			drugOrder.setCareSetting(OrderEntryUtil.getDefaultCareSetting());
 		}
 
-		return (DrugOrder)Context.getOrderService().saveOrder(drugOrder, new OrderContext());
+		// Create an order context for saving this drug order.  This requires ensuring that if this is part of a regimen,
+		// Order Service does not allow multiple orders of the same orderable unless you explicitly allow
+		// Given we have some order sets that have the same orderable in sequence, we need to allow this here.
+		OrderContext orderContext = new OrderContext();
+		String[] groupOrderUuids = new String[drugOrder.getOrderGroup().getOrders().size()];
+		for (int i=0; i<drugOrder.getOrderGroup().getOrders().size(); i++) {
+			groupOrderUuids[i] = drugOrder.getOrderGroup().getOrders().get(i).getUuid();
+		}
+		orderContext.setAttribute(OrderService.PARALLEL_ORDERS, groupOrderUuids);
+
+		return (DrugOrder)Context.getOrderService().saveOrder(drugOrder, orderContext);
 	}
 
 	/**
@@ -243,8 +243,24 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 	 */
 	@Override
 	@Transactional
-	public DrugRegimen saveDrugRegimen(DrugRegimen orderGroup) {
-		return (DrugRegimen)Context.getOrderService().saveOrderGroup(orderGroup);
+	public DrugRegimen saveDrugRegimen(DrugRegimen drugRegimen) {
+
+		// First ensure that the encounter is set correctly
+		Patient patient = drugRegimen.getPatient();
+		Encounter encounter = drugRegimen.getEncounter();
+		Date encounterDate = OrderExtensionUtil.getFirstDrugOrderDateActivated(drugRegimen);
+		encounter = ensureDrugOrderEncounter(patient, encounter, encounterDate);
+		drugRegimen.setEncounter(encounter);
+
+		drugRegimen = (DrugRegimen) orderDao.saveOrderGroup(drugRegimen);
+
+		// Now ensure underlying orders are set correctly
+		for (Order order : drugRegimen.getOrders()) {
+			DrugOrder drugOrder = (DrugOrder)order;
+			drugOrder = getOrderExtensionService().extendedSaveDrugOrder(drugOrder);
+		}
+
+		return drugRegimen;
 	}
 
 	@Override
@@ -309,11 +325,14 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 	@Transactional
 	public void updateOrderStartAndEndDates(DrugOrder oldOrder, int daysDiff, String reason) {
 		if (daysDiff != 0) {
+			Date newStartDate = OrderExtensionUtil.adjustDate(oldOrder.getEffectiveStartDate(), daysDiff);
+			Date newAutoExpireDate = null;
+			if (oldOrder.getAutoExpireDate() != null) {
+				newAutoExpireDate = OrderExtensionUtil.adjustDate(oldOrder.getAutoExpireDate(), daysDiff);
+			};
 			DrugOrder newOrder = getOrderExtensionService().cloneAndVoidPrevious(oldOrder, reason);
-			if (newOrder.getAutoExpireDate() != null) {
-				newOrder.setAutoExpireDate(OrderExtensionUtil.adjustDate(newOrder.getAutoExpireDate(), daysDiff));
-			}
-			OrderEntryUtil.setStartDate(newOrder, OrderExtensionUtil.adjustDate(newOrder.getEffectiveStartDate(), daysDiff));
+			OrderEntryUtil.setStartDate(newOrder, newStartDate);
+			newOrder.setAutoExpireDate(newAutoExpireDate);
 			getOrderExtensionService().extendedSaveDrugOrder(newOrder);
 		}
 	}
@@ -322,6 +341,9 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 	@Transactional
 	public DrugOrder cloneAndVoidPrevious(DrugOrder orderToVoid, String reason) {
 		DrugOrder newOrder = orderToVoid.cloneForRevision();
+		if (newOrder.getOrderGroup() != null && !newOrder.getOrderGroup().getOrders().contains(newOrder)) {
+			newOrder.getOrderGroup().addOrder(newOrder);
+		}
 		newOrder.setAction(Order.Action.NEW);
 		newOrder.setPreviousOrder(null);
 		Context.getOrderService().voidOrder(orderToVoid, reason);
@@ -331,12 +353,10 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 	@Override
 	@Transactional
 	public void changeStartDateOfGroup(Patient patient, DrugRegimen regimen, Date changeDate, boolean includeCycles) {
-		Date firstDate = regimen.getFirstDrugOrderStartDate();
+    	Date firstDate = regimen.getFirstDrugOrderStartDate();
 		int daysDiff = OrderExtensionUtil.daysDiff(firstDate, changeDate);
-
 		if (daysDiff != 0) {
 			if (includeCycles) {
-
 				List<DrugRegimen> futureOrders = getOrderExtensionService().getFutureDrugRegimensOfSameOrderSet(
 						patient, regimen, firstDate
 				);
@@ -438,8 +458,8 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 		}
 
 		DrugOrder newOrder = cloneAndVoidPrevious(drugOrder, changeReason);
-		if (drugOrder.getOrderType() == null) {
-			drugOrder.setOrderType(OrderEntryUtil.getDrugOrderType());
+		if (newOrder.getOrderType() == null) {
+			newOrder.setOrderType(OrderEntryUtil.getDrugOrderType());
 		}
 		newOrder.setDrug(drug);
 		newOrder.setConcept(drug.getConcept());
@@ -451,9 +471,8 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 		OrderEntryUtil.setEndDate(newOrder, duration);
 		newOrder.setAsNeeded(asNeeded);
 		newOrder.setRoute(route);
-		drugOrder.setDosingInstructions(administrationInstructions);
-		drugOrder.setInstructions(instructions);
-		getOrderExtensionService().extendedSaveDrugOrder(newOrder);
+		newOrder.setDosingInstructions(administrationInstructions);
+		newOrder.setInstructions(instructions);
 
 		return getOrderExtensionService().extendedSaveDrugOrder(newOrder);
 	}
@@ -493,7 +512,9 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 			discontinueDate = OrderExtensionUtil.adjustDateToEndOfDay(stopDate);
 		}
 
-		getOrderExtensionService().discontinueOrder(drugOrder, stopReason, discontinueDate);
+		Encounter encounter = ensureDrugOrderEncounter(patient, null, discontinueDate);
+		Provider orderer = getProviderForUser(Context.getAuthenticatedUser());
+		Context.getOrderService().discontinueOrder(drugOrder, stopReason, discontinueDate, orderer, encounter);
 	}
 
 	@Override
@@ -507,9 +528,12 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 				Context.getOrderService().voidOrder(order, stopReason.getDisplayString());
 			}
 		}
+		Encounter encounter = ensureDrugOrderEncounter(patient, null, stopDate);
+		Provider orderer = getProviderForUser(Context.getAuthenticatedUser());
+
 		for (DrugOrder order : regimen.getMembers()) {
 			if (OrderEntryUtil.isCurrent(order)) {
-				getOrderExtensionService().discontinueOrder(order, stopReason, OrderExtensionUtil.adjustDateToEndOfDay(stopDate));
+				Context.getOrderService().discontinueOrder(order, stopReason, stopDate, orderer, encounter);
 			}
 			else if (OrderEntryUtil.isFuture(order)) {
 				Context.getOrderService().voidOrder(order, stopReason.getDisplayString());
@@ -595,25 +619,21 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 	 */
 	@Override
 	@Transactional
-	public void addOrdersForPatient(Patient patient, ExtendedOrderSet orderSet, Date startDate, Integer numCycles) {
-		
+	public List<DrugRegimen> addOrdersForPatient(Patient patient, ExtendedOrderSet orderSet, Date startDate, Integer numCycles) {
+
+		List<DrugRegimen> ret = new ArrayList<DrugRegimen>();
+
 		if (numCycles == null) {
 			numCycles = 1;
 		}
 
 		Date currentDate = new Date();
 		User currentUser = Context.getAuthenticatedUser();
-		Encounter encounter = getExistingDrugOrderEncounter(patient, currentDate, currentUser);
-		if (encounter == null) {
-			Date encDate = startDate == null || currentDate.before(startDate) ? currentDate : startDate;
-			encounter = createDrugOrderEncounter(patient, encDate);
-		}
 		
 		for (int i=0; i<numCycles; i++) {
 			
 			DrugRegimen orderGroup = new DrugRegimen();
 			orderGroup.setPatient(patient);
-			orderGroup.setEncounter(encounter);
 			orderGroup.setOrderSet(orderSet);
 			if (orderSet.isCyclical()) {
 				orderGroup.setCycleNumber(i+1);
@@ -654,7 +674,6 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 
 				drugOrder.setOrderGroup(orderGroup);
 				drugOrder.setPatient(patient);
-				drugOrder.setEncounter(encounter);
 				drugOrder.setOrderer(getProviderForUser(currentUser));
 				drugOrder.setOrderType(OrderEntryUtil.getDrugOrderType());
 				drugOrder.setCareSetting(OrderEntryUtil.getDefaultCareSetting());
@@ -662,25 +681,29 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 				orderGroup.addOrder(drugOrder);
 			}
 
-			getOrderExtensionService().saveDrugRegimen(orderGroup);
+			orderGroup = getOrderExtensionService().saveDrugRegimen(orderGroup);
+			ret.add(orderGroup);
 		}
+		return ret;
 	}
 
 	protected OrderExtensionService getOrderExtensionService() {
 		return Context.getService(OrderExtensionService.class);
 	}
 
-	/**
-	 * @return the dao
-	 */
 	public OrderExtensionDAO getDao() {
 		return dao;
 	}
 
-	/**
-	 * @param dao the dao to set
-	 */
 	public void setDao(OrderExtensionDAO dao) {
 		this.dao = dao;
+	}
+
+	public OrderDAO getOrderDao() {
+		return orderDao;
+	}
+
+	public void setOrderDao(OrderDAO orderDao) {
+		this.orderDao = orderDao;
 	}
 }

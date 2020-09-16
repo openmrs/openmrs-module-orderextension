@@ -28,7 +28,33 @@ public class OrderEntryUtil {
 	 * Needed due to removal of the drug order type hard-coded primary key in core
 	 */
 	public static OrderType getDrugOrderType() {
-		return Context.getOrderService().getOrderType(2); // TODO: Needs review and improvement to ensure correct
+		String propertyValue = Context.getAdministrationService().getGlobalProperty("orderextension.drugOrderType");
+		if (StringUtils.isEmpty(propertyValue)) {
+			throw new IllegalStateException("Please configure the orderextension.drugOrderType global property");
+		}
+		try {
+			int orderTypeId = Integer.parseInt(propertyValue);
+			OrderType ret = Context.getOrderService().getOrderType(orderTypeId);
+			if (ret != null) {
+				return ret;
+			}
+		}
+		catch (Exception e) {}
+		try {
+			OrderType ret = Context.getOrderService().getOrderTypeByUuid(propertyValue);
+			if (ret != null) {
+				return ret;
+			}
+		}
+		catch (Exception e) {}
+		try {
+			OrderType ret = Context.getOrderService().getOrderTypeByName(propertyValue);
+			if (ret != null) {
+				return ret;
+			}
+		}
+		catch (Exception e) {}
+		throw new IllegalStateException("Please ensure that the orderextension.drugOrderType global property references a uuid or name of an order type in the system");
 	}
 
 	/**

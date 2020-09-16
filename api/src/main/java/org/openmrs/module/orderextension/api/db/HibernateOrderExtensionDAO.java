@@ -27,7 +27,6 @@ import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
 import org.openmrs.Order;
 import org.openmrs.Patient;
-import org.openmrs.User;
 import org.openmrs.api.db.hibernate.DbSession;
 import org.openmrs.api.db.hibernate.DbSessionFactory;
 import org.openmrs.module.orderextension.DrugRegimen;
@@ -107,13 +106,12 @@ public class HibernateOrderExtensionDAO implements OrderExtensionDAO {
 	}
 
 	@Override
-	public Encounter getExistingDrugOrderEncounter(Patient patient, EncounterType type, Date dateCreated, User creator) {
+	public Encounter getExistingDrugOrderEncounter(Patient patient, EncounterType type, Date encounterDate) {
 		Criteria c = getCurrentSession().createCriteria(Encounter.class);
 		c.add(Restrictions.eq("patient", patient));
 		c.add(Restrictions.eq("encounterType", type));
-		c.add(Restrictions.ge("dateCreated", OrderExtensionUtil.startOfDay(dateCreated)));
-		c.add(Restrictions.le("dateCreated", OrderExtensionUtil.endOfDay(dateCreated)));
-		c.add(Restrictions.eq("creator", creator));
+		c.add(Restrictions.ge("encounterDatetime", OrderExtensionUtil.startOfDay(encounterDate)));
+		c.add(Restrictions.le("encounterDatetime", OrderExtensionUtil.endOfDay(encounterDate)));
 		c.addOrder(org.hibernate.criterion.Order.desc("encounterId"));
 		List<Encounter> l = c.list();
 		if (l.isEmpty()) {

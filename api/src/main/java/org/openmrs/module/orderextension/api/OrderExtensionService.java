@@ -43,70 +43,70 @@ public interface OrderExtensionService extends OpenmrsService {
 	/**
 	 * @param id the primary key id for the ExtendedOrderSet
 	 * @return the ExtendedOrderSet matching the passed primary key id
-	 * @should return an ExtendedOrderSet with the passed id
+	 * should return an ExtendedOrderSet with the passed id
 	 */
 	@Authorized(OrderExtensionConstants.PRIV_VIEW_ORDER_SETS)
 	ExtendedOrderSet getOrderSet(Integer id);
-	
+
 	/**
 	 * @param uuid the unique uuid for the ExtendedOrderSet
 	 * @return the ExtendedOrderSet matching the passed uuid
-	 * @should return an ExtendedOrderSet with the passed uuid
+	 * should return an ExtendedOrderSet with the passed uuid
 	 */
 	@Authorized(OrderExtensionConstants.PRIV_VIEW_ORDER_SETS)
 	ExtendedOrderSet getOrderSetByUuid(String uuid);
-	
+
 	/**
 	 * This will retrieve all named OrderSets, optionally including those that are retired
 	 * Non-named OrderSets are assumed to be nested, "inner" OrderSets within other OrderSets and are not returned by this method
-	 * @param includeRetired if false, should not include retired OrderSets 
+	 * @param includeRetired if false, should not include retired OrderSets
 	 * @return all existing, named OrderSets, limited to non-retired if applicable
-	 * @should return all order sets
-	 * @should not return retired order sets if specified
+	 * should return all order sets
+	 * should not return retired order sets if specified
 	 */
 	@Authorized(OrderExtensionConstants.PRIV_VIEW_ORDER_SETS)
 	List<ExtendedOrderSet> getNamedOrderSets(boolean includeRetired);
-	
+
 	/**
 	 * Retrieves all named, non-retired Order Sets that match all or part of the specified name and the specified Concept
 	 * Both parameters are optional, and only limit the resulting Order Sets if specified.
 	 * @param partialName the name fragment to search for Order Sets
 	 * @return the ExtendedOrderSet matching the passed uuid
-	 * @should limit results to only those order sets whose name matches the partialName if specified
-	 * @should not limit results by name if partial name is not specified
-	 * @should limit results to only those order sets matching the passed indication if specified
-	 * @should not limit results by indication if not specified
-	 * @should only return named order sets
-	 * @should not return retired order sets
+	 * should limit results to only those order sets whose name matches the partialName if specified
+	 * should not limit results by name if partial name is not specified
+	 * should limit results to only those order sets matching the passed indication if specified
+	 * should not limit results by indication if not specified
+	 * should only return named order sets
+	 * should not return retired order sets
 	 */
 	@Authorized(OrderExtensionConstants.PRIV_VIEW_ORDER_SETS)
 	List<ExtendedOrderSet> findAvailableOrderSets(String partialName, Concept indication);
-	
+
 	/**
 	 * @param orderSet the ExtendedOrderSet to save
 	 * @return the saved ExtendedOrderSet
-	 * @should save a new ExtendedOrderSet
-	 * @should save changes to an existing ExtendedOrderSet
+	 * should save a new ExtendedOrderSet
+	 * should save changes to an existing ExtendedOrderSet
 	 */
 	@Authorized(OrderExtensionConstants.PRIV_MANAGE_ORDER_SETS)
 	ExtendedOrderSet saveOrderSet(ExtendedOrderSet orderSet);
-	
+
 	/**
 	 * This will purge an ExtendedOrderSet from the database.  If this ExtendedOrderSet contains
 	 * nested, unnamed OrderSets, these will be purged as well.
 	 * @param orderSet the ExtendedOrderSet to purge from the database
-	 * @should delete the passed ExtendedOrderSet if no Order Groups are linked to it
-	 * @should delete nested OrderSets if these are unnamed
-	 * @should throw an exception if any Order Groups are linked to this order set
-	 * @should throw an exception if any Order Groups are linked to unnamed, nested order sets
+	 * should delete the passed ExtendedOrderSet if no Order Groups are linked to it
+	 * should delete nested OrderSets if these are unnamed
+	 * should throw an exception if any Order Groups are linked to this order set
+	 * should throw an exception if any Order Groups are linked to unnamed, nested order sets
 	 */
 	@Authorized(OrderExtensionConstants.PRIV_DELETE_ORDER_SETS)
 	void purgeOrderSet(ExtendedOrderSet orderSet);
-	
+
 	/**
 	 * @param id the primary key id for the ExtendedOrderSetMember
 	 * @return the ExtendedOrderSetMember matching the passed primary key id
-	 * @should return an ExtendedOrderSetMember with the passed id
+	 * should return an ExtendedOrderSetMember with the passed id
 	 */
 	@Authorized(OrderExtensionConstants.PRIV_VIEW_ORDER_SETS)
 	ExtendedOrderSetMember getOrderSetMember(Integer id);
@@ -129,19 +129,9 @@ public interface OrderExtensionService extends OpenmrsService {
 	Provider getProviderForUser(User user);
 
 	/**
-	 * @return a new Encounter saved for the Patient for the given date, current user, with the default encounter type
+	 * @return a non-null encounter with an appropriate date for this encounter date and patient
 	 */
-	Encounter createDrugOrderEncounter(Patient patient, Date encounterDate);
-
-	/**
-	 * @return matching Encounters
-	 */
-	Encounter getExistingDrugOrderEncounter(Patient patient, Date dateCreated, User creator);
-
-	/**
-	 * Discontinues the given Order
-	 */
-	void discontinueOrder(DrugOrder drugOrder, Concept stopConcept, Date stopDateDrug);
+	Encounter ensureDrugOrderEncounter(Patient patient, Encounter encounter, Date encounterDate);
 
 	/**
 	 * Save a given Drug Order
@@ -151,8 +141,8 @@ public interface OrderExtensionService extends OpenmrsService {
 	/**
 	 * @param orderGroup the DrugRegimen to save
 	 * @return the saved ExtendedOrderGroup
-	 * @should save a new ExtendedOrderGroup
-	 * @should save changes to an existing ExtendedOrderGroup
+	 * should save a new ExtendedOrderGroup
+	 * should save changes to an existing ExtendedOrderGroup
 	 */
 	@Authorized(PrivilegeConstants.ADD_ORDERS)
 	DrugRegimen saveDrugRegimen(DrugRegimen orderGroup);
@@ -162,24 +152,24 @@ public interface OrderExtensionService extends OpenmrsService {
 	 */
 	@Authorized(PrivilegeConstants.ADD_ORDERS)
 	void saveDrugRegimens(List<DrugRegimen> drugRegimens);
-	
+
 	/**
 	 * @param patient the Patient for whom to retrieve the Orders
 	 * @return a List of all OrderGroups
-	 * @should return all OrderGroups for the passed patient for the passed type
+	 * should return all OrderGroups for the passed patient for the passed type
 	 */
 	@Authorized(PrivilegeConstants.GET_ORDERS)
 	List<DrugRegimen> getDrugRegimens(Patient patient);
-	
+
 	/**
 	 * @param patient the Patient for whom to add the Orders
 	 * @param orderSet the ExtendedOrderSet to use as a template to create the new Orders
 	 * @param startDate the Date on which to start the new Orders
 	 * @param numCycles if the ExtendedOrderSet represents a cyclical set of Orders, the number of cycles to Order
-	 * @should add the appropriate number of Orders for the patient given the passed ExtendedOrderSet
+	 * should add the appropriate number of Orders for the patient given the passed ExtendedOrderSet
 	 */
 	@Authorized(PrivilegeConstants.ADD_ORDERS)
-	void addOrdersForPatient(Patient patient, ExtendedOrderSet orderSet, Date startDate, Integer numCycles);
+	List<DrugRegimen> addOrdersForPatient(Patient patient, ExtendedOrderSet orderSet, Date startDate, Integer numCycles);
     
     /**
      * @param id the id of the drugRegimen to be returned

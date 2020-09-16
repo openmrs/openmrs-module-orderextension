@@ -13,12 +13,13 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.util.Properties;
 
+import org.apache.commons.io.FileUtils;
 import org.dbunit.database.DatabaseConnection;
 import org.dbunit.database.IDatabaseConnection;
 import org.dbunit.database.QueryDataSet;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
+import org.hibernate.dialect.MySQLDialect;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openmrs.api.context.Context;
 import org.openmrs.test.BaseContextSensitiveTest;
@@ -26,7 +27,6 @@ import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.openmrs.test.SkipBaseSetup;
 import org.openmrs.util.OpenmrsUtil;
 
-@Ignore
 public class CreateInitialDataSet extends BaseModuleContextSensitiveTest {
 	
 	/**
@@ -50,31 +50,84 @@ public class CreateInitialDataSet extends BaseModuleContextSensitiveTest {
 
 		IDatabaseConnection connection = new DatabaseConnection(getConnection());
 
+		// 50 = Non-Hodgkin Lymphoma CHOP Adult ; 82 = AZT + 3TC + DTG
+		String orderSets = " order_set_id in (50,82)";
+
 		QueryDataSet initialDataSet = new QueryDataSet(connection);
-		initialDataSet.addTable("orderextension_order_set", "SELECT * FROM orderextension_order_set where id = 21");
-		initialDataSet.addTable("orderextension_order_set_member", "SELECT * FROM orderextension_order_set_member where order_set_id = 21");
 
-        initialDataSet.addTable("concept",
-                "SELECT * from concept where concept_id in (" +
-                        "select concept_id from orderextension_order_set_member where order_set_id = 21 union " +
-                        "select indication from orderextension_order_set_member where order_set_id = 21 union " +
-                        "select route from orderextension_order_set_member where order_set_id = 21 union " +
-                        "select dosage_form from drug where drug_id in (select drug_id from orderextension_order_set_member where order_set_id = 21) union " +
-                        "select route from drug where drug_id in (select drug_id from orderextension_order_set_member where order_set_id = 21)" +
-                        ")");
-        initialDataSet.addTable("concept_name",
-                "SELECT * from concept_name where concept_id in (" +
-                        "select concept_id from orderextension_order_set_member where order_set_id = 21 union " +
-                        "select indication from orderextension_order_set_member where order_set_id = 21 union " +
-                        "select route from orderextension_order_set_member where order_set_id = 21" +
-                        ")");
-        initialDataSet.addTable("drug", "SELECT * from drug where drug_id in (select drug_id from orderextension_order_set_member where order_set_id = 21)");
+		// 2 = Indication, 5 = Dose Units, 6 = Route
+		StringBuilder cq = new StringBuilder();
+		cq.append("select distinct trim(replace(SUBSTRING_INDEX(SUBSTRING_INDEX(order_template, ',', 2), ':', -1), '\"','')) from order_set_member where " + orderSets);
+		cq.append(" UNION ");
+		cq.append("select distinct trim(replace(SUBSTRING_INDEX(SUBSTRING_INDEX(order_template, ',', 5), ':', -1), '\"','')) from order_set_member where " + orderSets);
+		cq.append(" UNION ");
+		cq.append("select distinct trim(replace(SUBSTRING_INDEX(SUBSTRING_INDEX(order_template, ',', 6), ':', -1), '\"','')) from order_set_member where " + orderSets);
+		cq.append(" UNION ");
+		cq.append("select uuid from concept where concept_id in (select category from order_set where " + orderSets + ")");
+		cq.append(" UNION ");
+		cq.append("select uuid from concept where concept_id in (select concept_id from order_frequency)");
+		cq.append(" UNION ");
+		cq.append("select property_value from global_property where property like 'order.%ConceptUuid' and property_value is not null");
+		cq.append(" UNION ");
+		cq.append("select uuid from concept where concept_id in (select cs.concept_id from concept_set cs inner join concept c on cs.concept_set = c.concept_id and c.uuid = '162384AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')");
+		cq.append(" UNION ");
+		cq.append("select uuid from concept where concept_id in (select cs.concept_id from concept_set cs inner join concept c on cs.concept_set = c.concept_id and c.uuid = '162394AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')");
+		cq.append(" UNION ");
+		cq.append("select uuid from concept where concept_id in (select cs.concept_id from concept_set cs inner join concept c on cs.concept_set = c.concept_id and c.uuid = '1732AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')");
+		cq.append(" UNION ");
+		cq.append("select distinct uuid from concept where concept_id in (select concept_id from drug where uuid in (");
+		cq.append("    select distinct trim(replace(SUBSTRING_INDEX(SUBSTRING_INDEX(order_template, ',', 3), ':', -1), '\"','')) from order_set_member where " + orderSets);
+		cq.append("))");
+		cq.append(" UNION ");
+		cq.append("select distinct uuid from concept where concept_id in (select dosage_form from drug where uuid in (");
+		cq.append("    select distinct trim(replace(SUBSTRING_INDEX(SUBSTRING_INDEX(order_template, ',', 3), ':', -1), '\"','')) from order_set_member where " + orderSets);
+		cq.append("))");
+		addTable(initialDataSet, "concept", "select * from concept where uuid in (" + cq.toString() + ")");
+		addTable(initialDataSet, "concept_name", "select cn.* from concept_name cn where cn.concept_name_type = 'FULLY_SPECIFIED' and cn.locale = 'en' and cn.concept_id in (select concept_id from concept where uuid in (" + cq.toString() + "))");
 
-        File outputFile = new File(OpenmrsUtil.getApplicationDataDirectory(), "orderSets.xml");
+		StringBuilder csq = new StringBuilder();
+		csq.append("select cs.* from concept_set cs inner join concept c on cs.concept_set = c.concept_id ");
+		csq.append("where c.uuid in ('162384AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA','162394AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA','1732AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')");
+		addTable(initialDataSet, "concept_set", csq.toString());
+
+		addTable(initialDataSet, "order_frequency", "select * from order_frequency");
+
+		StringBuilder dq = new StringBuilder();
+		dq.append("select * from drug where uuid in (");
+		dq.append("    select distinct trim(replace(SUBSTRING_INDEX(SUBSTRING_INDEX(order_template, ',', 3), ':', -1), '\"','')) from order_set_member where " + orderSets);
+		dq.append(")");
+		addTable(initialDataSet, "drug", dq.toString());
+
+		addTable(initialDataSet, "order_set", "SELECT * FROM order_set where " + orderSets);
+		addTable(initialDataSet, "orderextension_order_set", "SELECT * FROM orderextension_order_set where id in (50,82)");
+		addTable(initialDataSet, "order_set_member", "SELECT * FROM order_set_member where " + orderSets);
+
+		addTable(initialDataSet, "encounter_type", "select * from encounter_type where name = 'Drug Order Encounter'");
+		addTable(initialDataSet, "global_property", "select * from global_property where property like 'orderextension.%' or property like 'order.%'");
+
+		File outputFile = new File(OpenmrsUtil.getApplicationDataDirectory(), "orderSets.xml");
         System.out.println("Writing to file: " + outputFile.getAbsolutePath());
 		FlatXmlDataSet.write(initialDataSet, new FileOutputStream(outputFile));
+
+		String xmlFileContents = FileUtils.readFileToString(outputFile, "UTF-8");
+		xmlFileContents = xmlFileContents.replace("short_name=\"\" ", "");
+		xmlFileContents = xmlFileContents.replace("description=\"\" ", "");
+		xmlFileContents = xmlFileContents.replace("operator=\"ANY\"", "operator=\"ANY\" description=\"No description\"");
+		xmlFileContents = xmlFileContents.replaceAll("creator=\"[0-9]*\"", "creator=\"1\"");
+		xmlFileContents = xmlFileContents.replaceAll("_by=\"[0-9]*\"", "_by=\"1\"");
+		xmlFileContents = xmlFileContents.replaceAll("route=\"[0-9]*\" ", "");
+		xmlFileContents = xmlFileContents.replace("class_id=\"19\"", "class_id=\"11\""); // ICD-10
+		xmlFileContents = xmlFileContents.replace("class_id=\"20\"", "class_id=\"20\""); // Units
+		xmlFileContents = xmlFileContents.replace("class_id=\"21\"", "class_id=\"19\""); // Frequency
+
+		FileUtils.writeStringToFile(outputFile, xmlFileContents, "UTF-8");
 	}
-	
+
+	private void addTable(QueryDataSet initialDataSet, String table, String query) throws Exception {
+		System.out.println(query);
+		initialDataSet.addTable(table, query);
+	}
+
 	/**
 	 * @see BaseContextSensitiveTest#useInMemoryDatabase()
 	 */
@@ -88,13 +141,12 @@ public class CreateInitialDataSet extends BaseModuleContextSensitiveTest {
      */
     @Override
     public Properties getRuntimeProperties() {
-        Properties p = super.getRuntimeProperties();
-        p.setProperty("connection.url", "jdbc:mysql://localhost:3306/openmrs_rwink?autoReconnect=true&useUnicode=true&characterEncoding=UTF-8");
-        p.setProperty("connection.username", "openmrs");
-        p.setProperty("connection.password", "openmrs");
-        p.setProperty("junit.username", "mseaton");
-        p.setProperty("junit.password", "Test1234");
-        return p;
+	    System.setProperty("databaseUrl", "jdbc:mysql://localhost:3308/openmrs?autoReconnect=true&useUnicode=true&characterEncoding=UTF-8");
+	    System.setProperty("databaseUsername", "root");
+	    System.setProperty("databasePassword", "password");
+	    System.setProperty("databaseDriver", "com.mysql.jdbc.Driver");
+	    System.setProperty("databaseDialect", MySQLDialect.class.getName());
+	    return super.getRuntimeProperties();
     }
 
     @Before

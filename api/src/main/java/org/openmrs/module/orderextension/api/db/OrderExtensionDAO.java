@@ -21,7 +21,6 @@ import org.openmrs.DrugOrder;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
 import org.openmrs.Patient;
-import org.openmrs.User;
 import org.openmrs.module.orderextension.DrugRegimen;
 import org.openmrs.module.orderextension.ExtendedOrderSet;
 import org.openmrs.module.orderextension.ExtendedOrderSetMember;
@@ -67,7 +66,7 @@ public interface OrderExtensionDAO {
 	/**
 	 * @return matching Encounters
 	 */
-	public Encounter getExistingDrugOrderEncounter(Patient patient, EncounterType type, Date dateCreated, User creator);
+	public Encounter getExistingDrugOrderEncounter(Patient patient, EncounterType type, Date encounterDate);
 
 	/**
 	 * @see OrderExtensionService#getDrugRegimens(Patient)

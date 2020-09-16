@@ -9,27 +9,28 @@
  */
 package org.openmrs.module.orderextension.api;
 
+import java.util.Date;
+import java.util.List;
+
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
+import org.openmrs.DrugOrder;
 import org.openmrs.OrderSet;
 import org.openmrs.OrderSetMember;
+import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.orderextension.BaseOrderExtensionTest;
+import org.openmrs.module.orderextension.DrugRegimen;
 import org.openmrs.module.orderextension.ExtendedOrderSet;
-import org.openmrs.test.BaseModuleContextSensitiveTest;
+import org.openmrs.module.orderextension.util.OrderExtensionUtil;
 
 /**
  * Tests for Order Extension
  */
-public class OrderExtensionServiceTest extends BaseModuleContextSensitiveTest {
-
-    @Before
-    public void setupTestData() throws Exception {
-        executeDataSet("org/openmrs/module/orderextension/include/orderSets.xml");
-    }
+public class OrderExtensionServiceTest extends BaseOrderExtensionTest {
 
 	@Test
-	public void shouldSaveAnOrderSet() throws Exception {
+	public void shouldSaveAnOrderSet() {
         ExtendedOrderSet orderSet = new ExtendedOrderSet();
         orderSet.setName("Test Order Set");
         orderSet.setDescription("This is a test");
@@ -47,15 +48,14 @@ public class OrderExtensionServiceTest extends BaseModuleContextSensitiveTest {
 
         getService().saveOrderSet(orderSet);
 
-        OrderSet orderSet1 = getService().getOrderSet(orderSet.getId());
+        ExtendedOrderSet orderSet1 = getService().getOrderSet(orderSet.getId());
         Assert.assertEquals(orderSet.getName(), orderSet1.getName());
         Assert.assertEquals(orderSet.getDescription(), orderSet1.getDescription());
         Assert.assertEquals(orderSet.getCategory(), orderSet1.getCategory());
         Assert.assertEquals(ExtendedOrderSet.class, orderSet1.getClass());
 
-        ExtendedOrderSet extendedOrderSet1 = (ExtendedOrderSet) orderSet1;
-        Assert.assertEquals(orderSet.isCyclical(), extendedOrderSet1.isCyclical());
-        Assert.assertEquals(orderSet.getCycleLengthInDays(), extendedOrderSet1.getCycleLengthInDays());
+        Assert.assertEquals(orderSet.isCyclical(), orderSet1.isCyclical());
+        Assert.assertEquals(orderSet.getCycleLengthInDays(), orderSet1.getCycleLengthInDays());
         Assert.assertEquals(1, orderSet1.getOrderSetMembers().size());
 
         OrderSetMember member1 = orderSet1.getOrderSetMembers().get(0);
@@ -64,7 +64,33 @@ public class OrderExtensionServiceTest extends BaseModuleContextSensitiveTest {
         Assert.assertEquals(member.getOrderTemplate(), member1.getOrderTemplate());
 	}
 
-    private OrderExtensionService getService() {
-        return Context.getService(OrderExtensionService.class);
+    @Test
+    public void shouldAddOrdersFromAnOrderSet() {
+        Patient patient = Context.getPatientService().getPatient(2);
+        ExtendedOrderSet orderSet = getService().getOrderSet(50);
+        int numCycles = 3;
+
+        List<DrugOrder> startingOrders = getOrdersForPatient(patient);
+        getService().addOrdersForPatient(patient, orderSet, new Date(), numCycles);
+        int expectedNumberOfOrders = orderSet.getOrderSetMembers().size() * numCycles;
+        List<DrugOrder> endingOrders = getOrdersForPatient(patient);
+        endingOrders.removeAll(startingOrders);
+        Assert.assertEquals(expectedNumberOfOrders, endingOrders.size());
+    }
+
+    @Test
+    public void shouldChangeStartDateOfAllCyclesToEarlierDate() {
+        Patient patient = Context.getPatientService().getPatient(2);
+        ExtendedOrderSet orderSet = getService().getOrderSet(50);
+
+        // First, add 3 cycles, starting in 1 week
+        int numCycles = 3;
+        Date today = new Date();
+        Date oneWeekFromNow = OrderExtensionUtil.adjustDate(today, 7);
+        List<DrugRegimen> regimens = getService().addOrdersForPatient(patient, orderSet, oneWeekFromNow, numCycles);
+        Assert.assertEquals(numCycles, regimens.size());
+
+        // Next, change the start date to today for the current cycle, and apply to all future cycles
+        getService().changeStartDateOfGroup(patient, regimens.get(0), today, true);
     }
 }

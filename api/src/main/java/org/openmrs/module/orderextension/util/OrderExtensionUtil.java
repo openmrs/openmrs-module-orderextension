@@ -198,6 +198,21 @@ public class OrderExtensionUtil  {
 		return d;
 	}
 
+	/**
+	 * @return the startDate for the Drug Order that has the earliest start date among all members
+	 */
+	public static Date getFirstDrugOrderDateActivated(OrderGroup orderGroup) {
+		Date d = null;
+		for (Order o : getOrdersInGroup(orderGroup)) {
+			if (!o.getVoided()) {
+				if (d == null || d.after(o.getDateActivated())) {
+					d = o.getDateActivated();
+				}
+			}
+		}
+		return d;
+	}
+
 	public static Date getLastDrugOrderEndDate(OrderGroup orderGroup) {
 		Date d = null;
 		for (Order o : getOrdersInGroup(orderGroup)) {

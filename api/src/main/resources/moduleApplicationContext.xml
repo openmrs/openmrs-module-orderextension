@@ -29,7 +29,8 @@
 					</property>
 					<property name="target">
 						<bean class="${project.parent.groupId}.${project.parent.artifactId}.api.OrderExtensionServiceImpl">
-							<property name="dao" ref="orderExtensionDao" /> 
+							<property name="dao" ref="orderExtensionDao" />
+							<property name="orderDao" ref="orderDAO" />
 						</bean>
 					</property>
 					<property name="preInterceptors">
