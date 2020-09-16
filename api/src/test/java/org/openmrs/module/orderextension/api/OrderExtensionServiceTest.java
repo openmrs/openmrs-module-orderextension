@@ -93,4 +93,20 @@ public class OrderExtensionServiceTest extends BaseOrderExtensionTest {
         // Next, change the start date to today for the current cycle, and apply to all future cycles
         getService().changeStartDateOfGroup(patient, regimens.get(0), today, true);
     }
+
+    @Test
+    public void shouldAddDrugOrderToGroup() {
+        Patient patient = Context.getPatientService().getPatient(2);
+        ExtendedOrderSet orderSet = getService().getOrderSet(50);
+
+        // First, add 3 cycles, starting in 1 week
+        int numCycles = 3;
+        Date today = new Date();
+        Date oneWeekFromNow = OrderExtensionUtil.adjustDate(today, 7);
+        List<DrugRegimen> regimens = getService().addOrdersForPatient(patient, orderSet, oneWeekFromNow, numCycles);
+        Assert.assertEquals(numCycles, regimens.size());
+
+        // Next, change the start date to today for the current cycle, and apply to all future cycles
+        getService().changeStartDateOfGroup(patient, regimens.get(0), today, true);
+    }
 }

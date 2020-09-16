@@ -20,13 +20,11 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.openmrs.Concept;
-import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterRole;
 import org.openmrs.EncounterType;
 import org.openmrs.Order;
-import org.openmrs.OrderFrequency;
 import org.openmrs.OrderGroup;
 import org.openmrs.OrderSet;
 import org.openmrs.OrderSetMember;
@@ -45,6 +43,7 @@ import org.openmrs.module.orderextension.DrugRegimen;
 import org.openmrs.module.orderextension.ExtendedOrderSet;
 import org.openmrs.module.orderextension.ExtendedOrderSetMember;
 import org.openmrs.module.orderextension.api.db.OrderExtensionDAO;
+import org.openmrs.module.orderextension.util.DrugOrderTemplate;
 import org.openmrs.module.orderextension.util.OrderEntryUtil;
 import org.openmrs.module.orderextension.util.OrderExtensionUtil;
 import org.springframework.transaction.annotation.Transactional;
@@ -193,6 +192,34 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 			encounter.setEncounterDatetime(encounterDate);
 		}
 		return encounter;
+	}
+
+	/**
+	 * @see OrderExtensionService#extendedSaveDrugOrder(DrugOrder)
+	 */
+	@Override
+	@Transactional
+	public DrugOrder extendedSaveDrugOrder(DrugOrderTemplate drugOrderTemplate, boolean includeCycles) {
+		Patient patient = drugOrderTemplate.getPatient();
+		if (drugOrderTemplate.getRegimen() != null && includeCycles) {
+			DrugRegimen regimen = drugOrderTemplate.getRegimen();
+			int daysIntoRegimen = OrderExtensionUtil.daysDiff(regimen.getFirstDrugOrderStartDate(), drugOrderTemplate.getStartDate());
+
+			List<DrugRegimen> futureRegimens = getOrderExtensionService().getFutureDrugRegimensOfSameOrderSet(
+					patient, regimen, regimen.getFirstDrugOrderStartDate()
+			);
+
+			for (DrugRegimen futureRegimen : futureRegimens) {
+				DrugOrder drugOrder = drugOrderTemplate.toDrugOrder();
+				Date startDate = OrderExtensionUtil.adjustDate(futureRegimen.getFirstDrugOrderStartDate(), daysIntoRegimen);
+				OrderEntryUtil.setStartDate(drugOrder, startDate);
+				drugOrder.setOrderGroup(futureRegimen);
+				getOrderExtensionService().extendedSaveDrugOrder(drugOrder);
+			}
+		}
+
+		DrugOrder drugOrder = drugOrderTemplate.toDrugOrder();
+		return getOrderExtensionService().extendedSaveDrugOrder(drugOrder);
 	}
 
 	/**
@@ -417,21 +444,20 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 
 	@Override
 	@Transactional
-	public DrugOrder changeDrugOrder(Patient patient, DrugOrder drugOrder, Drug drug, Concept orderReason, Date startDateDrug,
-			Integer duration, Double dose, Concept doseUnits, Concept route, OrderFrequency frequency, boolean asNeeded,
-			String instructions, String administrationInstructions, String changeReason, boolean includeCycles) {
+	public DrugOrder changeDrugOrder(DrugOrder drugOrder, DrugOrderTemplate drugOrderTemplate, String changeReason, boolean includeCycles) {
 		OrderGroup regimen = OrderEntryUtil.getOrderGroup(drugOrder);
 
 		if (includeCycles) {
 
 			List<DrugOrder> futureOrders = getOrderExtensionService().getFutureDrugOrdersOfSameOrderSet(
-					patient, regimen.getOrderSet(), OrderExtensionUtil.getFirstDrugOrderStartDate(regimen)
+					drugOrder.getPatient(), regimen.getOrderSet(), OrderExtensionUtil.getFirstDrugOrderStartDate(regimen)
 			);
 			for (DrugOrder order : futureOrders) {
 				if (OrderExtensionUtil.orderablesMatch(order, drugOrder)) {
 					//assuming that the same drug won't appear twice in the same indication within a cycle and that you would want to change the dose on one
 					if (OrderExtensionUtil.reasonsMatch(order, drugOrder)) {
 						Date startDate = order.getEffectiveStartDate();
+						Date startDateDrug = drugOrderTemplate.getStartDate();
 						if (drugOrder.getEffectiveStartDate().getTime() != startDateDrug.getTime()) {
 							startDate = OrderExtensionUtil.adjustDate(startDate, OrderExtensionUtil.daysDiff(drugOrder.getEffectiveStartDate(), startDateDrug));
 						}
@@ -439,18 +465,18 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 						if (drugOrder.getOrderType() == null) {
 							drugOrder.setOrderType(OrderEntryUtil.getDrugOrderType());
 						}
-						newOrder.setDrug(drug);
-						newOrder.setConcept(drug.getConcept());
-						newOrder.setOrderReason(orderReason);
-						newOrder.setDose(dose);
-						newOrder.setDoseUnits(doseUnits);
-						newOrder.setFrequency(frequency);
+						newOrder.setDrug(drugOrderTemplate.getDrug());
+						newOrder.setConcept(drugOrderTemplate.getDrug().getConcept());
+						newOrder.setOrderReason(drugOrderTemplate.getOrderReason());
+						newOrder.setDose(drugOrderTemplate.getDose());
+						newOrder.setDoseUnits(drugOrderTemplate.getDoseUnits());
+						newOrder.setFrequency(drugOrderTemplate.getFrequency());
 						OrderEntryUtil.setStartDate(newOrder, startDate);
-						OrderEntryUtil.setEndDate(newOrder, duration);
-						newOrder.setAsNeeded(asNeeded);
-						newOrder.setRoute(route);
-						drugOrder.setDosingInstructions(administrationInstructions);
-						drugOrder.setInstructions(instructions);
+						OrderEntryUtil.setEndDate(newOrder, drugOrderTemplate.getDuration());
+						newOrder.setAsNeeded(drugOrderTemplate.isAsNeeded());
+						newOrder.setRoute(drugOrderTemplate.getRoute());
+						drugOrder.setDosingInstructions(drugOrderTemplate.getAdminInstructions());
+						drugOrder.setInstructions(drugOrderTemplate.getInstructions());
 						getOrderExtensionService().extendedSaveDrugOrder(newOrder);
 					}
 				}
@@ -461,18 +487,18 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 		if (newOrder.getOrderType() == null) {
 			newOrder.setOrderType(OrderEntryUtil.getDrugOrderType());
 		}
-		newOrder.setDrug(drug);
-		newOrder.setConcept(drug.getConcept());
-		newOrder.setOrderReason(orderReason);
-		newOrder.setDose(dose);
-		newOrder.setDoseUnits(doseUnits);
-		newOrder.setFrequency(frequency);
-		OrderEntryUtil.setStartDate(newOrder, startDateDrug);
-		OrderEntryUtil.setEndDate(newOrder, duration);
-		newOrder.setAsNeeded(asNeeded);
-		newOrder.setRoute(route);
-		newOrder.setDosingInstructions(administrationInstructions);
-		newOrder.setInstructions(instructions);
+		newOrder.setDrug(drugOrderTemplate.getDrug());
+		newOrder.setConcept(drugOrderTemplate.getDrug().getConcept());
+		newOrder.setOrderReason(drugOrderTemplate.getOrderReason());
+		newOrder.setDose(drugOrderTemplate.getDose());
+		newOrder.setDoseUnits(drugOrderTemplate.getDoseUnits());
+		newOrder.setFrequency(drugOrderTemplate.getFrequency());
+		OrderEntryUtil.setStartDate(newOrder, drugOrderTemplate.getStartDate());
+		OrderEntryUtil.setEndDate(newOrder, drugOrderTemplate.getDuration());
+		newOrder.setAsNeeded(drugOrderTemplate.isAsNeeded());
+		newOrder.setRoute(drugOrderTemplate.getRoute());
+		drugOrder.setDosingInstructions(drugOrderTemplate.getAdminInstructions());
+		drugOrder.setInstructions(drugOrderTemplate.getInstructions());
 
 		return getOrderExtensionService().extendedSaveDrugOrder(newOrder);
 	}

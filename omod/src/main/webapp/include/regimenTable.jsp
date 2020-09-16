@@ -126,7 +126,7 @@
 					<td class="regimenCurrentDrugOrdered"><orderextension:format object="${drugOrder}"/></td>
 					<td class="regimenCurrentDrugDose"><orderextension:format object="${drugOrder.dose}"/> <orderextension:format object="${drugOrder.doseUnits}"/></td>
 					<td class="regimenCurrentDrugRoute"><orderextension:format object="${drugOrder}" format="route"/></td>
-					<td class="regimenCurrentDrugFrequency">${drugOrder.frequency} <c:if test="${drugOrder.asNeeded}"><spring:message code="orderextension.orderset.DrugOrderSetMember.asNeeded" /></c:if></td>
+					<td class="regimenCurrentDrugFrequency"><orderextension:format object="${drugOrder.frequency}"/> <c:if test="${drugOrder.asNeeded}"><spring:message code="orderextension.orderset.DrugOrderSetMember.asNeeded" /></c:if></td>
 					<td class="regimenCurrentDrugLength"><orderextension:format object="${drugOrder}" format="length"/></td>
 					<td class="regimenCurrentDrugInfusion"><orderextension:format object="${drugOrder}" format="administrationInstructions"/></td>
 					<td class="regimenCurrentDrugDateStart"><openmrs:formatDate date="${drugOrder.effectiveStartDate}" type="medium" /></td>

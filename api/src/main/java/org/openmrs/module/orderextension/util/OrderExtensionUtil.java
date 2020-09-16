@@ -25,6 +25,7 @@ import org.openmrs.Concept;
 import org.openmrs.DrugOrder;
 import org.openmrs.OpenmrsMetadata;
 import org.openmrs.Order;
+import org.openmrs.OrderFrequency;
 import org.openmrs.OrderGroup;
 import org.openmrs.OrderSet;
 import org.openmrs.api.db.hibernate.HibernateUtil;
@@ -71,6 +72,14 @@ public class OrderExtensionUtil  {
 			else if (o instanceof Concept) {
 				Concept c = (Concept)o;
 				return c.getDisplayString();
+			}
+			else if (o instanceof OrderFrequency) {
+				OrderFrequency freq = (OrderFrequency)o;
+				String freqStr = freq.getConcept().getDisplayString();
+				if (freqStr.equalsIgnoreCase("unspecified frequency")) {
+					freqStr = "";
+				}
+				return freqStr;
 			}
 			else if (o instanceof OpenmrsMetadata) {
 				OpenmrsMetadata m = (OpenmrsMetadata)o;

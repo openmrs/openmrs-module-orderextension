@@ -17,12 +17,10 @@ import java.util.Date;
 import java.util.List;
 
 import org.openmrs.Concept;
-import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterRole;
 import org.openmrs.EncounterType;
-import org.openmrs.OrderFrequency;
 import org.openmrs.OrderSet;
 import org.openmrs.Patient;
 import org.openmrs.Provider;
@@ -32,6 +30,7 @@ import org.openmrs.api.OpenmrsService;
 import org.openmrs.module.orderextension.DrugRegimen;
 import org.openmrs.module.orderextension.ExtendedOrderSet;
 import org.openmrs.module.orderextension.ExtendedOrderSetMember;
+import org.openmrs.module.orderextension.util.DrugOrderTemplate;
 import org.openmrs.module.orderextension.util.OrderExtensionConstants;
 import org.openmrs.util.PrivilegeConstants;
 
@@ -136,6 +135,11 @@ public interface OrderExtensionService extends OpenmrsService {
 	/**
 	 * Save a given Drug Order
 	 */
+	DrugOrder extendedSaveDrugOrder(DrugOrderTemplate drugOrderTemplate, boolean includeCycles);
+
+	/**
+	 * Save a given Drug Order
+	 */
 	DrugOrder extendedSaveDrugOrder(DrugOrder drugOrder);
 
 	/**
@@ -207,9 +211,7 @@ public interface OrderExtensionService extends OpenmrsService {
 	/**
 	 * Changes the details of a drug order and optionally other similar orders in the same regimen
 	 */
-	DrugOrder changeDrugOrder(Patient patient, DrugOrder drugOrder, Drug drug, Concept orderReason, Date startDate,
-			Integer duration, Double dose, Concept doseUnits, Concept route, OrderFrequency frequency, boolean asNeeded,
-			String instructions, String administrationInstructions, String changeReason, boolean includeCycles);
+	DrugOrder changeDrugOrder(DrugOrder drugOrder, DrugOrderTemplate drugOrderTemplate, String changeReason, boolean includeCycles);
 
 	/**
 	 * Stops the order and optionally all of the same instances of the order in future cycles

@@ -13,7 +13,6 @@
  */
 package org.openmrs.module.orderextension.web.controller;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -28,8 +27,8 @@ import org.openmrs.api.context.Context;
 import org.openmrs.module.orderextension.DrugRegimen;
 import org.openmrs.module.orderextension.ExtendedOrderSet;
 import org.openmrs.module.orderextension.api.OrderExtensionService;
+import org.openmrs.module.orderextension.util.DrugOrderTemplate;
 import org.openmrs.module.orderextension.util.OrderEntryUtil;
-import org.openmrs.module.orderextension.util.OrderExtensionUtil;
 import org.openmrs.module.orderextension.util.OrderFrequencyEditor;
 import org.openmrs.web.WebConstants;
 import org.springframework.stereotype.Controller;
@@ -118,17 +117,19 @@ public class OrderExtensionOrderController {
 	                       @RequestParam(value = "duration", required = false) Integer duration,
 	                       @RequestParam(value = "asNeeded", required = false) String asNeeded,
 						   @RequestParam(value = "route") Concept route,
-	                       @RequestParam(value = "classification", required = false) Integer classification,
-	                       @RequestParam(value = "indication", required = false) Integer indication,
+	                       @RequestParam(value = "classification", required = false) Concept classification,
+	                       @RequestParam(value = "indication", required = false) Concept indication,
 	                       @RequestParam(value = "instructions", required = false) String instructions,
 	                       @RequestParam(value = "adminInstructions", required = false) String adminInstructions,
 	                       @RequestParam(value = "returnPage") String returnPage) {
 
 		try {
-			DrugOrder drugOrder = buildNewDrugOrder(patient, drug, dose, doseUnits, frequency, startDateDrug,
-			    duration, (asNeeded != null), route, classification, indication, instructions, adminInstructions);
-
-			getOrderExtensionService().extendedSaveDrugOrder(drugOrder);
+			Concept orderReason = (classification != null ? classification : indication);
+			DrugOrderTemplate drugOrderTemplate = new DrugOrderTemplate(
+					patient, drug, dose, doseUnits, frequency, startDateDrug, duration, (asNeeded != null), route,
+					orderReason, instructions, adminInstructions, null
+			);
+			getOrderExtensionService().extendedSaveDrugOrder(drugOrderTemplate, false);
 		}
 		catch (Exception e) {
 			log.error("Unable to save drug order:", e);
@@ -150,42 +151,24 @@ public class OrderExtensionOrderController {
 	                                  @RequestParam(value = "duration", required = false) Integer duration,
 	                                  @RequestParam(value = "asNeeded", required = false) String asNeeded,
 									  @RequestParam(value = "route") Concept route,
-	                                  @RequestParam(value = "classification", required = false) Integer classification,
-	                                  @RequestParam(value = "indication", required = false) Integer indication,
+	                                  @RequestParam(value = "classification", required = false) Concept classification,
+	                                  @RequestParam(value = "indication", required = false) Concept indication,
 	                                  @RequestParam(value = "instructions", required = false) String instructions,
 	                                  @RequestParam(value = "adminInstructions", required = false) String adminInstructions,
 	                                  @RequestParam(value = "repeatCycles", required = false) String repeatCycle,
 	                                  @RequestParam(value = "returnPage") String returnPage) {
 
 		try {
-			List<DrugRegimen> regimensToSave = new ArrayList<DrugRegimen>();
-
 			DrugRegimen regimen = getOrderExtensionService().getDrugRegimen(groupId);
+			Concept orderReason = (classification != null ? classification : indication);
 
-			if (repeatCycle != null) {
-				List<DrugRegimen> futureRegimens = getOrderExtensionService().getFutureDrugRegimensOfSameOrderSet(patient, regimen, regimen.getFirstDrugOrderStartDate());
-
-				for (DrugRegimen futureRegimen : futureRegimens) {
-					Date firstStartDate = futureRegimen.getFirstDrugOrderStartDate();
-					Date startDate = OrderExtensionUtil.adjustDate(firstStartDate, OrderExtensionUtil.daysDiff(regimen.getFirstDrugOrderStartDate(), startDateDrug));
-					DrugOrder drugOrder = buildNewDrugOrder(
-							patient, drug, dose, doseUnits, frequency, startDate, duration, (asNeeded != null), route,
-							classification, indication, instructions, adminInstructions
-					);
-					drugOrder.setOrderGroup(futureRegimen);
-					futureRegimen.addOrder(drugOrder);
-					regimensToSave.add(futureRegimen);
-				}
-			}
-
-			DrugOrder drugOrder = buildNewDrugOrder(
+			DrugOrderTemplate drugOrderTemplate = new DrugOrderTemplate(
 					patient, drug, dose, doseUnits, frequency, startDateDrug, duration, (asNeeded != null), route,
-					classification, indication, instructions, adminInstructions
+					orderReason, instructions, adminInstructions, regimen
 			);
-			drugOrder.setOrderGroup(regimen);
-			regimensToSave.add(regimen);
+			boolean includeCycles = (repeatCycle != null);
 
-			getOrderExtensionService().saveDrugRegimens(regimensToSave);
+			getOrderExtensionService().extendedSaveDrugOrder(drugOrderTemplate, includeCycles);
 		}
 		catch (Exception e) {
 			log.error("Unable to add drug order to regimen:", e);
@@ -272,12 +255,14 @@ public class OrderExtensionOrderController {
 			changeReason = StringUtils.isEmpty(changeReason) ? "Edit Drug Order" : changeReason;
 			Concept orderReason = (classification != null ? classification : indication);
 			boolean includeCycles = (repeatCycle != null);
+			DrugRegimen regimen = (DrugRegimen)OrderEntryUtil.getOrderGroup(drugOrder);
 
-			getOrderExtensionService().changeDrugOrder(
-					patient, drugOrder, drug, orderReason, startDateDrug, duration,
-					dose, doseUnits, route, frequency, asNeeded, instructions, adminInstructions,
-					changeReason, includeCycles
+			DrugOrderTemplate orderTemplate = new DrugOrderTemplate(
+					patient, drug, dose, doseUnits, frequency, startDateDrug, duration, asNeeded,
+					route,  orderReason, instructions, adminInstructions, regimen
 			);
+
+			getOrderExtensionService().changeDrugOrder(drugOrder, orderTemplate, changeReason, includeCycles);
 		}
 		catch (Exception e) {
 			log.error("Unable to Edit Drug Order:", e);
@@ -374,43 +359,6 @@ public class OrderExtensionOrderController {
 		}
 		
 		return "redirect:" + returnPage;
-	}
-
-	private DrugOrder buildNewDrugOrder(Patient patient, Drug drug, Double dose, Concept doseUnits,
-			OrderFrequency frequency,Date startDateDrug, Integer duration, boolean asNeeded,
-			Concept route, Integer classification, Integer indication, String instructions,
-			String adminInstructions) {
-
-		DrugOrder drugOrder = new DrugOrder();
-		drugOrder.setPatient(patient);
-
-		if (drugOrder.getOrderType() == null) {
-			drugOrder.setOrderType(OrderEntryUtil.getDrugOrderType());
-		}
-		drugOrder.setDrug(drug);
-		drugOrder.setConcept(drug.getConcept());
-		drugOrder.setDose(dose);
-		drugOrder.setDoseUnits(doseUnits);
-		drugOrder.setFrequency(frequency);
-		OrderEntryUtil.setStartDate(drugOrder, startDateDrug);
-		OrderEntryUtil.setEndDate(drugOrder, duration);
-		drugOrder.setAsNeeded(asNeeded);
-		drugOrder.setRoute(route);
-
-		if (classification != null) {
-			drugOrder.setOrderReason(Context.getConceptService().getConcept(classification));
-		}
-		else if (indication != null) {
-			drugOrder.setOrderReason(Context.getConceptService().getConcept(indication));
-		}
-		else {
-			drugOrder.setOrderReason(null);
-		}
-
-		drugOrder.setDosingInstructions(adminInstructions);
-		drugOrder.setInstructions(instructions);
-
-		return drugOrder;
 	}
 
 	private void updateSessionMessage(WebRequest request, Exception e) {
