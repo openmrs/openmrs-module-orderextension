@@ -256,11 +256,13 @@ public class OrderExtensionServiceImpl extends BaseOpenmrsService implements Ord
 		// Order Service does not allow multiple orders of the same orderable unless you explicitly allow
 		// Given we have some order sets that have the same orderable in sequence, we need to allow this here.
 		OrderContext orderContext = new OrderContext();
-		String[] groupOrderUuids = new String[drugOrder.getOrderGroup().getOrders().size()];
-		for (int i=0; i<drugOrder.getOrderGroup().getOrders().size(); i++) {
-			groupOrderUuids[i] = drugOrder.getOrderGroup().getOrders().get(i).getUuid();
+		if (drugOrder.getOrderGroup() != null) {
+			String[] groupOrderUuids = new String[drugOrder.getOrderGroup().getOrders().size()];
+			for (int i = 0; i < drugOrder.getOrderGroup().getOrders().size(); i++) {
+				groupOrderUuids[i] = drugOrder.getOrderGroup().getOrders().get(i).getUuid();
+			}
+			orderContext.setAttribute(OrderService.PARALLEL_ORDERS, groupOrderUuids);
 		}
-		orderContext.setAttribute(OrderService.PARALLEL_ORDERS, groupOrderUuids);
 
 		return (DrugOrder)Context.getOrderService().saveOrder(drugOrder, orderContext);
 	}
