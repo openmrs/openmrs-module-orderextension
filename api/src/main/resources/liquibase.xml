@@ -278,6 +278,7 @@
 
 			update order_set_member set order_template = replace(order_template, '\r', '\\r');
 			update order_set_member set order_template = replace(order_template, '\n', '\\n');
+			update order_set_member set order_template = replace(order_template, '"null"', 'null');
 
 			alter table orderextension_order_set drop uuid;
 			alter table orderextension_order_set drop name;
