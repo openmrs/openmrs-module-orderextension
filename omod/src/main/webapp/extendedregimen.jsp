@@ -651,7 +651,7 @@ $j(document).ready(function(){
 						</select>
 					</td>
 					
-					<td class="padding"><spring:message code="DrugOrder.frequency"/>:
+					<td class="padding"><spring:message code="DrugOrder.frequency"/>*:
 						<select name="frequency" id="frequency">
 							<option value=""></option>
 							<c:forEach var="drugFrequency" items="${model.drugFrequencies}">
@@ -660,7 +660,7 @@ $j(document).ready(function(){
 						</select>
 					</td>
 					<td class="padding"><input type="checkbox" name="asNeeded" id="asNeeded" value="asNeeded"><spring:message code='orderextension.orderset.DrugOrderSetMember.asNeeded'/></td>
-					<td class="padding"><spring:message code="orderextension.orderset.DrugOrderSetMember.route"/>:
+					<td class="padding"><spring:message code="orderextension.orderset.DrugOrderSetMember.route"/>*:
 						<select name="route" id="route">
 							<option value=""></option>
 							<c:forEach var="route" items="${model.drugRoutes}">

@@ -930,7 +930,7 @@ function handleDeleteAllDrugOrder()
 							</select>
 						</td>
 
-						<td class="padding"><spring:message code="DrugOrder.frequency"/>:
+						<td class="padding"><spring:message code="DrugOrder.frequency"/>*:
 							<select name="frequency" id="frequencyTwo">
 								<option value=""></option>
 								<c:forEach var="drugFrequency" items="${model.drugFrequencies}">
@@ -939,7 +939,7 @@ function handleDeleteAllDrugOrder()
 							</select>
 						</td>
 							<td class="padding"><input type="checkbox" name="asNeeded" id="asNeeded" value="asNeeded"><spring:message code='orderextension.orderset.DrugOrderSetMember.asNeeded'/></td>
-							<td class="padding"><spring:message code="orderextension.orderset.DrugOrderSetMember.route"/>:
+							<td class="padding"><spring:message code="orderextension.orderset.DrugOrderSetMember.route"/>*:
 								<select name="route" id="routeTwo">
 									<option value=""></option>
 									<c:forEach var="route" items="${model.drugRoutes}">
@@ -1013,7 +1013,7 @@ function handleDeleteAllDrugOrder()
 							</select>
 						</td>
 
-						<td class="padding"><spring:message code="DrugOrder.frequency"/>:
+						<td class="padding"><spring:message code="DrugOrder.frequency"/>*:
 							<select name="frequency" id="frequencyThree">
 								<option value=""></option>
 								<c:forEach var="drugFrequency" items="${model.drugFrequencies}">
@@ -1022,7 +1022,7 @@ function handleDeleteAllDrugOrder()
 							</select>
 						</td>
 						<td class="padding"><input type="checkbox" name="asNeeded" id="asNeededThree" value="asNeeded"><spring:message code='orderextension.orderset.DrugOrderSetMember.asNeeded'/></td>
-						<td class="padding"><spring:message code="orderextension.orderset.DrugOrderSetMember.route"/>:
+						<td class="padding"><spring:message code="orderextension.orderset.DrugOrderSetMember.route"/>*:
 							<select name="route" id="routeThree">
 								<option value=""></option>
 								<c:forEach var="route" items="${model.drugRoutes}">
