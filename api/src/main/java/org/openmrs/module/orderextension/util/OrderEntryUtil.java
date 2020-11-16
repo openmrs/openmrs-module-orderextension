@@ -1,6 +1,7 @@
 package org.openmrs.module.orderextension.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -83,8 +84,10 @@ public class OrderEntryUtil {
 		List<DrugOrder> l = new ArrayList<DrugOrder>();
 		OrderSearchCriteriaBuilder b = new OrderSearchCriteriaBuilder();
 		b.setPatient(patient).setIncludeVoided(false).setExcludeDiscontinueOrders(true);
+		b.setOrderTypes(Arrays.asList(getDrugOrderType()));
 		List<Order> allOrders = Context.getOrderService().getOrders(b.build());
 		for (Order o : allOrders) {
+			o = HibernateUtil.getRealObjectFromProxy(o);
 			if (o instanceof DrugOrder) {
 				l.add((DrugOrder)o);
 			}
