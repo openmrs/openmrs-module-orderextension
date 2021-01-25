@@ -209,7 +209,7 @@
 
 	<changeSet id="orderextension-migrate-order-sets-to-core" author="mseaton">
 		<validCheckSum>3:7e9cc20be951b93e867c12f2dd1be2e2</validCheckSum>
-		<preConditions>
+		<preConditions onFail="MARK_RAN">
 			<sqlCheck expectedResult="0">select count(*) from order_set where order_set_id in (select id from orderextension_order_set)</sqlCheck>
 		</preConditions>
 		<comment>
