@@ -15,6 +15,7 @@ package org.openmrs.module.orderextension.web.extension;
 
 import org.openmrs.module.web.extension.PatientDashboardTabExt;
 import org.openmrs.util.PrivilegeConstants;
+import org.openmrs.web.ApplicationPrivilegeConstants;
 
 /**
  * Extension class to add a tab to the patient dashboard
@@ -34,7 +35,7 @@ public class RegimenTab extends PatientDashboardTabExt {
 	 */
 	@Override
 	public String getRequiredPrivilege() {
-		return PrivilegeConstants.GET_PATIENTS;
+		return ApplicationPrivilegeConstants.DASHBOARD_REGIMEN;
 	}
 
 	/**
