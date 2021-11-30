@@ -13,6 +13,7 @@ import org.openmrs.OrderType;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.api.db.hibernate.HibernateUtil;
+import org.openmrs.module.orderextension.DrugOrderComparator;
 import org.openmrs.module.orderextension.DrugRegimen;
 import org.openmrs.module.orderextension.api.OrderExtensionService;
 import org.openmrs.parameter.OrderSearchCriteriaBuilder;
@@ -81,7 +82,7 @@ public class OrderEntryUtil {
 	 * This may need to be improved for performance, etc. but for now should do the trick.
 	 */
 	public static List<DrugOrder> getDrugOrdersByPatient(Patient patient) {
-		List<DrugOrder> l = new ArrayList<DrugOrder>();
+		List<DrugOrder> l = new ArrayList<>();
 		OrderSearchCriteriaBuilder b = new OrderSearchCriteriaBuilder();
 		b.setPatient(patient).setIncludeVoided(false).setExcludeDiscontinueOrders(true);
 		b.setOrderTypes(Arrays.asList(getDrugOrderType()));
@@ -92,6 +93,7 @@ public class OrderEntryUtil {
 				l.add((DrugOrder)o);
 			}
 		}
+		l.sort(new DrugOrderComparator());
 		return l;
 	}
 
