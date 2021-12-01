@@ -11,8 +11,8 @@
 	<url>http://openmrs.org</url>
 
 	<scm>
-		<connection>scm:git:https://github.com/openmrs/openmrs-module-orderextension/</connection>
-		<developerConnection>scm:git:https://github.com/openmrs/openmrs-module-orderextension/</developerConnection>
+		<connection>scm:git:git@github.com:openmrs/openmrs-module-orderextension/</connection>
+		<developerConnection>scm:git:git@github.com:openmrs/openmrs-module-orderextension/</developerConnection>
 		<url>https://github.com/openmrs/openmrs-module-orderextension/</url>
 		<tag>HEAD</tag>
 	</scm>
