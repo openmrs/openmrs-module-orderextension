@@ -24,7 +24,7 @@
 	<br />
 </spring:hasBindErrors>
 
-<form:form commandName="orderSet" method="post">
+<form:form modelAttribute="orderSet" method="post">
 	<table>
 		<tr>
 			<td><spring:message code="orderextension.orderset.field.name"/></td>

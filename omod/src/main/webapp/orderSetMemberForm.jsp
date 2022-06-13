@@ -35,7 +35,7 @@
 	<br />
 </spring:hasBindErrors>
 
-<form:form commandName="orderSetMember" method="post">
+<form:form modelAttribute="orderSetMember" method="post">
 
 	<table id="memberTable" style="padding:5px; width:100%;">
 		<tr>
