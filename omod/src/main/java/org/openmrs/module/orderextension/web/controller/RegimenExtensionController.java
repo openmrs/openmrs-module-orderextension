@@ -13,15 +13,6 @@
  */
 package org.openmrs.module.orderextension.web.controller;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -31,7 +22,6 @@ import org.openmrs.Encounter;
 import org.openmrs.OrderGroup;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.orderextension.DrugOrderComparator;
 import org.openmrs.module.orderextension.DrugRegimen;
 import org.openmrs.module.orderextension.ExtendedOrderSet;
 import org.openmrs.module.orderextension.OrderSetComparator;
@@ -43,6 +33,14 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The main controller.
@@ -62,8 +60,8 @@ public class RegimenExtensionController extends PortletController{
 	protected void populateModel(HttpServletRequest request, Map<String, Object> model)
 	{	
 		Patient patient = (Patient)model.get("patient");
-		
-		List<DrugOrder> allDrugOrders = OrderEntryUtil.getDrugOrdersByPatient(patient);
+
+		List<DrugOrder> allDrugOrders = WebUtils.getDrugOrdersByPatient(patient, model);
 		List<DrugOrder> drugOrdersNonContinuous = new ArrayList<DrugOrder>();
 		List<DrugOrder> drugOrdersContinuous = new ArrayList<DrugOrder>();
 		List<DrugRegimen> cycles = new ArrayList<DrugRegimen>();
@@ -121,10 +119,8 @@ public class RegimenExtensionController extends PortletController{
 			}
 		}
 		
-		Collections.sort(drugOrdersContinuous, new DrugOrderComparator());
-		
 		List<ExtendedOrderSet> orderSets = Context.getService(OrderExtensionService.class).getNamedOrderSets(false);
-		Collections.sort(orderSets, new OrderSetComparator());
+		orderSets.sort(new OrderSetComparator());
 		
 		DrugConceptHelper drugHelper = new DrugConceptHelper();
 		
@@ -172,8 +168,6 @@ public class RegimenExtensionController extends PortletController{
 			redirect = model.get("returnUrl").toString();
 		}
 		model.put("redirect", redirect);
-		
-		DrugOrder order = new DrugOrder();
 	}
 
 	

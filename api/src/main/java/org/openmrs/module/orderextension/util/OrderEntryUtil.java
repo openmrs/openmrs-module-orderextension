@@ -1,10 +1,7 @@
 package org.openmrs.module.orderextension.util;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openmrs.CareSetting;
 import org.openmrs.DrugOrder;
 import org.openmrs.Order;
@@ -13,11 +10,17 @@ import org.openmrs.OrderType;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.api.db.hibernate.HibernateUtil;
-import org.openmrs.module.orderextension.DrugOrderComparator;
 import org.openmrs.module.orderextension.DrugRegimen;
 import org.openmrs.module.orderextension.api.OrderExtensionService;
 import org.openmrs.parameter.OrderSearchCriteriaBuilder;
 import org.springframework.util.StringUtils;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * This is a new class, created during the upgrade from 1.9 to 2.3 data model, to encapsulate methods needed
@@ -25,6 +28,8 @@ import org.springframework.util.StringUtils;
  * adaptations needed.
  */
 public class OrderEntryUtil {
+
+	private static final Log log = LogFactory.getLog(OrderEntryUtil.class);
 
 	/**
 	 * Needed due to removal of the drug order type hard-coded primary key in core
@@ -82,19 +87,23 @@ public class OrderEntryUtil {
 	 * This may need to be improved for performance, etc. but for now should do the trick.
 	 */
 	public static List<DrugOrder> getDrugOrdersByPatient(Patient patient) {
-		List<DrugOrder> l = new ArrayList<>();
+		log.debug("Getting Drug Orders for Patient: " + patient.getId());
 		OrderSearchCriteriaBuilder b = new OrderSearchCriteriaBuilder();
 		b.setPatient(patient).setIncludeVoided(false).setExcludeDiscontinueOrders(true);
 		b.setOrderTypes(Arrays.asList(getDrugOrderType()));
 		List<Order> allOrders = Context.getOrderService().getOrders(b.build());
+		log.debug("Got " + allOrders.size() + " orders");
+		List<DrugOrderWrapper> wrappers = new ArrayList<>();
 		for (Order o : allOrders) {
 			o = HibernateUtil.getRealObjectFromProxy(o);
 			if (o instanceof DrugOrder) {
-				l.add((DrugOrder)o);
+				wrappers.add(new DrugOrderWrapper((DrugOrder)o));
 			}
 		}
-		l.sort(new DrugOrderComparator());
-		return l;
+		log.debug("Retrieved " + wrappers.size() + " drug order wrappers");
+		Collections.sort(wrappers);
+		log.debug("Sorted " + wrappers.size() + " drug order wrappers");
+		return wrappers.stream().map(DrugOrderWrapper::getDrugOrder).collect(Collectors.toList());
 	}
 
 	/**

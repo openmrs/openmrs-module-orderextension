@@ -13,12 +13,6 @@
  */
 package org.openmrs.module.orderextension.web.controller;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.DrugOrder;
@@ -32,6 +26,12 @@ import org.openmrs.module.orderextension.util.OrderEntryUtil;
 import org.openmrs.web.controller.PortletController;
 import org.openmrs.web.taglib.fieldgen.FieldGenHandlerFactory;
 import org.springframework.stereotype.Controller;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The main controller.
@@ -58,15 +58,15 @@ public class OrderExtensionPortletController extends PortletController {
 		);
 
 		Patient patient = (Patient) model.get("patient");
-		List<DrugOrder> allOrders = OrderEntryUtil.getDrugOrdersByPatient(patient);
+		List<DrugOrder> allOrders = WebUtils.getDrugOrdersByPatient(patient, model);
 		String mode = (String) model.get("mode");
 		
-		List<DrugOrder> orders = new ArrayList<DrugOrder>();
+		List<DrugOrder> orders = new ArrayList<>();
 		
 		for (DrugOrder o : allOrders) {
 			boolean unsorted = true;
 			OrderGroup group = OrderEntryUtil.getOrderGroup(o);
-			if(group != null && group instanceof DrugRegimen) {
+			if (group instanceof DrugRegimen) {
 				DrugRegimen dr = (DrugRegimen) group;
 				if (dr.getFirstDrugOrderStartDate().before(new Date())) {
 					if (dr.getLastDrugOrderEndDate() == null || dr.getLastDrugOrderEndDate().after(new Date())) {
@@ -91,20 +91,6 @@ public class OrderExtensionPortletController extends PortletController {
 				}
 				else
 				{
-					//TODO: add in history mode, toggle historical regimens
-//					Calendar fiveYearsAgo = Calendar.getInstance();
-//					fiveYearsAgo.add(Calendar.YEAR, -5);
-//					Date historyDate = fiveYearsAgo.getTime();
-//					if (COMPLETED_MODE.equals(mode)) {
-//						if (o.getStartDate().compareTo(historyDate) >= 0) {
-//							orders.add(o);
-//						}
-//					}
-//					else if (HISTORY_MODE.equals(mode)) {
-//						if (o.getStartDate().compareTo(historyDate) < 0) {
-//							orders.add(o);
-//						}
-//					}
 					if(COMPLETED_MODE.equals(mode)) {
 						orders.add(o);
 					}

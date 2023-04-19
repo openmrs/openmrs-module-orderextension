@@ -13,6 +13,13 @@
  */
 package org.openmrs.module.orderextension;
 
+import org.openmrs.Concept;
+import org.openmrs.DrugOrder;
+import org.openmrs.Order;
+import org.openmrs.OrderGroup;
+import org.openmrs.module.orderextension.util.OrderEntryUtil;
+import org.openmrs.module.orderextension.util.OrderExtensionUtil;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -21,13 +28,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.openmrs.Concept;
-import org.openmrs.DrugOrder;
-import org.openmrs.Order;
-import org.openmrs.OrderGroup;
-import org.openmrs.module.orderextension.util.OrderEntryUtil;
-import org.openmrs.module.orderextension.util.OrderExtensionUtil;
 
 /**
  * Helper class for classifying Regimens
@@ -194,8 +194,7 @@ public class RegimenHelper {
 				}
 			}
 		}
-		
-		Collections.sort(ret, new DrugOrderComparator());
+
 		return ret;
 	}
 	
