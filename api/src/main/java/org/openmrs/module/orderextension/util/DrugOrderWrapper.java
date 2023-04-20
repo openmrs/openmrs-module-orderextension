@@ -32,22 +32,24 @@ public class DrugOrderWrapper implements Comparable<DrugOrderWrapper> {
 
 	private final DrugOrder drugOrder;
 	private final OrderGroup orderGroup;
-	private final OrderSet orderSet;
+	private OrderSet orderSet = null;
 	private final String memberIdentifier;
-	private final Integer occurrenceNumberInGroup;
-	private final Integer positionInSet;
+	private int occurrenceNumberInGroup = 0;
+	private int positionInSet = 0;
 
 	public DrugOrderWrapper(DrugOrder o) {
 		drugOrder = o;
 		orderGroup = OrderEntryUtil.getOrderGroup(o);
-		orderSet = HibernateUtil.getRealObjectFromProxy(orderGroup.getOrderSet());
 		memberIdentifier = getMemberIdentifier(o.getDrug(), o.getConcept(), o.getOrderReason());
-		occurrenceNumberInGroup = calculateOccurrenceNumberInGroup();
-		positionInSet = calculatePositionInSet();
+		if (orderGroup != null) {
+			orderSet = HibernateUtil.getRealObjectFromProxy(orderGroup.getOrderSet());
+			occurrenceNumberInGroup = calculateOccurrenceNumberInGroup();
+			positionInSet = calculatePositionInSet();
+		}
 	}
 
 	private String getMemberIdentifier(Drug drug, Concept concept, Concept indication) {
-		return (drug == null ? "*" : drug.getUuid()) + (concept == null ? "*" : concept.getUuid()) + (indication == null ? "*" : indication.getUuid());
+		return (drug == null ? "null" : drug.getUuid()) + "|" + (concept == null ? "null" : concept.getUuid()) + "|" + (indication == null ? "null" : indication.getUuid());
 	}
 
 	private int calculateOccurrenceNumberInGroup() {
@@ -71,7 +73,7 @@ public class DrugOrderWrapper implements Comparable<DrugOrderWrapper> {
 		throw new IllegalStateException("Order not found in group");
 	}
 
-	public Integer calculatePositionInSet() {
+	public int calculatePositionInSet() {
 		int positionInSet = 0;
 		int numFound = 0;
 		if (orderSet != null && orderSet instanceof ExtendedOrderSet) {
