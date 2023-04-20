@@ -87,12 +87,12 @@ public class OrderEntryUtil {
 	 * This may need to be improved for performance, etc. but for now should do the trick.
 	 */
 	public static List<DrugOrder> getDrugOrdersByPatient(Patient patient) {
-		log.debug("Getting Drug Orders for Patient: " + patient.getId());
+		log.warn("Getting Drug Orders for Patient: " + patient.getId());
 		OrderSearchCriteriaBuilder b = new OrderSearchCriteriaBuilder();
 		b.setPatient(patient).setIncludeVoided(false).setExcludeDiscontinueOrders(true);
 		b.setOrderTypes(Arrays.asList(getDrugOrderType()));
 		List<Order> allOrders = Context.getOrderService().getOrders(b.build());
-		log.debug("Got " + allOrders.size() + " orders");
+		log.warn("Got " + allOrders.size() + " orders");
 		List<DrugOrderWrapper> wrappers = new ArrayList<>();
 		for (Order o : allOrders) {
 			o = HibernateUtil.getRealObjectFromProxy(o);
@@ -100,9 +100,9 @@ public class OrderEntryUtil {
 				wrappers.add(new DrugOrderWrapper((DrugOrder)o));
 			}
 		}
-		log.debug("Retrieved " + wrappers.size() + " drug order wrappers");
+		log.warn("Converted to " + wrappers.size() + " drug order wrappers for sorting");
 		Collections.sort(wrappers);
-		log.debug("Sorted " + wrappers.size() + " drug order wrappers");
+		log.warn("Sorting complete, returning drug orders");
 		return wrappers.stream().map(DrugOrderWrapper::getDrugOrder).collect(Collectors.toList());
 	}
 
