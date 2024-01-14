@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
- 
-<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.9"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.9
-                  http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.9.xsd">
+
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+				  http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
     
 	<changeSet id="20120424-0000-orderextension" author="mseaton">
         <preConditions onFail="MARK_RAN">
@@ -413,7 +413,7 @@
 
 	<changeSet id="orderextension-drop-order-group-set-fk" author="mseaton">
 		<preConditions onFail="MARK_RAN">
-			<foreignKeyConstraintExists foreignKeyName="orderextension_order_group_order_set_id_fk" />
+			<foreignKeyConstraintExists foreignKeyTableName="orderextension_order_group" foreignKeyName="orderextension_order_group_order_set_id_fk" />
 		</preConditions>
 		<dropForeignKeyConstraint baseTableName="orderextension_order_group" constraintName="orderextension_order_group_order_set_id_fk" />
 	</changeSet>
@@ -441,7 +441,7 @@
 
 	<changeSet id="orderextension-drop-order-creator-fk" author="mseaton">
 		<preConditions onFail="MARK_RAN">
-			<foreignKeyConstraintExists foreignKeyName="orderextension_order_group_creator_fk" />
+			<foreignKeyConstraintExists foreignKeyTableName="orderextension_order_group" foreignKeyName="orderextension_order_group_creator_fk" />
 		</preConditions>
 		<dropForeignKeyConstraint baseTableName="orderextension_order_group" constraintName="orderextension_order_group_creator_fk" />
 	</changeSet>
@@ -469,7 +469,7 @@
 
 	<changeSet id="orderextension-drop-order-voided_by-fk" author="mseaton">
 		<preConditions onFail="MARK_RAN">
-			<foreignKeyConstraintExists foreignKeyName="orderextension_order_group_voided_by_fk" />
+			<foreignKeyConstraintExists foreignKeyTableName="orderextension_order_group" foreignKeyName="orderextension_order_group_voided_by_fk" />
 		</preConditions>
 		<dropForeignKeyConstraint baseTableName="orderextension_order_group" constraintName="orderextension_order_group_voided_by_fk" />
 	</changeSet>
