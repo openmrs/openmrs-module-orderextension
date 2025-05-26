@@ -42,7 +42,7 @@ public class OrderExtensionAjaxController {
 
 	private Log log = LogFactory.getLog(this.getClass());
 
-	@RequestMapping("/module/orderextension/getDrugsByConcept")
+	@RequestMapping("/module/orderextension/getDrugsByConcept.form")
 	public void getDrugByConcept(@RequestParam(value = "concept", required=true) Integer conceptId, HttpServletResponse response)
 	{
 		Concept concept = Context.getConceptService().getConcept(conceptId);
@@ -80,7 +80,7 @@ public class OrderExtensionAjaxController {
         }
 	}
 
-	@RequestMapping("/module/orderextension/getClassificationsByIndication")
+	@RequestMapping("/module/orderextension/getClassificationsByIndication.form")
 	public void getClassificationByIndication(@RequestParam(value = "id", required=true) Integer id, HttpServletResponse response)
 	{
 		Concept indication = Context.getConceptService().getConcept(id);

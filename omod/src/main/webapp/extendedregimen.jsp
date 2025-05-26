@@ -298,7 +298,7 @@ function includeCycle() {
 var drugDetail;
 
 function fetchDrugs() {
-	var selected = jQuery('#drugCombo').val();
+	var selected = jQuery('#drugCombo').find(':selected').data("concept");
 	
 	if(jQuery("#drugCombo").prop("selectedIndex") > 0)
 	{
@@ -588,7 +588,14 @@ $j(document).ready(function(){
 		<div id="openmrs_error" class="openmrs_error"></div>
 		<form id="addOrderSet" name="addMedication" method="post" action="${pageContext.request.contextPath}/module/orderextension/addOrdersFromSet.form">
 			<input type="hidden" name="patientId" value="${model.patient.patientId}">
-			<input type="hidden" name="returnPage" value="${model.redirect}&patientId=${model.patient.patientId}"/>
+			<c:choose>
+				<c:when test="${model.remove_and == true}">
+					<input type="hidden" name="returnPage" value="${model.redirect}patientId=${model.patient.patientId}"/>
+				</c:when>
+				<c:otherwise>
+					<input type="hidden" name="returnPage" value="${model.redirect}&patientId=${model.patient.patientId}"/>
+				</c:otherwise>
+			</c:choose>
 			<table>
 				<tr>
 					<td class="padding"><p id="patientHasForm">${model.formAv}</p><p id="indication">${model.drugSetIndication}</p><p id="msg">${model.alertmsg}</p>
@@ -621,15 +628,22 @@ $j(document).ready(function(){
 		</form>
 		<form id="addIndividualDrug" name="addIndividualDrug" method="post" action="${pageContext.request.contextPath}/module/orderextension/addDrugOrder.form">
 			<input type="hidden" name="patientId" value="${model.patient.patientId}">
-			<input type="hidden" name="returnPage" value="${model.redirect}&patientId=${model.patient.patientId}"/>	
+			<c:choose>
+				<c:when test="${model.remove_and == true}">
+					<input type="hidden" name="returnPage" value="${model.redirect}patientId=${model.patient.patientId}"/>
+				</c:when>
+				<c:otherwise>
+					<input type="hidden" name="returnPage" value="${model.redirect}&patientId=${model.patient.patientId}"/>
+				</c:otherwise>
+			</c:choose>
 			<table>
 				<tr>
 					<td class="padding"><spring:message code="orderextension.regimen.individualDrug" />*: </td>
-					<td>	<select name="drugCombo" id="drugCombo" data-placeholder="<spring:message code="orderextension.regimen.chooseOption" />" style="width:350px;" onChange="fetchDrugs()">
+					<td>	<select name="drugId" id="drugCombo" data-placeholder="<spring:message code="orderextension.regimen.chooseOption" />" style="width:350px;" onChange="fetchDrugs()">
 							<option value="" selected="selected"></option>
 							
 							<c:forEach items="${model.drugs}" var="drug">
-								<option value="${drug.conceptId}">${drug.name}</option>
+								<option value="${drug.conceptId}" data-concept="${drug.conceptId}">${drug.name}</option>
 							</c:forEach>
 						</select>
 					</td>

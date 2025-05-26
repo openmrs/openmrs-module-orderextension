@@ -899,7 +899,14 @@ function handleDeleteAllDrugOrder()
 	<div id="openmrs_error" class="openmrs_error"></div>
 		<form id="addDrugToGroup" name="addDrugToGroup" method="post" action="${pageContext.request.contextPath}/module/orderextension/addDrugOrderToGroup.form">
 			<input type="hidden" name="patientId" value="${model.patient.patientId}">
-			<input type="hidden" name="returnPage" value="${model.redirect}&patientId=${model.patient.patientId}"/>	
+			<c:choose>
+				<c:when test="${model.remove_and == true}">
+					<input type="hidden" name="returnPage" value="${model.redirect}patientId=${model.patient.patientId}"/>	
+				</c:when>
+				<c:otherwise>
+					<input type="hidden" name="returnPage" value="${model.redirect}&patientId=${model.patient.patientId}"/>	
+				</c:otherwise>
+			</c:choose>
 			<input type="hidden" name="groupId" id="groupId"/>	
 			<input type="hidden" name="cycle" id="cycle"/>	
 			<table>
@@ -991,7 +998,14 @@ function handleDeleteAllDrugOrder()
 		<form id="editDrug" name="editDrug" method="post" action="${pageContext.request.contextPath}/module/orderextension/editDrug.form">
 			<input type="hidden" name="orderId" id="orderId">
 			<input type="hidden" name="patientId" value="${model.patient.patientId}">
-			<input type="hidden" name="returnPage" value="${model.redirect}&patientId=${model.patient.patientId}"/>
+			<c:choose>
+				<c:when test="${model.remove_and == true}">
+					<input type="hidden" name="returnPage" value="${model.redirect}patientId=${model.patient.patientId}"/>
+				</c:when>
+				<c:otherwise>
+					<input type="hidden" name="returnPage" value="${model.redirect}&patientId=${model.patient.patientId}"/>
+				</c:otherwise>
+			</c:choose>
 			<table>
 				<tr>
 					<td class="padding"><spring:message code="orderextension.regimen.individualDrug" />*: </td>
@@ -1079,7 +1093,14 @@ function handleDeleteAllDrugOrder()
 			<input type="hidden" name="orderId" id="stopOrderId">
 			<input type="hidden" name="startDate" id="startDateInd">
 			<input type="hidden" name="patientId" value="${model.patient.patientId}">
-			<input type="hidden" name="returnPage" value="${model.redirect}&patientId=${model.patient.patientId}"/>	
+			<c:choose>
+				<c:when test="${model.remove_and == true}">
+					<input type="hidden" name="returnPage" value="${model.redirect}patientId=${model.patient.patientId}"/>	
+				</c:when>
+				<c:otherwise>
+					<input type="hidden" name="returnPage" value="${model.redirect}&patientId=${model.patient.patientId}"/>	
+				</c:otherwise>
+			</c:choose>
 			<table>
 				<tr>
 					<td class="padding"><spring:message code="orderextension.regimen.stopDate"/>: <openmrs_tag:dateField formFieldName="drugStopDate" startValue=""/></td>
@@ -1099,7 +1120,14 @@ function handleDeleteAllDrugOrder()
 		<form id="changeStartDateOfGroup" name="changeStartDateOfGroup" method="post" action="${pageContext.request.contextPath}/module/orderextension/changeStartDateOfGroup.form">
 			<input type="hidden" name="groupId" id="changeStartGroupId">
 			<input type="hidden" name="patientId" value="${model.patient.patientId}">
-			<input type="hidden" name="returnPage" value="${model.redirect}&patientId=${model.patient.patientId}"/>	
+			<c:choose>
+				<c:when test="${model.remove_and == true}">
+					<input type="hidden" name="returnPage" value="${model.redirect}patientId=${model.patient.patientId}"/>	
+				</c:when>
+				<c:otherwise>
+					<input type="hidden" name="returnPage" value="${model.redirect}&patientId=${model.patient.patientId}"/>	
+				</c:otherwise>
+			</c:choose>
 			<table>
 				<tr>
 					<td class="padding"><spring:message code="orderextension.regimen.changeStartDate"/>: <openmrs_tag:dateField formFieldName="changeDate" startValue=""/></td>
@@ -1118,7 +1146,14 @@ function handleDeleteAllDrugOrder()
 		<form id="changeStartDateOfPartGroup" name="changeStartDateOfPartGroup" method="post" action="${pageContext.request.contextPath}/module/orderextension/changeStartDateOfPartGroup.form">
 			<input type="hidden" name="groupId" id="changeStartPartGroupId">
 			<input type="hidden" name="patientId" value="${model.patient.patientId}">
-			<input type="hidden" name="returnPage" value="${model.redirect}&patientId=${model.patient.patientId}"/>	
+			<c:choose>
+				<c:when test="${model.remove_and == true}">
+					<input type="hidden" name="returnPage" value="${model.redirect}patientId=${model.patient.patientId}"/>	
+				</c:when>
+				<c:otherwise>
+					<input type="hidden" name="returnPage" value="${model.redirect}&patientId=${model.patient.patientId}"/>	
+				</c:otherwise>
+			</c:choose>
 			<input type="hidden" name="cycleDay" id="cycleDay"/>
 			<table>
 				<tr>
@@ -1152,7 +1187,14 @@ function handleDeleteAllDrugOrder()
 		<form id="deleteDrug" name="deleteDrug" method="post" action="${pageContext.request.contextPath}/module/orderextension/deleteDrug.form">
 			<input type="hidden" name="orderId" id="deleteOrderId">
 			<input type="hidden" name="patientId" value="${model.patient.patientId}">
-			<input type="hidden" name="returnPage" value="${model.redirect}&patientId=${model.patient.patientId}"/>
+			<c:choose>
+				<c:when test="${model.remove_and == true}">
+					<input type="hidden" name="returnPage" value="${model.redirect}patientId=${model.patient.patientId}"/>	
+				</c:when>
+				<c:otherwise>
+					<input type="hidden" name="returnPage" value="${model.redirect}&patientId=${model.patient.patientId}"/>
+				</c:otherwise>
+			</c:choose>
 			<table>
 				<tr>
 					<td class="padding"><spring:message code="orderextension.regimen.deleteReason"/>: 
@@ -1186,7 +1228,14 @@ function handleDeleteAllDrugOrder()
 			<input type="hidden" name="groupId" id="stopAllOrderId">
 			<input type="hidden" name="patientId" value="${model.patient.patientId}">
 			<input type="hidden" name="startDate" id="startDate">
-			<input type="hidden" name="returnPage" value="${model.redirect}&patientId=${model.patient.patientId}"/>	
+			<c:choose>
+				<c:when test="${model.remove_and == true}">
+					<input type="hidden" name="returnPage" value="${model.redirect}patientId=${model.patient.patientId}"/>	
+				</c:when>
+				<c:otherwise>
+					<input type="hidden" name="returnPage" value="${model.redirect}&patientId=${model.patient.patientId}"/>	
+				</c:otherwise>
+			</c:choose>
 			<table>
 				<tr>
 					<td class="padding"><spring:message code="orderextension.regimen.stopDate"/>: <openmrs_tag:dateField formFieldName="drugStopAllDate" startValue=""/></td>
@@ -1206,7 +1255,14 @@ function handleDeleteAllDrugOrder()
 		<form id="deleteAllDrug" name="deleteAllDrug" method="post" action="${pageContext.request.contextPath}/module/orderextension/deleteAllDrugsInGroup.form">
 			<input type="hidden" name="groupId" id="deleteAllOrderId">
 			<input type="hidden" name="patientId" value="${model.patient.patientId}">
-			<input type="hidden" name="returnPage" value="${model.redirect}&patientId=${model.patient.patientId}"/>	
+			<c:choose>
+				<c:when test="${model.remove_and == true}">
+					<input type="hidden" name="returnPage" value="${model.redirect}patientId=${model.patient.patientId}"/>	
+				</c:when>
+				<c:otherwise>
+					<input type="hidden" name="returnPage" value="${model.redirect}&patientId=${model.patient.patientId}"/>	
+				</c:otherwise>
+			</c:choose>
 			<table>
 				<tr>
 					<td class="padding"><spring:message code="orderextension.regimen.deleteReason"/>: 
