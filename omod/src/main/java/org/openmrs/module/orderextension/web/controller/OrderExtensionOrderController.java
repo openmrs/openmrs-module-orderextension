@@ -64,7 +64,7 @@ public class OrderExtensionOrderController {
 	/**
 	 * Shows the page to list order sets
 	 */
-	@RequestMapping(value = "/module/orderextension/orderList")
+	@RequestMapping(value = "/module/orderextension/orderList.form")
 	public void listOrders(ModelMap model, @RequestParam(value = "patientId") Integer patientId) {
 		Patient patient = Context.getPatientService().getPatient(patientId);
 		model.addAttribute("patient", patient);
@@ -84,7 +84,7 @@ public class OrderExtensionOrderController {
 	/**
 	 * adds a new orderSet
 	 */
-	@RequestMapping(value = "/module/orderextension/addOrdersFromSet")
+	@RequestMapping(value = "/module/orderextension/addOrdersFromSet.form")
 	public String addOrderSet(WebRequest request,
 							  @RequestParam(value = "patientId") Patient patient,
 	                          @RequestParam(value = "orderSet") Integer orderSetId,
@@ -106,10 +106,10 @@ public class OrderExtensionOrderController {
 	/**
 	 * adds a new order
 	 */
-	@RequestMapping(value = "/module/orderextension/addDrugOrder")
+	@RequestMapping(value = "/module/orderextension/addDrugOrder.form")
 	public String addOrder(WebRequest request,
 						   @RequestParam(value = "patientId") Patient patient,
-	                       @RequestParam(value = "drug") Drug drug,
+	                       @RequestParam(value = "drugId") Concept drug,
 	                       @RequestParam(value = "dose") Double dose,
 	                       @RequestParam(value = "doseUnits") Concept doseUnits,
 						   @RequestParam(value = "frequency") OrderFrequency frequency,
@@ -124,9 +124,10 @@ public class OrderExtensionOrderController {
 	                       @RequestParam(value = "returnPage") String returnPage) {
 
 		try {
+			Drug conceptDrug = Context.getConceptService().getDrugsByConcept(drug).get(0); // Make sure to get the very first drug information
 			Concept orderReason = (classification != null ? classification : indication);
 			DrugOrderTemplate drugOrderTemplate = new DrugOrderTemplate(
-					patient, drug, dose, doseUnits, frequency, startDateDrug, duration, (asNeeded != null), route,
+					patient, conceptDrug, dose, doseUnits, frequency, startDateDrug, duration, (asNeeded != null), route,
 					orderReason, instructions, adminInstructions, null
 			);
 			getOrderExtensionService().extendedSaveDrugOrder(drugOrderTemplate, false);
@@ -139,7 +140,7 @@ public class OrderExtensionOrderController {
 		return "redirect:" + returnPage;
 	}
 	
-	@RequestMapping(value = "/module/orderextension/addDrugOrderToGroup")
+	@RequestMapping(value = "/module/orderextension/addDrugOrderToGroup.form")
 	public String addDrugOrderToGroup(WebRequest request,
 									  @RequestParam(value = "patientId")  Patient patient,
 	                                  @RequestParam(value = "groupId") Integer groupId,
@@ -178,7 +179,7 @@ public class OrderExtensionOrderController {
 		return "redirect:" + returnPage;
 	}
 	
-	@RequestMapping(value = "/module/orderextension/changeStartDateOfGroup")
+	@RequestMapping(value = "/module/orderextension/changeStartDateOfGroup.form")
 	public String changeStartDateOfGroup(WebRequest request,
 	                                     @RequestParam(value = "patientId") Patient patient,
 	                                     @RequestParam(value = "groupId") Integer groupId,
@@ -198,7 +199,7 @@ public class OrderExtensionOrderController {
 		return "redirect:" + returnPage;
 	}
 	
-	@RequestMapping(value = "/module/orderextension/changeStartDateOfPartGroup")
+	@RequestMapping(value = "/module/orderextension/changeStartDateOfPartGroup.form")
 	public String changeStartDateOfPartGroup(WebRequest request,
 	                                         @RequestParam(value = "patientId") Patient patient,
 	                                         @RequestParam(value = "groupId") Integer groupId,
@@ -228,7 +229,7 @@ public class OrderExtensionOrderController {
 		return "redirect:" + returnPage;
 	}
 	
-	@RequestMapping(value = "/module/orderextension/editDrug")
+	@RequestMapping(value = "/module/orderextension/editDrug.form")
 	public String editDrug(WebRequest request,
 						   @RequestParam(value = "patientId") Patient patient,
 						   @RequestParam(value = "orderId") Integer orderId,
@@ -271,7 +272,7 @@ public class OrderExtensionOrderController {
 		return "redirect:" + returnPage;
 	}
 
-	@RequestMapping(value = "/module/orderextension/stopDrug")
+	@RequestMapping(value = "/module/orderextension/stopDrug.form")
 	public String stopDrug(WebRequest request,
 			               @RequestParam(value = "patientId") Patient patient,
 						   @RequestParam(value = "orderId") Integer orderId,
@@ -293,7 +294,7 @@ public class OrderExtensionOrderController {
 		return "redirect:" + returnPage;
 	}
 
-	@RequestMapping(value = "/module/orderextension/stopAllDrugsInGroup")
+	@RequestMapping(value = "/module/orderextension/stopAllDrugsInGroup.form")
 	public String stopAllDrugsInGroup(WebRequest request,
 			@RequestParam(value = "patientId") Patient patient,
 			@RequestParam(value = "groupId") Integer groupId,
@@ -315,7 +316,7 @@ public class OrderExtensionOrderController {
 		return "redirect:" + returnPage;
 	}
 	
-	@RequestMapping(value = "/module/orderextension/deleteDrug")
+	@RequestMapping(value = "/module/orderextension/deleteDrug.form")
 	public String deleteDrug(WebRequest request,
 							 @RequestParam(value = "patientId") Patient patient,
 							 @RequestParam(value = "orderId") Integer orderId,
@@ -338,7 +339,7 @@ public class OrderExtensionOrderController {
 		return "redirect:" + returnPage;
 	}
 	
-	@RequestMapping(value = "/module/orderextension/deleteAllDrugsInGroup")
+	@RequestMapping(value = "/module/orderextension/deleteAllDrugsInGroup.form")
 	public String deleteAllDrugsInGroup(WebRequest request,
 									    @RequestParam(value = "patientId") Patient patient,
 									    @RequestParam(value = "groupId") Integer groupId,

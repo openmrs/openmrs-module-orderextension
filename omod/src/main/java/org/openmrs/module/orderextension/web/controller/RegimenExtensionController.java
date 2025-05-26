@@ -167,6 +167,11 @@ public class RegimenExtensionController extends PortletController{
 		{
 			redirect = model.get("returnUrl").toString();
 		}
+		if(redirect.endsWith("?")){
+			model.put("remove_and", true);
+		} else {
+			model.put("remove_and", false);
+		}
 		model.put("redirect", redirect);
 	}
 
