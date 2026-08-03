@@ -43,7 +43,7 @@ public class OrderExtensionOrderSetListController {
 	/**
 	 * Shows the page to list order sets
 	 */
-	@RequestMapping(value = "/module/orderextension/orderSetList")
+	@RequestMapping(value = "/module/orderextension/orderSetList.form")
 	public void listOrderSets(ModelMap model, @RequestParam(value="includeRetired", required=false) boolean includeRetired) {
 		List<ExtendedOrderSet> ordersets = Context.getService(OrderExtensionService.class).getNamedOrderSets(includeRetired);
 		model.addAttribute("orderSets", ordersets);
@@ -52,7 +52,7 @@ public class OrderExtensionOrderSetListController {
 	/**
 	 * Shows the page to view a single order set
 	 */
-	@RequestMapping(value = "/module/orderextension/orderSet")
+	@RequestMapping(value = "/module/orderextension/orderSet.form")
 	public void viewOrderSet(ModelMap model, 
 							 @RequestParam(value="id", required=true) Integer id) {
 		ExtendedOrderSet orderSet = Context.getService(OrderExtensionService.class).getOrderSet(id);
@@ -67,7 +67,7 @@ public class OrderExtensionOrderSetListController {
 	/**
 	 * Deletes a single order set
 	 */
-	@RequestMapping(value = "/module/orderextension/deleteOrderSet")
+	@RequestMapping(value = "/module/orderextension/deleteOrderSet.form")
 	public String deleteOrderSet(ModelMap model, @RequestParam(value="id", required=true) Integer id) {
 		ExtendedOrderSet orderSet = Context.getService(OrderExtensionService.class).getOrderSet(id);
 		Context.getService(OrderExtensionService.class).purgeOrderSet(orderSet);
@@ -77,7 +77,7 @@ public class OrderExtensionOrderSetListController {
 	/**
 	 * Deletes an order set member
 	 */
-	@RequestMapping(value = "/module/orderextension/deleteOrderSetMember")
+	@RequestMapping(value = "/module/orderextension/deleteOrderSetMember.form")
 	public String deleteOrderSetMember(ModelMap model, WebRequest request,
 									@RequestParam(value="uuid", required=true) String uuid) {
 		OrderSetMember orderSetMember = Context.getOrderSetService().getOrderSetMemberByUuid(uuid);

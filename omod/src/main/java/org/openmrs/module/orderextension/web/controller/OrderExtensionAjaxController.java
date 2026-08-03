@@ -42,7 +42,7 @@ public class OrderExtensionAjaxController {
 
 	private Log log = LogFactory.getLog(this.getClass());
 
-	@RequestMapping("/module/orderextension/getDrugsByConcept")
+	@RequestMapping("/module/orderextension/getDrugsByConcep.form")
 	public void getDrugByConcept(@RequestParam(value = "concept", required=true) Integer conceptId, HttpServletResponse response)
 	{
 		Concept concept = Context.getConceptService().getConcept(conceptId);
@@ -80,7 +80,7 @@ public class OrderExtensionAjaxController {
         }
 	}
 
-	@RequestMapping("/module/orderextension/getClassificationsByIndication")
+	@RequestMapping("/module/orderextension/getClassificationsByIndication.form")
 	public void getClassificationByIndication(@RequestParam(value = "id", required=true) Integer id, HttpServletResponse response)
 	{
 		Concept indication = Context.getConceptService().getConcept(id);
@@ -103,7 +103,7 @@ public class OrderExtensionAjaxController {
         }
 	}
 
-	@RequestMapping("/module/orderextension/getDrugOrder")
+	@RequestMapping("/module/orderextension/getDrugOrder.form")
 	public void getDrugOrder(@RequestParam(value = "id", required=true) Integer id, HttpServletResponse response)
 	{
 		DrugOrder drugOrder = (DrugOrder)Context.getOrderService().getOrder(id);
