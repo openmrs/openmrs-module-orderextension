@@ -50,7 +50,7 @@ public class RegimenExtensionController extends PortletController{
 	
 	protected final Log log = LogFactory.getLog(getClass());
 	
-	protected final static String DEFAULT_REDIRECT_URL = "/patientDashboard.form?";
+	protected final static String DEFAULT_REDIRECT_URL = "/patientDashboard.form";
 	
 	
 	/** Success form view name */

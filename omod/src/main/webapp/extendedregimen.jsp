@@ -588,7 +588,7 @@ $j(document).ready(function(){
 		<div id="openmrs_error" class="openmrs_error"></div>
 		<form id="addOrderSet" name="addMedication" method="post" action="${pageContext.request.contextPath}/module/orderextension/addOrdersFromSet.form">
 			<input type="hidden" name="patientId" value="${model.patient.patientId}">
-			<input type="hidden" name="returnPage" value="${model.redirect}&patientId=${model.patient.patientId}"/>
+			<input type="hidden" name="returnPage" value="${model.redirect}${fn:contains(model.redirect, '?') ? '&' : '?'}patientId=${model.patient.patientId}"/>
 			<table>
 				<tr>
 					<td class="padding"><p id="patientHasForm">${model.formAv}</p><p id="indication">${model.drugSetIndication}</p><p id="msg">${model.alertmsg}</p>
@@ -621,7 +621,7 @@ $j(document).ready(function(){
 		</form>
 		<form id="addIndividualDrug" name="addIndividualDrug" method="post" action="${pageContext.request.contextPath}/module/orderextension/addDrugOrder.form">
 			<input type="hidden" name="patientId" value="${model.patient.patientId}">
-			<input type="hidden" name="returnPage" value="${model.redirect}&patientId=${model.patient.patientId}"/>	
+			<input type="hidden" name="returnPage" value="${model.redirect}${fn:contains(model.redirect, '?') ? '&' : '?'}patientId=${model.patient.patientId}"/>	
 			<table>
 				<tr>
 					<td class="padding"><spring:message code="orderextension.regimen.individualDrug" />*: </td>
