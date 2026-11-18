@@ -43,7 +43,7 @@ public class AdminList extends AdministrationSectionExt {
 	 */
 	public Map<String, String> getLinks() {
 		Map<String, String> m = new LinkedHashMap<String, String>();
-		m.put("module/orderextension/orderSetList.list", "orderextension.orderset.manage.linkTitle");
+		m.put("module/orderextension/orderSetList.form", "orderextension.orderset.manage.linkTitle");
 		return m;
 	}
 }

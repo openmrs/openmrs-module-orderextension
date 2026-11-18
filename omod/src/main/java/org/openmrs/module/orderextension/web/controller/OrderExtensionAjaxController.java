@@ -42,7 +42,7 @@ public class OrderExtensionAjaxController {
 
 	private Log log = LogFactory.getLog(this.getClass());
 
-	@RequestMapping("/module/orderextension/getDrugsByConcep.form")
+	@RequestMapping("/module/orderextension/getDrugsByConcept.form")
 	public void getDrugByConcept(@RequestParam(value = "concept", required=true) Integer conceptId, HttpServletResponse response)
 	{
 		Concept concept = Context.getConceptService().getConcept(conceptId);

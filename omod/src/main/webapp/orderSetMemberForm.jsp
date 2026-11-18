@@ -191,7 +191,7 @@
 	</table>
 	<input type="submit" value="<spring:message code='general.save'/>" />
 	&nbsp;&nbsp;
-	<input type="button" value="<spring:message code='general.cancel'/>" onclick="document.location.href='orderSet.list?id=${orderSet.orderSetId};'" />
+	<input type="button" value="<spring:message code='general.cancel'/>" onclick="document.location.href='orderSet.form?id=${orderSet.orderSetId};'" />
 </form:form>
 
 </div>

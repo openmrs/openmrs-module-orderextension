@@ -43,6 +43,6 @@ public class OrderExtensionMemberSortController {
 		}
 		Context.flushSession();
 		Context.clearSession();
-		return "redirect:orderSet.list?id=" + orderSet.getId();
+		return "redirect:orderSet.form?id=" + orderSet.getId();
 	}
 }

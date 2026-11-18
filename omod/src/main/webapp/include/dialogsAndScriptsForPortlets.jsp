@@ -322,7 +322,7 @@ function fetchDrugsTwo() {
 		{ 
 			drugDetailTwo = result;
 			
-			var html = "<spring:message code='orderextension.regimen.form'/>*: <select id='drugTwo' name='drug' onChange='updateDrugInfoTwo()'";
+			var html = "<spring:message code='orderextension.regimen.form'/>*: <select id='drugTwo' name='drug' onChange='updateDrugInfoTwo()' ";
 			
 			if(result.length == 1)
 			{
@@ -371,7 +371,7 @@ function fetchDrugsThree() {
 		{ 
 			drugDetailThree = result;
 			
-			var html = "<spring:message code='orderextension.regimen.form'/>*: <select id='drugThree' name='drug' onChange='updateDrugInfoThree()'";
+			var html = "<spring:message code='orderextension.regimen.form'/>*: <select id='drugThree' name='drug' onChange='updateDrugInfoThree()' ";
 			
 			if(result.length == 1)
 			{
@@ -590,7 +590,7 @@ function updateEditDrugDialog() {
 		{ 
 			drugDetailThree = result;
 			
-			var html = "<spring:message code='orderextension.regimen.form'/>*: <select id='drugThree' name='drug' onChange='updateDrugInfoThree()'";
+			var html = "<spring:message code='orderextension.regimen.form'/>*: <select id='drugThree' name='drug' onChange='updateDrugInfoThree()' ";
 			
 			if(result.length == 1)
 			{

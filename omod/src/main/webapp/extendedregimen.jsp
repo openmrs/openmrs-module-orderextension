@@ -307,7 +307,7 @@ function fetchDrugs() {
 		{ 
 			drugDetail = result;
 			
-			var html = "<spring:message code='orderextension.regimen.form'/>*: <select id='drug' name='drug' onChange='updateDrugInfo()'";
+			var html = "<spring:message code='orderextension.regimen.form'/>*: <select id='drug' name='drug' onChange='updateDrugInfo()' ";
 			
 			if(result.length == 1)
 			{

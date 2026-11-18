@@ -71,7 +71,7 @@ public class OrderExtensionOrderSetListController {
 	public String deleteOrderSet(ModelMap model, @RequestParam(value="id", required=true) Integer id) {
 		ExtendedOrderSet orderSet = Context.getService(OrderExtensionService.class).getOrderSet(id);
 		Context.getService(OrderExtensionService.class).purgeOrderSet(orderSet);
-		return "redirect:orderSetList.list";
+		return "redirect:orderSetList.form";
 	}
 	
 	/**
@@ -84,6 +84,6 @@ public class OrderExtensionOrderSetListController {
 		OrderSet orderSet = orderSetMember.getOrderSet();
 		orderSet.removeOrderSetMember(orderSetMember);
 		Context.getService(OrderSetService.class).saveOrderSet(orderSet);
-		return "redirect:orderSet.list?id="+orderSet.getId();
+		return "redirect:orderSet.form?id="+orderSet.getId();
 	}
 }

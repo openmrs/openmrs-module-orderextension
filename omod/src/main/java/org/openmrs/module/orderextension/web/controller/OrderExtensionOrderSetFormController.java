@@ -77,7 +77,7 @@ public class OrderExtensionOrderSetFormController {
 			return null;
 		}
 
-		return "redirect:orderSet.list?id="+orderSet.getId();
+		return "redirect:orderSet.form?id="+orderSet.getId();
 	}
 	
 	private OrderExtensionService getOrderExtensionService() {
