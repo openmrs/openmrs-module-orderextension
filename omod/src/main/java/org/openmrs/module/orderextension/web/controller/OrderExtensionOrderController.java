@@ -109,7 +109,7 @@ public class OrderExtensionOrderController {
 	@RequestMapping(value = "/module/orderextension/addDrugOrder.form")
 	public String addOrder(WebRequest request,
 						   @RequestParam(value = "patientId") Patient patient,
-	                       @RequestParam(value = "drug") Drug drug,
+	                       @RequestParam(value = "drug", required = false) Drug drug,
 	                       @RequestParam(value = "dose") Double dose,
 	                       @RequestParam(value = "doseUnits") Concept doseUnits,
 						   @RequestParam(value = "frequency") OrderFrequency frequency,
@@ -124,6 +124,7 @@ public class OrderExtensionOrderController {
 	                       @RequestParam(value = "returnPage") String returnPage) {
 
 		try {
+			requireDrug(drug);
 			Concept orderReason = (classification != null ? classification : indication);
 			DrugOrderTemplate drugOrderTemplate = new DrugOrderTemplate(
 					patient, drug, dose, doseUnits, frequency, startDateDrug, duration, (asNeeded != null), route,
@@ -143,7 +144,7 @@ public class OrderExtensionOrderController {
 	public String addDrugOrderToGroup(WebRequest request,
 									  @RequestParam(value = "patientId")  Patient patient,
 	                                  @RequestParam(value = "groupId") Integer groupId,
-	                                  @RequestParam(value = "drug") Drug drug,
+	                                  @RequestParam(value = "drug", required = false) Drug drug,
 	                                  @RequestParam(value = "dose") Double dose,
 									  @RequestParam(value = "doseUnits") Concept doseUnits,
 	                                  @RequestParam(value = "frequency") OrderFrequency frequency,
@@ -159,6 +160,7 @@ public class OrderExtensionOrderController {
 	                                  @RequestParam(value = "returnPage") String returnPage) {
 
 		try {
+			requireDrug(drug);
 			DrugRegimen regimen = getOrderExtensionService().getDrugRegimen(groupId);
 			Concept orderReason = (classification != null ? classification : indication);
 
@@ -232,7 +234,7 @@ public class OrderExtensionOrderController {
 	public String editDrug(WebRequest request,
 						   @RequestParam(value = "patientId") Patient patient,
 						   @RequestParam(value = "orderId") Integer orderId,
-	                       @RequestParam(value = "drug") Drug drug,
+	                       @RequestParam(value = "drug", required = false) Drug drug,
 	                       @RequestParam(value = "dose") Double dose,
 						   @RequestParam(value = "doseUnits") Concept doseUnits,
 	                       @RequestParam(value = "frequency") OrderFrequency frequency,
@@ -250,6 +252,7 @@ public class OrderExtensionOrderController {
 	                       ) {
 
 		try {
+			requireDrug(drug);
 			DrugOrder drugOrder = (DrugOrder) Context.getOrderService().getOrder(orderId);
 			boolean asNeeded = (asNeededStr != null);
 			changeReason = StringUtils.isEmpty(changeReason) ? "Edit Drug Order" : changeReason;
@@ -361,6 +364,16 @@ public class OrderExtensionOrderController {
 		return "redirect:" + returnPage;
 	}
 
+	/**
+	 * The drug is optional in the request, so that a form submitted without a drug formulation shows this message on
+	 * the return page, rather than failing before the controller runs
+	 */
+	private void requireDrug(Drug drug) {
+		if (drug == null) {
+			throw new IllegalArgumentException("A drug formulation must be selected");
+		}
+	}
+	
 	private void updateSessionMessage(WebRequest request, Exception e) {
 		String msg = Context.getMessageSourceService().getMessage("error.general", null, Context.getLocale());
 		msg += ": " + e.getMessage();
