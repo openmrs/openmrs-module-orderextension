@@ -97,7 +97,7 @@ public class OrderExtensionOrderSetMemberFormController {
 		}
 		orderSet = getOrderExtensionService().saveOrderSet(orderSet);
 
-		return "redirect:orderSet.list?id="+orderSet.getId();
+		return "redirect:orderSet.form?id="+orderSet.getId();
 	}
 	
 	private OrderExtensionService getOrderExtensionService() {

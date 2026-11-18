@@ -78,10 +78,10 @@
 				&nbsp;&nbsp;
 				<c:choose>
 					<c:when test="${empty orderSet.orderSetId}">
-						<input type="button" value="<spring:message code='general.cancel'/>" onclick="document.location.href='orderSetList.list;'" />
+						<input type="button" value="<spring:message code='general.cancel'/>" onclick="document.location.href='orderSetList.form;'" />
 					</c:when>
 					<c:otherwise>
-						<input type="button" value="<spring:message code='general.cancel'/>" onclick="document.location.href='orderSet.list?id=${orderSet.orderSetId};'" />
+						<input type="button" value="<spring:message code='general.cancel'/>" onclick="document.location.href='orderSet.form?id=${orderSet.orderSetId};'" />
 					</c:otherwise>
 				</c:choose>
 			</td>

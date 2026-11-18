@@ -100,7 +100,7 @@
 <div class="box">
 	<form action="addOrdersFromSet.form">
 		<input type="hidden" name="patientId" value="${patient.patientId}"/>
-		<input type="hidden" name="returnPage" value="/module/orderextension/orderList.list?patientId=${patient.patientId}"/>
+		<input type="hidden" name="returnPage" value="/module/orderextension/orderList.form?patientId=${patient.patientId}"/>
 		<table>
 			<tr>
 				<td>
